@@ -78,6 +78,7 @@ class BrowsershotPdfService
     public function renderView(string $view, array $data = [], array $opts = []): string
     {
         $html = view($view, $data)->render();
+
         return $this->render($html, $opts);
     }
 
@@ -125,6 +126,7 @@ class BrowsershotPdfService
         if ($wu !== $hu) {
             throw new \InvalidArgumentException("Width and height must share a unit ({$wu} vs {$hu})");
         }
+
         return [$w, $h, $wu];
     }
 
@@ -133,12 +135,14 @@ class BrowsershotPdfService
     {
         if (preg_match('/^([\d.]+)\s*(mm|in|px)?$/i', trim($v), $m)) {
             $n = (float) $m[1];
+
             return match (strtolower($m[2] ?? 'mm')) {
                 'in' => $n * 25.4,
                 'px' => $n * 25.4 / 96.0,
                 default => $n,
             };
         }
+
         return 0.0;
     }
 }

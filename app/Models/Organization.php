@@ -10,7 +10,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Organization extends Model
 {
-    use SoftDeletes, LogsActivity;
+    use LogsActivity, SoftDeletes;
 
     protected $fillable = ['code', 'name', 'description', 'is_active'];
 
@@ -38,6 +38,7 @@ class Organization extends Model
     public static function current(): ?self
     {
         $id = session('current_organization_id') ?? config('chrsd.org_id');
+
         return $id ? static::find($id) : null;
     }
 }

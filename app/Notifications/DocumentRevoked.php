@@ -5,9 +5,9 @@ namespace App\Notifications;
 use App\Services\Verification\QrCodeService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Database\Eloquent\Model;
 
 class DocumentRevoked extends Notification implements ShouldQueue
 {
@@ -30,10 +30,10 @@ class DocumentRevoked extends Notification implements ShouldQueue
             ->error()
             ->subject("Revoked: {$kind} {$this->document->serial_number}")
             ->greeting('Notice')
-            ->line("The following document has been **revoked** and should no longer be considered valid:")
+            ->line('The following document has been **revoked** and should no longer be considered valid:')
             ->line("**{$kind}** — Serial `{$this->document->serial_number}`")
             ->line("Reason: {$this->document->revocation_reason}")
-            ->line("Revoked at: " . optional($this->document->revoked_at)->toDayDateTimeString())
+            ->line('Revoked at: ' . optional($this->document->revoked_at)->toDayDateTimeString())
             ->action('View verification page', $verifyUrl)
             ->line('If you hold or have received a copy of this document, please stop relying on it.')
             ->salutation('— ' . config('app.name'));

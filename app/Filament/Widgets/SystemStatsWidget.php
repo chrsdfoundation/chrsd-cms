@@ -36,11 +36,11 @@ class SystemStatsWidget extends BaseWidget
             ->count();
 
         $revocations = Certificate::query()->acrossOrganizations()
-                           ->where('status', VerificationStatus::Revoked->value)->count()
+            ->where('status', VerificationStatus::Revoked->value)->count()
                      + OfficialLetter::query()->acrossOrganizations()
-                           ->where('status', VerificationStatus::Revoked->value)->count()
+                         ->where('status', VerificationStatus::Revoked->value)->count()
                      + Employee::query()->acrossOrganizations()
-                           ->where('status', VerificationStatus::Revoked->value)->count();
+                         ->where('status', VerificationStatus::Revoked->value)->count();
 
         return [
             Stat::make('Total users', $users)

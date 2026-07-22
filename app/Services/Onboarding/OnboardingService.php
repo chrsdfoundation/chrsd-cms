@@ -28,10 +28,10 @@ class OnboardingService
     {
         return DB::transaction(function () use ($org, $admin, $starter) {
             $organization = Organization::create([
-                'code'        => strtoupper(trim($org['code'])),
-                'name'        => trim($org['name']),
+                'code' => strtoupper(trim($org['code'])),
+                'name' => trim($org['name']),
                 'description' => $org['description'] ?? null,
-                'is_active'   => true,
+                'is_active' => true,
             ]);
 
             $role = Role::where('name', $admin['role'])
@@ -39,8 +39,8 @@ class OnboardingService
                 ->firstOrFail();
 
             $user = User::create([
-                'name'     => $admin['name'],
-                'email'    => strtolower(trim($admin['email'])),
+                'name' => $admin['name'],
+                'email' => strtolower(trim($admin['email'])),
                 'password' => Hash::make($admin['password']),
             ]);
             $user->assignRole($role);
@@ -48,7 +48,7 @@ class OnboardingService
 
             $result = [
                 'organization' => $organization,
-                'user'         => $user->refresh(),
+                'user' => $user->refresh(),
             ];
 
             if ($starter) {
@@ -64,22 +64,22 @@ class OnboardingService
                     ]);
                     $pos = Position::create([
                         'department_id' => $dept->id,
-                        'code'  => 'LEAD',
+                        'code' => 'LEAD',
                         'title' => $starter['position'],
-                        'rank'  => 10,
+                        'rank' => 10,
                     ]);
                     $emp = Employee::create([
-                        'first_name'    => $starter['first_name'],
-                        'last_name'     => $starter['last_name'],
-                        'email'         => strtolower(trim($starter['employee_email'])),
+                        'first_name' => $starter['first_name'],
+                        'last_name' => $starter['last_name'],
+                        'email' => strtolower(trim($starter['employee_email'])),
                         'department_id' => $dept->id,
-                        'position_id'   => $pos->id,
-                        'hired_at'      => now(),
+                        'position_id' => $pos->id,
+                        'hired_at' => now(),
                     ]);
 
                     $result['department'] = $dept;
-                    $result['position']   = $pos;
-                    $result['employee']   = $emp;
+                    $result['position'] = $pos;
+                    $result['employee'] = $emp;
                 } finally {
                     if ($previous) {
                         session(['current_organization_id' => $previous]);

@@ -2,10 +2,13 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\DocumentTemplateType;
 use App\Enums\OfficialLetterStatus;
 use App\Enums\VerificationStatus;
+use App\Filament\Clusters\Documents;
 use App\Filament\Resources\OfficialLetterResource\Pages;
 use App\Models\Author;
+use App\Models\DocumentTemplate;
 use App\Models\OfficialLetter;
 use App\Services\Documents\LetterGeneratorService;
 use App\Services\Verification\QrCodeService;
@@ -23,7 +26,7 @@ class OfficialLetterResource extends Resource
 {
     protected static ?string $model = OfficialLetter::class;
 
-    protected static ?string $cluster = \App\Filament\Clusters\Documents::class;
+    protected static ?string $cluster = Documents::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-envelope';
 
@@ -81,12 +84,13 @@ class OfficialLetterResource extends Resource
                     Forms\Components\Select::make('document_template_id')
                         ->label('Template')
                         ->options(function (Forms\Get $get) {
-                            $q = \App\Models\DocumentTemplate::query()
-                                ->where('document_type', \App\Enums\DocumentTemplateType::Letter->value);
+                            $q = DocumentTemplate::query()
+                                ->where('document_type', DocumentTemplateType::Letter->value);
                             $catId = $get('letter_category_id');
                             if ($catId) {
                                 $q->where(fn ($qq) => $qq->whereNull('letter_category_id')->orWhere('letter_category_id', $catId));
                             }
+
                             return $q->pluck('name', 'id');
                         })
                         ->searchable()
@@ -96,11 +100,11 @@ class OfficialLetterResource extends Resource
                         // template's sample_context so the admin edits in place
                         // instead of drafting from scratch. Only applies when
                         // those fields are empty (respects manual overrides).
-                        ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get, ?\App\Models\OfficialLetter $record) {
+                        ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get, ?OfficialLetter $record) {
                             if (! $state || $record !== null) {
                                 return;
                             }
-                            $tpl = \App\Models\DocumentTemplate::find($state);
+                            $tpl = DocumentTemplate::find($state);
                             $sample = (array) ($tpl?->sample_context ?? []);
                             foreach ([
                                 'subject', 'body',
@@ -133,8 +137,11 @@ class OfficialLetterResource extends Resource
                 ->collapsible()
                 ->visible(function (Forms\Get $get) {
                     $tplId = $get('document_template_id');
-                    if (! $tplId) return false;
-                    $name = \App\Models\DocumentTemplate::whereKey($tplId)->value('name');
+                    if (! $tplId) {
+                        return false;
+                    }
+                    $name = DocumentTemplate::whereKey($tplId)->value('name');
+
                     return str_contains(strtolower((string) $name), 'visa');
                 })
                 ->schema([
@@ -153,8 +160,8 @@ class OfficialLetterResource extends Resource
                     Forms\Components\Select::make('visa_pronoun')
                         ->label('Pronouns')
                         ->options([
-                            'he'   => 'He / him / his',
-                            'she'  => 'She / her / hers',
+                            'he' => 'He / him / his',
+                            'she' => 'She / her / hers',
                             'they' => 'They / them / their',
                         ])->default('he'),
                     Forms\Components\TextInput::make('visa_event_name')
@@ -209,6 +216,7 @@ class OfficialLetterResource extends Resource
                                 return new HtmlString('<em class="text-gray-500">No signature uploaded.</em>');
                             }
                             $url = e($record->getFirstMediaUrl('signature'));
+
                             return new HtmlString(
                                 '<img src="' . $url . '" alt="Signature" '
                                 . 'style="max-height:100px;max-width:280px;background:#fff;padding:6px;border:1px solid #e5e7eb;border-radius:6px;">'
@@ -228,8 +236,8 @@ class OfficialLetterResource extends Resource
                             . 'A separator row (<code>| --- | --- | --- |</code>) after the header is optional but recommended.'
                         ))
                         ->toolbarButtons([
-                            'bold','italic','underline','strike','h2','h3',
-                            'bulletList','orderedList','blockquote','link','undo','redo',
+                            'bold', 'italic', 'underline', 'strike', 'h2', 'h3',
+                            'bulletList', 'orderedList', 'blockquote', 'link', 'undo', 'redo',
                         ]),
                 ]),
 
@@ -298,10 +306,10 @@ class OfficialLetterResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListOfficialLetters::route('/'),
+            'index' => Pages\ListOfficialLetters::route('/'),
             'create' => Pages\CreateOfficialLetter::route('/create'),
-            'view'   => Pages\ViewOfficialLetter::route('/{record}'),
-            'edit'   => Pages\EditOfficialLetter::route('/{record}/edit'),
+            'view' => Pages\ViewOfficialLetter::route('/{record}'),
+            'edit' => Pages\EditOfficialLetter::route('/{record}/edit'),
         ];
     }
 
@@ -324,8 +332,7 @@ class OfficialLetterResource extends Resource
                 app(LetterGeneratorService::class)->generate($record);
                 Notification::make()->success()->title('Letter generated and released')->send();
             })
-            ->visible(fn (OfficialLetter $record) =>
-                $record->isValid()
+            ->visible(fn (OfficialLetter $record) => $record->isValid()
                 && in_array($record->letter_status, [OfficialLetterStatus::Draft, OfficialLetterStatus::ForReview, OfficialLetterStatus::Approved])
             );
     }
@@ -352,8 +359,7 @@ class OfficialLetterResource extends Resource
                 Notification::make()->success()->title('PDF regenerated')
                     ->body('The old PDF has been replaced.')->send();
             })
-            ->visible(fn (OfficialLetter $record) =>
-                $record->isValid()
+            ->visible(fn (OfficialLetter $record) => $record->isValid()
                 && $record->letter_status === OfficialLetterStatus::Released
             );
     }

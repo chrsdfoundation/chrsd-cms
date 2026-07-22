@@ -16,6 +16,7 @@ class ScanDocumentExpiryCommand extends Command
         if ($this->option('dry-run')) {
             $this->warn('Dry-run: no notifications will be sent and no rows will be modified.');
             $this->line('(Preview implementation intentionally minimal — wire real preview logic once needed.)');
+
             return self::SUCCESS;
         }
 

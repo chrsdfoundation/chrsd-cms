@@ -10,7 +10,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class LetterCategory extends Model
 {
-    use LogsActivity, BelongsToOrganization;
+    use BelongsToOrganization, LogsActivity;
 
     protected $fillable = [
         'organization_id',

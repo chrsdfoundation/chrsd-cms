@@ -21,6 +21,7 @@ class SweepOverduePledges extends Command
             ->update(['status' => PledgeStatus::Overdue->value]);
 
         $this->info("Marked {$affected} pledge(s) overdue.");
+
         return self::SUCCESS;
     }
 }

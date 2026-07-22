@@ -6,6 +6,7 @@ use App\Enums\EmployeeStatus;
 use App\Enums\EmploymentType;
 use App\Enums\Gender;
 use App\Enums\VerificationStatus;
+use App\Filament\Clusters\OrgUnit;
 use App\Filament\Resources\EmployeeResource\Pages;
 use App\Filament\Resources\EmployeeResource\RelationManagers;
 use App\Models\CertificateType;
@@ -26,7 +27,7 @@ class EmployeeResource extends Resource
 {
     protected static ?string $model = Employee::class;
 
-    protected static ?string $cluster = \App\Filament\Clusters\OrgUnit::class;
+    protected static ?string $cluster = OrgUnit::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
@@ -224,10 +225,10 @@ class EmployeeResource extends Resource
                 $signatory = ! empty($data['signed_by_id']) ? Employee::find($data['signed_by_id']) : null;
 
                 $result = app(BulkCertificateIssuanceService::class)->run(
-                    employees:    $records,
-                    type:         $type,
-                    signatory:    $signatory,
-                    purpose:      $data['purpose'] ?? null,
+                    employees: $records,
+                    type: $type,
+                    signatory: $signatory,
+                    purpose: $data['purpose'] ?? null,
                     autoGenerate: (bool) ($data['auto_generate'] ?? true),
                 );
 
@@ -264,10 +265,10 @@ class EmployeeResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListEmployees::route('/'),
+            'index' => Pages\ListEmployees::route('/'),
             'create' => Pages\CreateEmployee::route('/create'),
-            'view'   => Pages\ViewEmployee::route('/{record}'),
-            'edit'   => Pages\EditEmployee::route('/{record}/edit'),
+            'view' => Pages\ViewEmployee::route('/{record}'),
+            'edit' => Pages\EditEmployee::route('/{record}/edit'),
         ];
     }
 

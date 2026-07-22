@@ -2,12 +2,15 @@
 
 namespace App\Providers\Filament;
 
-use Filament\Http\Middleware\Authenticate;
+use App\Http\Middleware\EnsureTwoFactorPassed;
+use App\Http\Middleware\RequirePasswordChange;
+use App\Http\Middleware\SetCurrentOrganization;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
-use Filament\Navigation\MenuItem;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\MenuItem;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -57,9 +60,9 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-                \App\Http\Middleware\SetCurrentOrganization::class,
-                \App\Http\Middleware\RequirePasswordChange::class,
-                \App\Http\Middleware\EnsureTwoFactorPassed::class,
+                SetCurrentOrganization::class,
+                RequirePasswordChange::class,
+                EnsureTwoFactorPassed::class,
             ])
             ->plugins([
                 FilamentShieldPlugin::make(),

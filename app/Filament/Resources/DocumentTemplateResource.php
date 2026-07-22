@@ -3,9 +3,11 @@
 namespace App\Filament\Resources;
 
 use App\Enums\DocumentTemplateType;
+use App\Filament\Clusters\Documents;
 use App\Filament\Resources\DocumentTemplateResource\Pages;
 use App\Models\CertificateType;
 use App\Models\DocumentTemplate;
+use App\Models\IdCardType;
 use App\Models\LetterCategory;
 use App\Services\Documents\BrowsershotPdfService;
 use App\Services\Documents\TemplateRenderer;
@@ -14,13 +16,15 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\HtmlString;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DocumentTemplateResource extends Resource
 {
     protected static ?string $model = DocumentTemplate::class;
 
-    protected static ?string $cluster = \App\Filament\Clusters\Documents::class;
+    protected static ?string $cluster = Documents::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document';
 
@@ -60,7 +64,7 @@ class DocumentTemplateResource extends Resource
 
                     Forms\Components\Select::make('id_card_type_id')
                         ->label('Applies to ID card type')
-                        ->options(fn () => \App\Models\IdCardType::query()->pluck('name', 'id'))
+                        ->options(fn () => IdCardType::query()->pluck('name', 'id'))
                         ->searchable()
                         ->visible(fn (Forms\Get $get) => $get('document_type') === DocumentTemplateType::IdCard->value)
                         ->helperText('Employee / Volunteer / Visitor. Leave blank for a generic ID template.'),
@@ -78,8 +82,8 @@ class DocumentTemplateResource extends Resource
                     Forms\Components\Select::make('shell_variant')
                         ->label('Shell variant')
                         ->options([
-                            'course-completion'       => 'Course Completion (green wave)',
-                            'course-completion-blue'  => 'Course Completion (blue wave)',
+                            'course-completion' => 'Course Completion (green wave)',
+                            'course-completion-blue' => 'Course Completion (blue wave)',
                             'course-completion-usaid' => 'Course Completion (USAID / GlobalHealth)',
                         ])
                         ->placeholder('Default (branded frame + gold seal)')
@@ -108,7 +112,8 @@ class DocumentTemplateResource extends Resource
                             $rows = collect(TemplateRenderer::knownPlaceholders())
                                 ->map(fn ($desc, $key) => "**{$key}** — {$desc}")
                                 ->join("  \n");
-                            return new \Illuminate\Support\HtmlString(\Illuminate\Support\Str::markdown($rows));
+
+                            return new HtmlString(Str::markdown($rows));
                         }),
                 ]),
 
@@ -164,9 +169,9 @@ class DocumentTemplateResource extends Resource
 
     public static function streamPreview(DocumentTemplate $template): StreamedResponse
     {
-        $context  = static::previewContext($template);
+        $context = static::previewContext($template);
         $renderer = app(TemplateRenderer::class);
-        $html     = $renderer->render($template, $context);
+        $html = $renderer->render($template, $context);
 
         // Puppeteer (Browsershot) — sidesteps DomPDF's GD requirement so this
         // works even where php.ini has GD disabled (which this deployment
@@ -179,7 +184,7 @@ class DocumentTemplateResource extends Resource
         $opts = [];
         if ($template->document_type === DocumentTemplateType::IdCard) {
             $opts['pageSize'] = ['width' => '85.6mm', 'height' => '54mm'];
-            $opts['margin']   = ['top' => '2mm', 'right' => '2mm', 'bottom' => '2mm', 'left' => '2mm'];
+            $opts['margin'] = ['top' => '2mm', 'right' => '2mm', 'bottom' => '2mm', 'left' => '2mm'];
         } else {
             // A4 in Puppeteer via width/height so we control orientation
             // explicitly (Chromium's format:'A4' with `landscape:true` is
@@ -192,10 +197,10 @@ class DocumentTemplateResource extends Resource
             $opts['margin'] = ['top' => '20mm', 'right' => '15mm', 'bottom' => '20mm', 'left' => '15mm'];
         }
 
-        $bytes    = app(BrowsershotPdfService::class)->render($html, $opts);
-        $filename = sprintf('preview-%s.pdf', \Illuminate\Support\Str::slug($template->name));
+        $bytes = app(BrowsershotPdfService::class)->render($html, $opts);
+        $filename = sprintf('preview-%s.pdf', Str::slug($template->name));
 
-        return response()->streamDownload(fn () => print($bytes), $filename, [
+        return response()->streamDownload(fn () => print ($bytes), $filename, [
             'Content-Type' => 'application/pdf',
         ]);
     }
@@ -204,38 +209,38 @@ class DocumentTemplateResource extends Resource
     public static function previewContext(DocumentTemplate $template): array
     {
         $defaults = [
-            'name'               => 'Jane Doe',
-            'designation'        => 'Volunteer Officer',
-            'organization'       => config('app.name'),
+            'name' => 'Jane Doe',
+            'designation' => 'Volunteer Officer',
+            'organization' => config('app.name'),
             'certificate_number' => 'PREVIEW-2026-000001',
-            'letter_reference'   => 'PREVIEW-2026-000001',
-            'date'               => now()->toFormattedDateString(),
-            'issue_date'         => now()->toFormattedDateString(),
-            'event_name'         => 'Volunteer Orientation 2026',
-            'position'           => 'Field Officer',
-            'duration'           => '3 weeks',
-            'verification_url'   => url('/verify/PREVIEW'),
-            'qr_code'            => '<div style="width:60px;height:60px;background:#ddd;text-align:center;line-height:60px;">QR</div>',
-            'subject'            => 'Preview subject',
-            'body'               => 'This is the letter body.',
-            'recipient_name'     => 'Jane Doe',
-            'recipient_title'    => 'Volunteer',
-            'recipient_address'  => '123 Sample Road, Dhaka',
-            'blood_group'        => 'O+',
-            'nationality'        => 'Bangladeshi',
-            'program_name'       => 'Community Outreach',
-            'valid_from'         => now()->toFormattedDateString(),
-            'valid_until'        => now()->addYears(2)->toFormattedDateString(),
-            'signatory_name'     => 'A. Rauf',
-            'signatory_title'    => 'Executive Director',
-            'signatory_left'     => '',
-            'signatory_right'    => '',
-            'department'         => 'Programmes',
-            'employee_id'        => 'CHRSD-EMP-2026-0007',
-            'course_name'        => 'M&E Fundamentals',
-            'verify_code'        => 'PREVIEW-CODE',
-            'issuer_name'        => 'CHRSD LEARNING',
-            'issuer_tagline'     => 'Centre for Humanitarian Research',
+            'letter_reference' => 'PREVIEW-2026-000001',
+            'date' => now()->toFormattedDateString(),
+            'issue_date' => now()->toFormattedDateString(),
+            'event_name' => 'Volunteer Orientation 2026',
+            'position' => 'Field Officer',
+            'duration' => '3 weeks',
+            'verification_url' => url('/verify/PREVIEW'),
+            'qr_code' => '<div style="width:60px;height:60px;background:#ddd;text-align:center;line-height:60px;">QR</div>',
+            'subject' => 'Preview subject',
+            'body' => 'This is the letter body.',
+            'recipient_name' => 'Jane Doe',
+            'recipient_title' => 'Volunteer',
+            'recipient_address' => '123 Sample Road, Dhaka',
+            'blood_group' => 'O+',
+            'nationality' => 'Bangladeshi',
+            'program_name' => 'Community Outreach',
+            'valid_from' => now()->toFormattedDateString(),
+            'valid_until' => now()->addYears(2)->toFormattedDateString(),
+            'signatory_name' => 'A. Rauf',
+            'signatory_title' => 'Executive Director',
+            'signatory_left' => '',
+            'signatory_right' => '',
+            'department' => 'Programmes',
+            'employee_id' => 'CHRSD-EMP-2026-0007',
+            'course_name' => 'M&E Fundamentals',
+            'verify_code' => 'PREVIEW-CODE',
+            'issuer_name' => 'CHRSD LEARNING',
+            'issuer_tagline' => 'Centre for Humanitarian Research',
         ];
 
         $sample = $template->sample_context ?? [];
@@ -255,23 +260,27 @@ class DocumentTemplateResource extends Resource
             return null;
         }
         $decoded = json_decode($state, true);
+
         return is_array($decoded) ? $decoded : null;
     }
 
     public static function canViewAny(): bool
     {
         $user = auth()->user();
-        if (! $user) return false;
+        if (! $user) {
+            return false;
+        }
+
         return $user->hasAnyRole(['super_admin', 'hr_manager']);
     }
 
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListDocumentTemplates::route('/'),
+            'index' => Pages\ListDocumentTemplates::route('/'),
             'create' => Pages\CreateDocumentTemplate::route('/create'),
-            'view'   => Pages\ViewDocumentTemplate::route('/{record}'),
-            'edit'   => Pages\EditDocumentTemplate::route('/{record}/edit'),
+            'view' => Pages\ViewDocumentTemplate::route('/{record}'),
+            'edit' => Pages\EditDocumentTemplate::route('/{record}/edit'),
         ];
     }
 }

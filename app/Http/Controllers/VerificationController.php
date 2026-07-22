@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\Verification\VerificationService;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -21,7 +22,7 @@ class VerificationController extends Controller
         $model = $this->verifier->resolve($hash);
 
         $response = response()->view('verify.show', [
-            'found'    => $model !== null,
+            'found' => $model !== null,
             'snapshot' => $model ? $this->verifier->publicSnapshot($model) : null,
         ], $model ? 200 : 404);
 
@@ -38,7 +39,7 @@ class VerificationController extends Controller
         $model = $this->resolveBySerial($serial);
 
         $response = response()->view('verify.show', [
-            'found'    => $model !== null,
+            'found' => $model !== null,
             'snapshot' => $model ? $this->verifier->publicSnapshot($model) : null,
         ], $model ? 200 : 404);
 
@@ -63,7 +64,7 @@ class VerificationController extends Controller
         }
 
         return response()->json([
-            'found'    => true,
+            'found' => true,
             'snapshot' => $this->verifier->publicSnapshot($model),
         ]);
     }
@@ -78,7 +79,7 @@ class VerificationController extends Controller
         }
 
         return response()->json([
-            'found'    => true,
+            'found' => true,
             'snapshot' => $this->verifier->publicSnapshot($model),
         ]);
     }
@@ -93,7 +94,7 @@ class VerificationController extends Controller
      * matches exactly. Uses acrossOrganizations() so anonymous verifiers (who
      * have no session tenant) can still find records.
      */
-    protected function resolveBySerial(string $serial): ?\Illuminate\Database\Eloquent\Model
+    protected function resolveBySerial(string $serial): ?Model
     {
         // Accept a bounded serial shape only: PREFIX-YYYY-NNNNNN. Prevents
         // this endpoint from becoming a general "peek at any string" probe.

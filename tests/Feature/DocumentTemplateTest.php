@@ -3,19 +3,23 @@
 namespace Tests\Feature;
 
 use App\Enums\DocumentTemplateType;
+use App\Filament\Resources\DocumentTemplateResource;
 use App\Models\Certificate;
 use App\Models\CertificateType;
 use App\Models\Department;
 use App\Models\DocumentTemplate;
 use App\Models\Employee;
+use App\Models\IdCard;
+use App\Models\IdCardType;
 use App\Models\LetterCategory;
 use App\Models\OfficialLetter;
+use App\Models\Organization;
 use App\Models\Position;
 use App\Services\Documents\CertificateGeneratorService;
+use App\Services\Documents\IdCardGeneratorService;
 use App\Services\Documents\LetterGeneratorService;
 use App\Services\Documents\PdfSignatureService;
 use App\Services\Documents\TemplateRenderer;
-use App\Services\Verification\QrCodeService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -35,7 +39,7 @@ class DocumentTemplateTest extends TestCase
         Storage::fake('media');
 
         $dept = Department::create(['code' => 'HR', 'name' => 'HR']);
-        $pos  = Position::create(['department_id' => $dept->id, 'code' => 'S', 'title' => 'Field Officer']);
+        $pos = Position::create(['department_id' => $dept->id, 'code' => 'S', 'title' => 'Field Officer']);
         $this->employee = Employee::create([
             'first_name' => 'Jane', 'last_name' => 'Doe',
             'email' => 'jane@example.test',
@@ -47,7 +51,7 @@ class DocumentTemplateTest extends TestCase
     public function test_placeholder_substitution_escapes_html_by_default(): void
     {
         $tpl = DocumentTemplate::create([
-            'name'          => 'Escape test',
+            'name' => 'Escape test',
             'document_type' => DocumentTemplateType::Certificate,
             'body_markdown' => 'Hello {{name}}!',
         ]);
@@ -60,7 +64,7 @@ class DocumentTemplateTest extends TestCase
     public function test_triple_brace_placeholder_emits_raw_html(): void
     {
         $tpl = DocumentTemplate::create([
-            'name'          => 'Raw test',
+            'name' => 'Raw test',
             'document_type' => DocumentTemplateType::Certificate,
             'body_markdown' => 'QR: {{{qr_code}}}',
         ]);
@@ -74,7 +78,7 @@ class DocumentTemplateTest extends TestCase
     public function test_missing_placeholders_resolve_to_empty_and_are_reported(): void
     {
         $tpl = DocumentTemplate::create([
-            'name'          => 'Missing test',
+            'name' => 'Missing test',
             'document_type' => DocumentTemplateType::Certificate,
             'body_markdown' => 'Hello {{name}} — {{unknown_key}} — {{other}}',
         ]);
@@ -89,7 +93,7 @@ class DocumentTemplateTest extends TestCase
     public function test_markdown_body_becomes_html(): void
     {
         $tpl = DocumentTemplate::create([
-            'name'          => 'Markdown test',
+            'name' => 'Markdown test',
             'document_type' => DocumentTemplateType::Certificate,
             'body_markdown' => "# Big Title\n\n- one\n- two",
         ]);
@@ -102,10 +106,10 @@ class DocumentTemplateTest extends TestCase
     public function test_certificate_context_builder_pulls_from_model(): void
     {
         $cert = Certificate::create([
-            'employee_id'         => $this->employee->id,
+            'employee_id' => $this->employee->id,
             'certificate_type_id' => $this->certType->id,
-            'payload'             => ['event_name' => 'Volunteer Orientation', 'duration' => '5 days'],
-            'issued_on'           => now()->toDateString(),
+            'payload' => ['event_name' => 'Volunteer Orientation', 'duration' => '5 days'],
+            'issued_on' => now()->toDateString(),
         ]);
 
         $context = app(CertificateGeneratorService::class)->buildContext($cert);
@@ -128,12 +132,12 @@ class DocumentTemplateTest extends TestCase
         }
 
         $tpl = DocumentTemplate::create([
-            'name'          => 'Custom Cert',
+            'name' => 'Custom Cert',
             'document_type' => DocumentTemplateType::Certificate,
             'body_markdown' => '# Certificate for {{name}}',
         ]);
         $cert = Certificate::create([
-            'employee_id'         => $this->employee->id,
+            'employee_id' => $this->employee->id,
             'certificate_type_id' => $this->certType->id,
             'document_template_id' => $tpl->id,
         ]);
@@ -155,7 +159,7 @@ class DocumentTemplateTest extends TestCase
         }
 
         $cert = Certificate::create([
-            'employee_id'         => $this->employee->id,
+            'employee_id' => $this->employee->id,
             'certificate_type_id' => $this->certType->id,
         ]);
         $this->assertNull($cert->document_template_id);
@@ -169,17 +173,17 @@ class DocumentTemplateTest extends TestCase
     public function test_generator_branches_on_document_template_id_presence(): void
     {
         $tpl = DocumentTemplate::create([
-            'name'          => 'Branching probe',
+            'name' => 'Branching probe',
             'document_type' => DocumentTemplateType::Certificate,
             'body_markdown' => '# {{name}}',
         ]);
         $with = Certificate::create([
-            'employee_id'          => $this->employee->id,
-            'certificate_type_id'  => $this->certType->id,
+            'employee_id' => $this->employee->id,
+            'certificate_type_id' => $this->certType->id,
             'document_template_id' => $tpl->id,
         ]);
         $without = Certificate::create([
-            'employee_id'         => $this->employee->id,
+            'employee_id' => $this->employee->id,
             'certificate_type_id' => $this->certType->id,
         ]);
 
@@ -199,15 +203,15 @@ class DocumentTemplateTest extends TestCase
 
         $cat = LetterCategory::create(['code' => 'APP', 'name' => 'Appointment']);
         $tpl = DocumentTemplate::create([
-            'name'          => 'Custom Letter',
+            'name' => 'Custom Letter',
             'document_type' => DocumentTemplateType::Letter,
             'body_markdown' => "Subject: {{subject}}\n\n{{body}}",
         ]);
         $letter = OfficialLetter::create([
-            'letter_category_id'  => $cat->id,
-            'author_id'           => $this->employee->id,
-            'subject'             => 'Field appointment',
-            'body'                => 'You are appointed.',
+            'letter_category_id' => $cat->id,
+            'author_id' => $this->employee->id,
+            'subject' => 'Field appointment',
+            'body' => 'You are appointed.',
             'document_template_id' => $tpl->id,
         ]);
 
@@ -221,7 +225,7 @@ class DocumentTemplateTest extends TestCase
     public function test_pdf_output_is_signed_deterministically_for_same_template(): void
     {
         $tpl = DocumentTemplate::create([
-            'name'          => 'Signable',
+            'name' => 'Signable',
             'document_type' => DocumentTemplateType::Certificate,
             'body_markdown' => '# {{name}}',
         ]);
@@ -236,12 +240,12 @@ class DocumentTemplateTest extends TestCase
     public function test_document_template_resource_preview_context_has_all_default_keys(): void
     {
         $tpl = DocumentTemplate::create([
-            'name'          => 'Preview',
+            'name' => 'Preview',
             'document_type' => DocumentTemplateType::Certificate,
             'body_markdown' => 'x',
         ]);
 
-        $ctx = \App\Filament\Resources\DocumentTemplateResource::previewContext($tpl);
+        $ctx = DocumentTemplateResource::previewContext($tpl);
 
         foreach (['name', 'organization', 'certificate_number', 'verification_url', 'qr_code'] as $k) {
             $this->assertArrayHasKey($k, $ctx);
@@ -251,13 +255,13 @@ class DocumentTemplateTest extends TestCase
     public function test_sample_context_overrides_defaults_in_preview(): void
     {
         $tpl = DocumentTemplate::create([
-            'name'          => 'Preview override',
+            'name' => 'Preview override',
             'document_type' => DocumentTemplateType::Certificate,
             'body_markdown' => 'x',
             'sample_context' => ['name' => 'Overridden Name', 'event_name' => 'Override Event'],
         ]);
 
-        $ctx = \App\Filament\Resources\DocumentTemplateResource::previewContext($tpl);
+        $ctx = DocumentTemplateResource::previewContext($tpl);
 
         $this->assertSame('Overridden Name', $ctx['name']);
         $this->assertSame('Override Event', $ctx['event_name']);
@@ -266,25 +270,25 @@ class DocumentTemplateTest extends TestCase
 
     public function test_null_org_templates_are_visible_when_session_has_current_org(): void
     {
-        $org = \App\Models\Organization::create(['code' => 'ACME', 'name' => 'ACME Corp']);
+        $org = Organization::create(['code' => 'ACME', 'name' => 'ACME Corp']);
 
         DocumentTemplate::create([
-            'name'            => 'Global template',
-            'document_type'   => DocumentTemplateType::Certificate,
-            'body_markdown'   => 'g',
+            'name' => 'Global template',
+            'document_type' => DocumentTemplateType::Certificate,
+            'body_markdown' => 'g',
             'organization_id' => null,
         ]);
         DocumentTemplate::create([
-            'name'            => 'ACME-owned template',
-            'document_type'   => DocumentTemplateType::Certificate,
-            'body_markdown'   => 'a',
+            'name' => 'ACME-owned template',
+            'document_type' => DocumentTemplateType::Certificate,
+            'body_markdown' => 'a',
             'organization_id' => $org->id,
         ]);
-        $otherOrg = \App\Models\Organization::create(['code' => 'OTHER', 'name' => 'Other']);
+        $otherOrg = Organization::create(['code' => 'OTHER', 'name' => 'Other']);
         DocumentTemplate::create([
-            'name'            => 'Other-owned template',
-            'document_type'   => DocumentTemplateType::Certificate,
-            'body_markdown'   => 'o',
+            'name' => 'Other-owned template',
+            'document_type' => DocumentTemplateType::Certificate,
+            'body_markdown' => 'o',
             'organization_id' => $otherOrg->id,
         ]);
 
@@ -308,21 +312,21 @@ class DocumentTemplateTest extends TestCase
         }
 
         $tpl = DocumentTemplate::create([
-            'name'          => 'Custom ID front',
+            'name' => 'Custom ID front',
             'document_type' => DocumentTemplateType::IdCard,
-            'orientation'   => 'landscape',
+            'orientation' => 'landscape',
             'body_markdown' => '# {{name}}\n\nID: {{certificate_number}}',
         ]);
 
-        $card = \App\Models\IdCard::create([
-            'employee_id'          => $this->employee->id,
-            'designation'          => 'Field Officer',
-            'valid_from'           => now()->toDateString(),
-            'valid_until'          => now()->addYears(2)->toDateString(),
+        $card = IdCard::create([
+            'employee_id' => $this->employee->id,
+            'designation' => 'Field Officer',
+            'valid_from' => now()->toDateString(),
+            'valid_until' => now()->addYears(2)->toDateString(),
             'document_template_id' => $tpl->id,
         ]);
 
-        app(\App\Services\Documents\IdCardGeneratorService::class)->generate($card);
+        app(IdCardGeneratorService::class)->generate($card);
         $card->refresh();
 
         // Two media items (front + back) attached.
@@ -333,16 +337,16 @@ class DocumentTemplateTest extends TestCase
 
     public function test_id_card_context_builder_has_expected_keys(): void
     {
-        $card = \App\Models\IdCard::create([
+        $card = IdCard::create([
             'employee_id' => $this->employee->id,
             'designation' => 'Field Officer',
             'blood_group' => 'AB+',
             'nationality' => 'Bangladeshi',
-            'valid_from'  => now()->toDateString(),
+            'valid_from' => now()->toDateString(),
             'valid_until' => now()->addYears(2)->toDateString(),
         ]);
 
-        $context = app(\App\Services\Documents\IdCardGeneratorService::class)->buildContext($card);
+        $context = app(IdCardGeneratorService::class)->buildContext($card);
 
         $this->assertSame('Jane Doe', $context['name']);
         $this->assertSame('Field Officer', $context['designation']);
@@ -353,25 +357,25 @@ class DocumentTemplateTest extends TestCase
 
     public function test_id_card_type_can_be_created_and_seeded(): void
     {
-        $emp = \App\Models\IdCardType::create(['code' => 'EMP', 'name' => 'Employee ID', 'default_validity_months' => 24]);
-        $vol = \App\Models\IdCardType::create(['code' => 'VOL', 'name' => 'Volunteer ID', 'default_validity_months' => 12]);
-        $vis = \App\Models\IdCardType::create(['code' => 'VIS', 'name' => 'Visitor ID',   'default_validity_months' => 1]);
+        $emp = IdCardType::create(['code' => 'EMP', 'name' => 'Employee ID', 'default_validity_months' => 24]);
+        $vol = IdCardType::create(['code' => 'VOL', 'name' => 'Volunteer ID', 'default_validity_months' => 12]);
+        $vis = IdCardType::create(['code' => 'VIS', 'name' => 'Visitor ID',   'default_validity_months' => 1]);
 
-        $this->assertCount(3, \App\Models\IdCardType::query()->get());
+        $this->assertCount(3, IdCardType::query()->get());
         $this->assertSame(24, $emp->default_validity_months);
-        $this->assertSame(1,  $vis->default_validity_months);
+        $this->assertSame(1, $vis->default_validity_months);
     }
 
     public function test_id_card_belongs_to_a_type(): void
     {
-        $type = \App\Models\IdCardType::create(['code' => 'VOL', 'name' => 'Volunteer ID']);
+        $type = IdCardType::create(['code' => 'VOL', 'name' => 'Volunteer ID']);
 
-        $card = \App\Models\IdCard::create([
-            'employee_id'     => $this->employee->id,
+        $card = IdCard::create([
+            'employee_id' => $this->employee->id,
             'id_card_type_id' => $type->id,
-            'designation'     => 'Volunteer',
-            'valid_from'      => now()->toDateString(),
-            'valid_until'     => now()->addYear()->toDateString(),
+            'designation' => 'Volunteer',
+            'valid_from' => now()->toDateString(),
+            'valid_until' => now()->addYear()->toDateString(),
         ]);
 
         $this->assertNotNull($card->idCardType);
@@ -381,20 +385,20 @@ class DocumentTemplateTest extends TestCase
 
     public function test_id_card_template_pins_to_type(): void
     {
-        $volType = \App\Models\IdCardType::create(['code' => 'VOL', 'name' => 'Volunteer ID']);
-        $empType = \App\Models\IdCardType::create(['code' => 'EMP', 'name' => 'Employee ID']);
+        $volType = IdCardType::create(['code' => 'VOL', 'name' => 'Volunteer ID']);
+        $empType = IdCardType::create(['code' => 'EMP', 'name' => 'Employee ID']);
 
         $volTpl = DocumentTemplate::create([
-            'name'            => 'Volunteer ID Card',
-            'document_type'   => DocumentTemplateType::IdCard,
+            'name' => 'Volunteer ID Card',
+            'document_type' => DocumentTemplateType::IdCard,
             'id_card_type_id' => $volType->id,
-            'body_markdown'   => '## {{name}}',
+            'body_markdown' => '## {{name}}',
         ]);
         $empTpl = DocumentTemplate::create([
-            'name'            => 'Employee ID Card',
-            'document_type'   => DocumentTemplateType::IdCard,
+            'name' => 'Employee ID Card',
+            'document_type' => DocumentTemplateType::IdCard,
             'id_card_type_id' => $empType->id,
-            'body_markdown'   => '## {{name}}',
+            'body_markdown' => '## {{name}}',
         ]);
 
         // Volunteer type sees the volunteer template + any global (null-type) templates.

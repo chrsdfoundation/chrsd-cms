@@ -81,6 +81,7 @@ class MyRequestResource extends Resource
                             ->title('Request submitted')
                             ->body('HR has been notified and will review your request.')
                             ->send();
+
                         return $req;
                     }),
             ])
@@ -96,7 +97,7 @@ class MyRequestResource extends Resource
     {
         return [
             'index' => Pages\ListMyRequests::route('/'),
-            'view'  => Pages\ViewMyRequest::route('/{record}'),
+            'view' => Pages\ViewMyRequest::route('/{record}'),
         ];
     }
 }

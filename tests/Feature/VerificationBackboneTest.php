@@ -22,16 +22,17 @@ class VerificationBackboneTest extends TestCase
         static $counter = 0;
         $counter++;
         $dept = Department::firstOrCreate(['code' => 'HR'], ['name' => 'Human Resources']);
-        $pos  = Position::firstOrCreate(
+        $pos = Position::firstOrCreate(
             ['department_id' => $dept->id, 'code' => 'HR-STAFF'],
             ['title' => 'HR Staff'],
         );
+
         return Employee::create(array_merge([
-            'first_name'    => 'Test',
-            'last_name'     => 'User' . $counter,
-            'email'         => "test.user{$counter}@example.com",
+            'first_name' => 'Test',
+            'last_name' => 'User' . $counter,
+            'email' => "test.user{$counter}@example.com",
             'department_id' => $dept->id,
-            'position_id'   => $pos->id,
+            'position_id' => $pos->id,
         ], $overrides));
     }
 
@@ -92,7 +93,7 @@ class VerificationBackboneTest extends TestCase
 
     public function test_certificate_uses_its_own_prefix_and_sequence(): void
     {
-        $emp  = $this->makeEmployee();
+        $emp = $this->makeEmployee();
         $type = CertificateType::create(['code' => 'COE', 'name' => 'Certificate of Employment']);
 
         $c1 = Certificate::create([
@@ -133,7 +134,7 @@ class VerificationBackboneTest extends TestCase
         $emp = $this->makeEmployee();
 
         $found = Employee::byHash($emp->verification_hash)->first();
-        $miss  = Employee::byHash(str_repeat('0', 64))->first();
+        $miss = Employee::byHash(str_repeat('0', 64))->first();
 
         $this->assertNotNull($found);
         $this->assertSame($emp->id, $found->id);

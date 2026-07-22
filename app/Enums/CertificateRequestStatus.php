@@ -6,12 +6,12 @@ use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum CertificateRequestStatus: string implements HasLabel, HasColor, HasIcon
+enum CertificateRequestStatus: string implements HasColor, HasIcon, HasLabel
 {
-    case Pending  = 'pending';
+    case Pending = 'pending';
     case Approved = 'approved';
     case Rejected = 'rejected';
-    case Issued   = 'issued';
+    case Issued = 'issued';
 
     public function getLabel(): string
     {
@@ -21,20 +21,20 @@ enum CertificateRequestStatus: string implements HasLabel, HasColor, HasIcon
     public function getColor(): string|array|null
     {
         return match ($this) {
-            self::Pending  => 'warning',
+            self::Pending => 'warning',
             self::Approved => 'info',
             self::Rejected => 'danger',
-            self::Issued   => 'success',
+            self::Issued => 'success',
         };
     }
 
     public function getIcon(): ?string
     {
         return match ($this) {
-            self::Pending  => 'heroicon-o-clock',
+            self::Pending => 'heroicon-o-clock',
             self::Approved => 'heroicon-o-check',
             self::Rejected => 'heroicon-o-x-mark',
-            self::Issued   => 'heroicon-o-check-badge',
+            self::Issued => 'heroicon-o-check-badge',
         };
     }
 }

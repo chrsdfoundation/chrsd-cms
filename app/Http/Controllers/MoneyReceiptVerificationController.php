@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\VerificationStatus;
 use App\Models\MoneyReceipt;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -46,9 +45,9 @@ class MoneyReceiptVerificationController extends Controller
     protected function render(bool $found, ?MoneyReceipt $receipt, string $serial, int $status): Response
     {
         $response = response()->view('verify.receipt', [
-            'found'   => $found,
+            'found' => $found,
             'receipt' => $receipt,
-            'serial'  => $serial,
+            'serial' => $serial,
         ], $status);
 
         return $response

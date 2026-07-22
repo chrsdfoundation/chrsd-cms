@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -23,7 +24,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 #[ObservedBy(EmployeeStateObserver::class)]
 class Employee extends Model implements HasMedia
 {
-    use SoftDeletes, HasVerification, LogsActivity, InteractsWithMedia, Notifiable, BelongsToOrganization;
+    use BelongsToOrganization, HasVerification, InteractsWithMedia, LogsActivity, Notifiable, SoftDeletes;
 
     /** Route mail notifications to the employee's own email address. */
     public function routeNotificationForMail(): ?string
@@ -48,12 +49,12 @@ class Employee extends Model implements HasMedia
     ];
 
     protected $casts = [
-        'gender'          => Gender::class,
+        'gender' => Gender::class,
         'employment_type' => EmploymentType::class,
         'employee_status' => EmployeeStatus::class,
-        'date_of_birth'   => 'date',
-        'hired_at'        => 'date',
-        'ended_at'        => 'date',
+        'date_of_birth' => 'date',
+        'hired_at' => 'date',
+        'ended_at' => 'date',
     ];
 
     public function verificationPrefix(): string
@@ -79,7 +80,7 @@ class Employee extends Model implements HasMedia
     public function registerMediaConversions(?Media $media = null): void
     {
         $this->addMediaConversion('thumb')
-            ->fit(\Spatie\Image\Enums\Fit::Crop, 200, 200)
+            ->fit(Fit::Crop, 200, 200)
             ->performOnCollections('avatar');
     }
 

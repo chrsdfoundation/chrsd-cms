@@ -19,6 +19,7 @@ class TwoFactorEnforcementTest extends TestCase
     use RefreshDatabase;
 
     protected User $user;
+
     protected TotpService $totp;
 
     protected function setUp(): void
@@ -44,11 +45,12 @@ class TwoFactorEnforcementTest extends TestCase
     {
         $secret = $this->totp->generateSecret();
         $this->user->forceFill([
-            'two_factor_secret'         => $secret,
+            'two_factor_secret' => $secret,
             'two_factor_recovery_codes' => ['aaaaaaaaaa', 'bbbbbbbbbb'],
-            'two_factor_confirmed_at'   => now(),
+            'two_factor_confirmed_at' => now(),
         ])->save();
         $this->user->refresh();
+
         return $secret;
     }
 

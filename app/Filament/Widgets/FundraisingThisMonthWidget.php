@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Enums\PledgeStatus;
+use App\Filament\Resources\PledgeResource;
 use App\Models\Donation;
 use App\Models\Pledge;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
@@ -32,10 +33,10 @@ class FundraisingThisMonthWidget extends BaseWidget
             ->acrossOrganizations()
             ->where(function ($q) {
                 $q->where('status', PledgeStatus::Overdue->value)
-                  ->orWhere(function ($qq) {
-                      $qq->where('status', PledgeStatus::Open->value)
-                         ->whereDate('due_date', '<', now()->toDateString());
-                  });
+                    ->orWhere(function ($qq) {
+                        $qq->where('status', PledgeStatus::Open->value)
+                            ->whereDate('due_date', '<', now()->toDateString());
+                    });
             })
             ->count();
 
@@ -43,10 +44,10 @@ class FundraisingThisMonthWidget extends BaseWidget
             ->acrossOrganizations()
             ->where(function ($q) {
                 $q->where('status', PledgeStatus::Overdue->value)
-                  ->orWhere(function ($qq) {
-                      $qq->where('status', PledgeStatus::Open->value)
-                         ->whereDate('due_date', '<', now()->toDateString());
-                  });
+                    ->orWhere(function ($qq) {
+                        $qq->where('status', PledgeStatus::Open->value)
+                            ->whereDate('due_date', '<', now()->toDateString());
+                    });
             })
             ->sum('promised_amount');
 
@@ -65,7 +66,7 @@ class FundraisingThisMonthWidget extends BaseWidget
                 ->description('৳ ' . number_format($overdueValue, 2) . ' outstanding')
                 ->descriptionIcon('heroicon-m-clock')
                 ->color($overduePledges > 0 ? 'danger' : 'gray')
-                ->url($overduePledges > 0 ? \App\Filament\Resources\PledgeResource::getUrl('index', ['tableFilters' => ['overdue' => ['isActive' => true]]]) : null),
+                ->url($overduePledges > 0 ? PledgeResource::getUrl('index', ['tableFilters' => ['overdue' => ['isActive' => true]]]) : null),
         ];
     }
 }

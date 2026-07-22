@@ -4,6 +4,7 @@ namespace App\Services\Documents;
 
 use App\Enums\CertificateIssuance;
 use App\Models\Certificate;
+use App\Notifications\CertificateDelivered;
 use App\Services\Verification\QrCodeService;
 use Illuminate\Support\Facades\DB;
 
@@ -48,51 +49,51 @@ class CertificateGeneratorService
                 // HTTP round-trip, no dev-server dependency at generate time.
                 $defaultSig1 = public_path('images/brand/signatures/razib-mustafiz.png');
                 $defaultSig2 = public_path('images/brand/signatures/ma-ramim.png');
-                $signatoryName  = $certificate->signatory_1_name  ?: 'Razib Mustafiz';
+                $signatoryName = $certificate->signatory_1_name ?: 'Razib Mustafiz';
                 $signatoryTitle = $certificate->signatory_1_title ?: 'Project Coordinator';
-                $countersignName  = $certificate->signatory_2_name  ?: 'M.A. Ramim';
+                $countersignName = $certificate->signatory_2_name ?: 'M.A. Ramim';
                 $countersignTitle = $certificate->signatory_2_title ?: 'Executive Director';
 
                 $html = view($view, [
                     'certificate' => $certificate,
-                    'employee'    => $certificate->employee,
-                    'type'        => $certificate->type,
-                    'signatory'   => $certificate->signedBy,
+                    'employee' => $certificate->employee,
+                    'type' => $certificate->type,
+                    'signatory' => $certificate->signedBy,
 
                     // Feed the CHRSD certificate Blade's variable names too.
                     // Recipient — prefer the free-text recipient_name (used for
                     // non-employee awards) over the linked Employee's full name.
-                    'name'                => $certificate->recipient_name
+                    'name' => $certificate->recipient_name
                                               ?: (optional($certificate->employee)->full_name ?? ''),
                     // Course/achievement — payload.event_name → purpose → type label.
-                    'course_name'         => data_get($certificate->payload, 'event_name')
+                    'course_name' => data_get($certificate->payload, 'event_name')
                                               ?: ($certificate->purpose
                                                   ?: (optional($certificate->type)->name ?? '')),
-                    'issue_date'          => $certificate->issued_on ?? $certificate->created_at,
-                    'certificate_no'      => $certificate->serial_number,
+                    'issue_date' => $certificate->issued_on ?? $certificate->created_at,
+                    'certificate_no' => $certificate->serial_number,
 
-                    'signatory_name'      => $signatoryName,
-                    'signatory_title'     => $signatoryTitle,
-                    'signatory_sig_url'   => $sig1 ? $sig1->getPath() : $defaultSig1,
-                    'countersign_name'    => $countersignName,
-                    'countersign_title'   => $countersignTitle,
+                    'signatory_name' => $signatoryName,
+                    'signatory_title' => $signatoryTitle,
+                    'signatory_sig_url' => $sig1 ? $sig1->getPath() : $defaultSig1,
+                    'countersign_name' => $countersignName,
+                    'countersign_title' => $countersignTitle,
                     'countersign_sig_url' => $sig2 ? $sig2->getPath() : $defaultSig2,
 
                     // Force filesystem paths for the shared brand assets too,
                     // so a certificate can be generated even when the app
                     // isn't reachable over HTTP (workers, jobs, tinker).
-                    'logoUrl'      => public_path('images/brand/chrsd-full-logo.png'),
-                    'sealUrl'      => public_path('images/brand/chrsd-rosette-seal.png'),
+                    'logoUrl' => public_path('images/brand/chrsd-full-logo.png'),
+                    'sealUrl' => public_path('images/brand/chrsd-rosette-seal.png'),
                     'watermarkUrl' => public_path('images/brand/chrsd-watermark.svg'),
 
                     // Vector QR — Chromium rasterises it at print resolution,
                     // so modules stay crisp at the 28mm certificate QR box.
                     // The old 1-bit palette PNG from Milon\Barcode washed out
                     // over the certificate's cream background.
-                    'qr_svg'      => $this->qr->svg($certificate, 4),
+                    'qr_svg' => $this->qr->svg($certificate, 4),
                     'qr_data_uri' => $this->qr->pngDataUri($certificate), // kept for legacy templates
-                    'qr_uri'      => $this->qr->pngDataUri($certificate),
-                    'verify_url'  => $this->qr->verificationUrl($certificate),
+                    'qr_uri' => $this->qr->pngDataUri($certificate),
+                    'verify_url' => $this->qr->verificationUrl($certificate),
                     'verification_url' => $this->qr->verificationUrl($certificate),
                 ])->render();
             }
@@ -103,12 +104,12 @@ class CertificateGeneratorService
             $paperOrientation = $certificate->documentTemplate?->orientation === 'landscape' ? 'landscape' : 'portrait';
             $filename = sprintf('%s.pdf', $certificate->serial_number);
             $pdfBytes = $this->pdf->render($html, [
-                'format'      => 'A4',
+                'format' => 'A4',
                 'orientation' => $paperOrientation,
                 // Certificates come with their own visual chrome (borders,
                 // seals, ribbons), so give the page all of it — the Blade
                 // template controls its own padding.
-                'margin'      => ['top' => '0mm', 'right' => '0mm', 'bottom' => '0mm', 'left' => '0mm'],
+                'margin' => ['top' => '0mm', 'right' => '0mm', 'bottom' => '0mm', 'left' => '0mm'],
             ]);
             $signature = $this->signer->sign($pdfBytes);
 
@@ -119,9 +120,9 @@ class CertificateGeneratorService
                 ->toMediaCollection('rendered');
 
             $certificate->forceFill([
-                'issuance_status'   => CertificateIssuance::Generated,
-                'issued_on'         => $certificate->issued_on ?? now()->toDateString(),
-                'pdf_content_hash'  => $signature,
+                'issuance_status' => CertificateIssuance::Generated,
+                'issued_on' => $certificate->issued_on ?? now()->toDateString(),
+                'pdf_content_hash' => $signature,
             ])->save();
 
             return $certificate->refresh();
@@ -140,10 +141,10 @@ class CertificateGeneratorService
         // Resolve the two signature-image URLs from Spatie MediaLibrary.
         // Signature images MUST be data URIs (not filesystem paths) for
         // Chromium — path references won't resolve from a setContent() page.
-        $sig1Media  = $certificate->getFirstMedia('signature_1');
-        $sig2Media  = $certificate->getFirstMedia('signature_2');
-        $sig1Uri    = $sig1Media ? $this->fileToDataUri($sig1Media->getPath()) : null;
-        $sig2Uri    = $sig2Media ? $this->fileToDataUri($sig2Media->getPath()) : null;
+        $sig1Media = $certificate->getFirstMedia('signature_1');
+        $sig2Media = $certificate->getFirstMedia('signature_2');
+        $sig1Uri = $sig1Media ? $this->fileToDataUri($sig1Media->getPath()) : null;
+        $sig2Uri = $sig2Media ? $this->fileToDataUri($sig2Media->getPath()) : null;
 
         // Brand-kit fallback signatures matching the printed name.
         $sig1Uri = $sig1Uri ?: $this->brandSignatureDataUri($certificate->signatory_1_name ?? '');
@@ -158,19 +159,19 @@ class CertificateGeneratorService
         $payload = (array) ($certificate->payload ?? []);
         $designation = $payload['designation']
             ?? (optional(optional($employee)->position)->title ?? '');
-        $department  = $payload['department']
+        $department = $payload['department']
             ?? (optional(optional($employee)->department)->name ?? '');
-        $employeeId  = $payload['employee_id']
+        $employeeId = $payload['employee_id']
             ?? ($employee->serial_number ?? '');
-        $duration    = $payload['duration']    ?? '';
-        $position    = $payload['position']    ?? (optional(optional($employee)->position)->title ?? '');
-        $eventName   = $payload['event_name']  ?? '';
+        $duration = $payload['duration'] ?? '';
+        $position = $payload['position'] ?? (optional(optional($employee)->position)->title ?? '');
+        $eventName = $payload['event_name'] ?? '';
 
         // Primary signatory alias — templates that only need one signatory
         // (Experience/Service, Recommendation) use {{signatory_name}} /
         // {{signatory_title}}. Fall through: signatory_1 → signatory_2 →
         // signed-by employee.
-        $primarySigName  = $certificate->signatory_1_name
+        $primarySigName = $certificate->signatory_1_name
             ?: ($certificate->signatory_2_name
                 ?: (optional($signedBy)->full_name ?? ''));
         $primarySigTitle = $certificate->signatory_1_title
@@ -178,48 +179,51 @@ class CertificateGeneratorService
                 ?: (optional(optional($signedBy)->position)->title ?? ''));
 
         return [
-            'name'               => $certificate->recipient_name
+            'name' => $certificate->recipient_name
                                      ?: (optional($employee)->full_name ?? ''),
-            'designation'        => $designation,
-            'department'         => $department,
-            'employee_id'        => $employeeId,
-            'organization'       => optional($certificate->organization)->name ?? config('app.name'),
+            'designation' => $designation,
+            'department' => $department,
+            'employee_id' => $employeeId,
+            'organization' => optional($certificate->organization)->name ?? config('app.name'),
             'certificate_number' => $certificate->serial_number,
-            'letter_reference'   => $certificate->serial_number,
-            'date'               => optional($certificate->issued_on ?? $certificate->created_at)->toFormattedDateString(),
-            'issue_date'         => optional($certificate->issued_on ?? $certificate->created_at)->toFormattedDateString(),
-            'event_name'         => $eventName,
-            'position'           => $position,
-            'duration'           => $duration,
-            'verification_url'   => $this->qr->verificationUrl($certificate),
-            'qr_code'            => $qrSvg,
+            'letter_reference' => $certificate->serial_number,
+            'date' => optional($certificate->issued_on ?? $certificate->created_at)->toFormattedDateString(),
+            'issue_date' => optional($certificate->issued_on ?? $certificate->created_at)->toFormattedDateString(),
+            'event_name' => $eventName,
+            'position' => $position,
+            'duration' => $duration,
+            'verification_url' => $this->qr->verificationUrl($certificate),
+            'qr_code' => $qrSvg,
 
             // Two-signatory block. Falls back to the primary `signed_by` employee
             // for the second slot when only the first is provided; falls back
             // further to blanks when neither is set.
-            'signatory_1_name'   => $certificate->signatory_1_name ?? '',
-            'signatory_1_title'  => $certificate->signatory_1_title ?? '',
-            'signatory_1_sig'    => $sig1Uri,
-            'signatory_2_name'   => $certificate->signatory_2_name
+            'signatory_1_name' => $certificate->signatory_1_name ?? '',
+            'signatory_1_title' => $certificate->signatory_1_title ?? '',
+            'signatory_1_sig' => $sig1Uri,
+            'signatory_2_name' => $certificate->signatory_2_name
                                     ?? optional($signedBy)->full_name ?? '',
-            'signatory_2_title'  => $certificate->signatory_2_title
+            'signatory_2_title' => $certificate->signatory_2_title
                                     ?? optional(optional($signedBy)->position)->title ?? '',
-            'signatory_2_sig'    => $sig2Uri,
+            'signatory_2_sig' => $sig2Uri,
 
             // Aliases so single-signatory templates (Experience/Service,
             // Recommendation) don't render empty `{{signatory_name}}` bold
             // markers in the middle of the body.
-            'signatory_name'     => $primarySigName,
-            'signatory_title'    => $primarySigTitle,
-            'signatory_sig'      => $sig1Uri ?: $sig2Uri,
+            'signatory_name' => $primarySigName,
+            'signatory_title' => $primarySigTitle,
+            'signatory_sig' => $sig1Uri ?: $sig2Uri,
         ];
     }
 
     /** Read a file into a base64 data URI, or return null if it doesn't exist. */
     private function fileToDataUri(?string $path): ?string
     {
-        if (! $path || ! is_file($path)) return null;
+        if (! $path || ! is_file($path)) {
+            return null;
+        }
         $mime = mime_content_type($path) ?: 'image/png';
+
         return 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($path));
     }
 
@@ -229,14 +233,18 @@ class CertificateGeneratorService
      */
     private function brandSignatureDataUri(string $name): ?string
     {
-        if ($name === '') return null;
+        if ($name === '') {
+            return null;
+        }
         $slug = str($name)->slug()->value();
+
         return $this->fileToDataUri(public_path("images/brand/signatures/{$slug}.png"));
     }
 
     public function markIssued(Certificate $certificate): Certificate
     {
         $certificate->forceFill(['issuance_status' => CertificateIssuance::Issued])->save();
+
         return $certificate;
     }
 
@@ -247,7 +255,7 @@ class CertificateGeneratorService
         // Fire-and-forget: the notification is queued (ShouldQueue), so the UI
         // returns instantly and mail failure never blocks the state transition.
         if ($certificate->employee?->email) {
-            $certificate->employee->notify(new \App\Notifications\CertificateDelivered($certificate));
+            $certificate->employee->notify(new CertificateDelivered($certificate));
         }
 
         return $certificate;

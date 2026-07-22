@@ -29,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
         // suite with `->uncompromised()` HIBP calls or force noisy fixtures.
         Password::defaults(function () {
             $rule = Password::min(12)->letters()->numbers()->mixedCase()->symbols();
+
             return app()->environment('production') ? $rule->uncompromised() : $rule;
         });
 
@@ -67,6 +68,7 @@ class AppServiceProvider extends ServiceProvider
                     ];
                 }
             }
+
             return [
                 Limit::perMinute(30)->by($request->ip()),
                 Limit::perHour(300)->by($request->ip()),

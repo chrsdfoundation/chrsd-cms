@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Enums\BeneficiaryStatus;
+use App\Filament\Clusters\Crm;
 use App\Filament\Resources\BeneficiaryResource\Pages;
 use App\Models\BeneficiaryProfile;
 use Filament\Resources\Resource;
@@ -14,7 +15,7 @@ class BeneficiaryResource extends Resource
 {
     protected static ?string $model = BeneficiaryProfile::class;
 
-    protected static ?string $cluster = \App\Filament\Clusters\Crm::class;
+    protected static ?string $cluster = Crm::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-heart';
 

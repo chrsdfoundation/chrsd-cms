@@ -3,9 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Department;
-use App\Models\Employee;
 use App\Models\Organization;
-use App\Models\Position;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -22,9 +20,13 @@ class TenantIsolationHttpTest extends TestCase
     use RefreshDatabase;
 
     protected Organization $orgA;
+
     protected Organization $orgB;
+
     protected User $userA;
+
     protected User $userB;
+
     protected User $orphan;
 
     protected function setUp(): void

@@ -38,6 +38,7 @@ class MonthlyIssuanceSummary extends Page implements HasForms
     {
         $options = collect(range(0, 11))->mapWithKeys(function ($i) {
             $m = now()->subMonths($i);
+
             return [$m->format('Y-m') => $m->format('F Y')];
         })->all();
 

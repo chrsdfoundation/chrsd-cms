@@ -25,6 +25,7 @@ class EditOfficialLetter extends EditRecord
                 unset($data[$k]);
             }
         }
+
         return $data;
     }
 
@@ -44,6 +45,7 @@ class EditOfficialLetter extends EditRecord
                 ->body('Click "Regenerate PDF" to rebuild the letter with your changes and refresh the verification hash.')
                 ->persistent();
         }
+
         return parent::getSavedNotification();
     }
 
@@ -60,8 +62,7 @@ class EditOfficialLetter extends EditRecord
                     Notification::make()->success()->title('Letter generated and released')->send();
                     $this->refreshFormData(['letter_status', 'released_on']);
                 })
-                ->visible(fn () =>
-                    $this->getRecord() instanceof OfficialLetter
+                ->visible(fn () => $this->getRecord() instanceof OfficialLetter
                     && $this->getRecord()->isValid()
                     && in_array($this->getRecord()->letter_status, [
                         OfficialLetterStatus::Draft,
@@ -83,8 +84,7 @@ class EditOfficialLetter extends EditRecord
                     Notification::make()->success()->title('PDF regenerated')
                         ->body('The old PDF has been replaced.')->send();
                 })
-                ->visible(fn () =>
-                    $this->getRecord() instanceof OfficialLetter
+                ->visible(fn () => $this->getRecord() instanceof OfficialLetter
                     && $this->getRecord()->isValid()
                     && $this->getRecord()->letter_status === OfficialLetterStatus::Released
                 ),

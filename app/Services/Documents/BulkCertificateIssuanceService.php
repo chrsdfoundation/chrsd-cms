@@ -32,19 +32,19 @@ class BulkCertificateIssuanceService
         bool $autoGenerate = true,
     ): array {
         $succeeded = [];
-        $failed    = [];
+        $failed = [];
 
         foreach ($employees as $employee) {
             try {
                 DB::transaction(function () use ($employee, $type, $signatory, $purpose, $autoGenerate, &$succeeded) {
                     $cert = Certificate::create([
-                        'employee_id'         => $employee->id,
+                        'employee_id' => $employee->id,
                         'certificate_type_id' => $type->id,
-                        'signed_by_id'        => $signatory?->id,
-                        'purpose'             => $purpose,
-                        'issuance_status'     => CertificateIssuance::Draft,
-                        'issued_on'           => now()->toDateString(),
-                        'valid_until'         => $type->validity_days
+                        'signed_by_id' => $signatory?->id,
+                        'purpose' => $purpose,
+                        'issuance_status' => CertificateIssuance::Draft,
+                        'issued_on' => now()->toDateString(),
+                        'valid_until' => $type->validity_days
                             ? now()->addDays($type->validity_days)->toDateString()
                             : null,
                     ]);
@@ -58,19 +58,19 @@ class BulkCertificateIssuanceService
             } catch (Throwable $e) {
                 $failed[] = [
                     'employee' => $employee->full_name,
-                    'reason'   => $e->getMessage(),
+                    'reason' => $e->getMessage(),
                 ];
                 Log::warning('Bulk certificate issuance failed for one employee', [
                     'employee_id' => $employee->id,
-                    'exception'   => $e->getMessage(),
+                    'exception' => $e->getMessage(),
                 ]);
             }
         }
 
         return [
-            'total'      => $employees->count(),
-            'succeeded'  => $succeeded,
-            'failed'     => $failed,
+            'total' => $employees->count(),
+            'succeeded' => $succeeded,
+            'failed' => $failed,
         ];
     }
 }

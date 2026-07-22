@@ -15,7 +15,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class Certificate extends Model implements HasMedia
 {
-    use SoftDeletes, HasVerification, LogsActivity, InteractsWithMedia, BelongsToOrganization;
+    use BelongsToOrganization, HasVerification, InteractsWithMedia, LogsActivity, SoftDeletes;
 
     protected $fillable = [
         'organization_id',
@@ -27,10 +27,10 @@ class Certificate extends Model implements HasMedia
     ];
 
     protected $casts = [
-        'payload'            => 'array',
-        'issuance_status'    => CertificateIssuance::class,
-        'issued_on'          => 'date',
-        'valid_until'        => 'date',
+        'payload' => 'array',
+        'issuance_status' => CertificateIssuance::class,
+        'issued_on' => 'date',
+        'valid_until' => 'date',
         'expiry_notified_at' => 'datetime',
     ];
 
@@ -43,8 +43,8 @@ class Certificate extends Model implements HasMedia
     {
         return [
             'employee' => $this->employee_id,
-            'type'     => $this->certificate_type_id,
-            'issued'   => optional($this->issued_on)->toDateString(),
+            'type' => $this->certificate_type_id,
+            'issued' => optional($this->issued_on)->toDateString(),
         ];
     }
 

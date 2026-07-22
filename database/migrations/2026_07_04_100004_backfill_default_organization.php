@@ -3,7 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Idempotent data migration:
      *   1. Ensure a default "CHRSD" organization row exists.
@@ -30,12 +31,12 @@ return new class extends Migration {
 
         if (! $orgId) {
             $orgId = DB::table('organizations')->insertGetId([
-                'code'        => 'CHRSD',
-                'name'        => 'CHRSD (default)',
+                'code' => 'CHRSD',
+                'name' => 'CHRSD (default)',
                 'description' => 'Default organization created by the multi-tenancy prep migration.',
-                'is_active'   => true,
-                'created_at'  => $now,
-                'updated_at'  => $now,
+                'is_active' => true,
+                'created_at' => $now,
+                'updated_at' => $now,
             ]);
         }
 

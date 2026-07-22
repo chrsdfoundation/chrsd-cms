@@ -5,6 +5,7 @@ namespace App\Filament\Resources\DonationResource\Pages;
 use App\Filament\Resources\DonationResource;
 use App\Filament\Resources\MoneyReceiptResource;
 use Filament\Actions;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 
 class ViewDonation extends ViewRecord
@@ -27,10 +28,10 @@ class ViewDonation extends ViewRecord
                 ->action(function () {
                     $r = $this->getRecord()->generateReceipt();
                     if ($r) {
-                        \Filament\Notifications\Notification::make()
+                        Notification::make()
                             ->success()->title("Receipt {$r->serial_number} generated")->send();
                     } else {
-                        \Filament\Notifications\Notification::make()
+                        Notification::make()
                             ->danger()->title('Could not generate receipt')
                             ->body('In-kind donations do not have receipts, or a receipt already exists.')
                             ->send();

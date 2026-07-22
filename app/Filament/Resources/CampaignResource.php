@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\Fundraising;
 use App\Filament\Resources\CampaignResource\Pages;
 use App\Models\Campaign;
 use Filament\Forms;
@@ -16,7 +17,7 @@ class CampaignResource extends Resource
 {
     protected static ?string $model = Campaign::class;
 
-    protected static ?string $cluster = \App\Filament\Clusters\Fundraising::class;
+    protected static ?string $cluster = Fundraising::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-megaphone';
 
@@ -72,9 +73,9 @@ class CampaignResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListCampaigns::route('/'),
+            'index' => Pages\ListCampaigns::route('/'),
             'create' => Pages\CreateCampaign::route('/create'),
-            'edit'   => Pages\EditCampaign::route('/{record}/edit'),
+            'edit' => Pages\EditCampaign::route('/{record}/edit'),
         ];
     }
 

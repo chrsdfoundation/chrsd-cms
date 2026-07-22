@@ -26,12 +26,12 @@ class DocumentTemplateSeeder extends Seeder
         DocumentTemplate::updateOrCreate(
             ['name' => 'Course Completion Certificate (Green)', 'organization_id' => null],
             [
-                'document_type'       => DocumentTemplateType::Certificate->value,
+                'document_type' => DocumentTemplateType::Certificate->value,
                 'certificate_type_id' => $trn?->id,
-                'orientation'         => 'landscape',
-                'shell_variant'       => 'course-completion',
-                'is_default'          => false,
-                'body_markdown'       => <<<'MD'
+                'orientation' => 'landscape',
+                'shell_variant' => 'course-completion',
+                'is_default' => false,
+                'body_markdown' => <<<'MD'
 <div class="certify-line">This is to certify that on</div>
 
 <div class="date-line">{{date}}</div>
@@ -45,13 +45,13 @@ class DocumentTemplateSeeder extends Seeder
 ### {{course_name}}
 MD,
                 'sample_context' => [
-                    'name'         => 'Mohammed Abu Ramim',
-                    'course_name'  => 'M&E Fundamentals',
-                    'course'       => 'M&E Fundamentals',
+                    'name' => 'Mohammed Abu Ramim',
+                    'course_name' => 'M&E Fundamentals',
+                    'course' => 'M&E Fundamentals',
                     'organization' => 'CHRSD Foundation',
-                    'signatory_name'  => 'A. Rauf',
+                    'signatory_name' => 'A. Rauf',
                     'signatory_title' => 'Chief Executive Officer',
-                    'verify_code'  => '056vHAQgDY',
+                    'verify_code' => '056vHAQgDY',
                 ],
             ],
         );
@@ -60,12 +60,12 @@ MD,
         DocumentTemplate::updateOrCreate(
             ['name' => 'Course Completion Certificate (Blue)', 'organization_id' => null],
             [
-                'document_type'       => DocumentTemplateType::Certificate->value,
+                'document_type' => DocumentTemplateType::Certificate->value,
                 'certificate_type_id' => $trn?->id,
-                'orientation'         => 'landscape',
-                'shell_variant'       => 'course-completion-blue',
-                'is_default'          => false,
-                'body_markdown'       => <<<'MD'
+                'orientation' => 'landscape',
+                'shell_variant' => 'course-completion-blue',
+                'is_default' => false,
+                'body_markdown' => <<<'MD'
 <div class="certify-line">This is to certify that on</div>
 
 <div class="date-line">{{date}}</div>
@@ -79,26 +79,25 @@ MD,
 ### {{course_name}}
 MD,
                 'sample_context' => [
-                    'name'         => 'Mohammed Abu Ramim',
-                    'course_name'  => 'M&E Fundamentals',
+                    'name' => 'Mohammed Abu Ramim',
+                    'course_name' => 'M&E Fundamentals',
                     'organization' => 'CHRSD Foundation',
-                    'signatory_name'  => 'Miriam Chickering',
+                    'signatory_name' => 'Miriam Chickering',
                     'signatory_title' => 'Chief Executive Officer',
-                    'verify_code'  => '056vHAQgDY',
-                    'issuer_name'    => 'CHRSD LEARNING',
+                    'verify_code' => '056vHAQgDY',
+                    'issuer_name' => 'CHRSD LEARNING',
                     'issuer_tagline' => 'Global Health Learning Centre',
                 ],
             ],
         );
-
 
         // 1. Certificate of Appreciation — matches Certificate_sample2.pdf reference
         DocumentTemplate::updateOrCreate(
             ['name' => 'Certificate of Appreciation', 'organization_id' => null],
             [
                 'document_type' => DocumentTemplateType::Certificate->value,
-                'orientation'   => 'landscape',
-                'is_default'    => true,
+                'orientation' => 'landscape',
+                'is_default' => true,
                 'body_markdown' => <<<'MD'
 # Certificate of Appreciation
 
@@ -128,12 +127,12 @@ in collaboration with our partners and community.
 </table>
 MD,
                 'sample_context' => [
-                    'name'             => 'MD Mutalib Hossain',
-                    'designation'      => 'Logistics & Operations',
-                    'event_name'       => 'Volunteer Service',
-                    'organization'     => 'CHRSD Foundation',
-                    'signatory_left'   => '',
-                    'signatory_right'  => '',
+                    'name' => 'MD Mutalib Hossain',
+                    'designation' => 'Logistics & Operations',
+                    'event_name' => 'Volunteer Service',
+                    'organization' => 'CHRSD Foundation',
+                    'signatory_left' => '',
+                    'signatory_right' => '',
                 ],
             ],
         );
@@ -142,11 +141,11 @@ MD,
         DocumentTemplate::updateOrCreate(
             ['name' => 'Volunteer Training Certificate', 'organization_id' => null],
             [
-                'document_type'       => DocumentTemplateType::Certificate->value,
+                'document_type' => DocumentTemplateType::Certificate->value,
                 'certificate_type_id' => $trn?->id,
-                'orientation'         => 'landscape',
-                'is_default'          => false,
-                'body_markdown'       => <<<'MD'
+                'orientation' => 'landscape',
+                'is_default' => false,
+                'body_markdown' => <<<'MD'
 # Certificate
 
 ## of Training Completion
@@ -171,9 +170,9 @@ conducted over **{{duration}}** by **{{organization}}**.
 </table>
 MD,
                 'sample_context' => [
-                    'name'         => 'Jane Doe',
-                    'event_name'   => 'Community Outreach Training Programme',
-                    'duration'     => '3 weeks',
+                    'name' => 'Jane Doe',
+                    'event_name' => 'Community Outreach Training Programme',
+                    'duration' => '3 weeks',
                     'organization' => 'CHRSD Foundation',
                 ],
             ],
@@ -184,8 +183,8 @@ MD,
             ['name' => 'Certificate of Achievement', 'organization_id' => null],
             [
                 'document_type' => DocumentTemplateType::Certificate->value,
-                'orientation'   => 'portrait',
-                'is_default'    => false,
+                'orientation' => 'portrait',
+                'is_default' => false,
                 'body_markdown' => <<<'MD'
 # Certificate
 
@@ -211,8 +210,8 @@ for outstanding achievement in **{{event_name}}**.
 </table>
 MD,
                 'sample_context' => [
-                    'name'         => 'Alex Rahman',
-                    'event_name'   => 'the Annual Volunteer Awards 2026',
+                    'name' => 'Alex Rahman',
+                    'event_name' => 'the Annual Volunteer Awards 2026',
                     'organization' => 'CHRSD Foundation',
                 ],
             ],
@@ -229,8 +228,8 @@ MD,
             ['name' => 'Advisory Board Invitation', 'organization_id' => null],
             [
                 'document_type' => DocumentTemplateType::Letter->value,
-                'orientation'   => 'portrait',
-                'is_default'    => false,
+                'orientation' => 'portrait',
+                'is_default' => false,
                 'body_markdown' => <<<'MD'
 Date: **{{date}}**
 
@@ -257,13 +256,13 @@ Yours sincerely,
 {{organization}}
 MD,
                 'sample_context' => [
-                    'recipient_name'   => 'Md. Wasim Jabber',
-                    'recipient_title'  => 'Treasurer',
-                    'recipient_address'=> "Independent University, Bangladesh\nPlot 16, Block B, Aftabuddin Ahmed Road\nBashundhara R/A, Dhaka 1245, Bangladesh.",
-                    'subject'          => 'Invitation to Join the Advisory Board of CHRSD.',
-                    'signatory_name'   => 'A. Rauf',
-                    'signatory_title'  => 'Executive Director',
-                    'organization'     => 'CHRSD Foundation',
+                    'recipient_name' => 'Md. Wasim Jabber',
+                    'recipient_title' => 'Treasurer',
+                    'recipient_address' => "Independent University, Bangladesh\nPlot 16, Block B, Aftabuddin Ahmed Road\nBashundhara R/A, Dhaka 1245, Bangladesh.",
+                    'subject' => 'Invitation to Join the Advisory Board of CHRSD.',
+                    'signatory_name' => 'A. Rauf',
+                    'signatory_title' => 'Executive Director',
+                    'organization' => 'CHRSD Foundation',
                 ],
             ],
         );
@@ -272,11 +271,11 @@ MD,
         DocumentTemplate::updateOrCreate(
             ['name' => 'Standard Appointment Letter', 'organization_id' => null],
             [
-                'document_type'      => DocumentTemplateType::Letter->value,
+                'document_type' => DocumentTemplateType::Letter->value,
                 'letter_category_id' => $appointmentCategory?->id,
-                'orientation'        => 'portrait',
-                'is_default'         => true,
-                'body_markdown'      => <<<'MD'
+                'orientation' => 'portrait',
+                'is_default' => true,
+                'body_markdown' => <<<'MD'
 Date: **{{date}}**
 
 <p><strong>{{recipient_name}}</strong><br>
@@ -298,14 +297,14 @@ Yours sincerely,
 {{organization}}
 MD,
                 'sample_context' => [
-                    'recipient_name'   => 'Alex Rahman',
-                    'recipient_title'  => 'Field Officer',
-                    'recipient_address'=> '123 Sample Road, Dhaka.',
-                    'subject'          => 'Offer of Appointment',
-                    'body'             => 'We are pleased to appoint you to the position of **Field Officer**, effective from the date of this letter. Your reporting supervisor will be the Programme Coordinator, and your primary responsibilities will include participation in community outreach programmes, field data collection, and volunteer coordination.',
-                    'signatory_name'   => 'A. Rauf',
-                    'signatory_title'  => 'Executive Director',
-                    'organization'     => 'CHRSD Foundation',
+                    'recipient_name' => 'Alex Rahman',
+                    'recipient_title' => 'Field Officer',
+                    'recipient_address' => '123 Sample Road, Dhaka.',
+                    'subject' => 'Offer of Appointment',
+                    'body' => 'We are pleased to appoint you to the position of **Field Officer**, effective from the date of this letter. Your reporting supervisor will be the Programme Coordinator, and your primary responsibilities will include participation in community outreach programmes, field data collection, and volunteer coordination.',
+                    'signatory_name' => 'A. Rauf',
+                    'signatory_title' => 'Executive Director',
+                    'organization' => 'CHRSD Foundation',
                 ],
             ],
         );
@@ -314,10 +313,10 @@ MD,
         DocumentTemplate::updateOrCreate(
             ['name' => 'Experience Letter', 'organization_id' => null],
             [
-                'document_type'  => DocumentTemplateType::Letter->value,
-                'orientation'    => 'portrait',
-                'is_default'     => false,
-                'body_markdown'  => <<<'MD'
+                'document_type' => DocumentTemplateType::Letter->value,
+                'orientation' => 'portrait',
+                'is_default' => false,
+                'body_markdown' => <<<'MD'
 Date: **{{date}}**
 
 ### To Whom It May Concern
@@ -342,14 +341,14 @@ Yours sincerely,
 {{organization}}
 MD,
                 'sample_context' => [
-                    'name'            => 'Alex Rahman',
-                    'designation'     => 'Field Officer',
-                    'position'        => 'Field Officer',
-                    'department'      => 'Programmes',
-                    'employee_id'     => 'CHRSD-EMP-2026-0007',
-                    'duration'        => '1 Jan 2024 – 30 Jun 2026',
-                    'organization'    => 'CHRSD Foundation',
-                    'signatory_name'  => 'A. Rauf',
+                    'name' => 'Alex Rahman',
+                    'designation' => 'Field Officer',
+                    'position' => 'Field Officer',
+                    'department' => 'Programmes',
+                    'employee_id' => 'CHRSD-EMP-2026-0007',
+                    'duration' => '1 Jan 2024 – 30 Jun 2026',
+                    'organization' => 'CHRSD Foundation',
+                    'signatory_name' => 'A. Rauf',
                     'signatory_title' => 'Executive Director',
                 ],
             ],
@@ -366,11 +365,11 @@ MD,
         DocumentTemplate::updateOrCreate(
             ['name' => 'Employee ID Card', 'organization_id' => null],
             [
-                'document_type'   => DocumentTemplateType::IdCard->value,
+                'document_type' => DocumentTemplateType::IdCard->value,
                 'id_card_type_id' => $empType?->id,
-                'orientation'     => 'landscape',
-                'is_default'      => true,
-                'body_markdown'   => <<<'MD'
+                'orientation' => 'landscape',
+                'is_default' => true,
+                'body_markdown' => <<<'MD'
 ## {{name}}
 
 *{{designation}}*
@@ -384,10 +383,10 @@ MD,
 </table>
 MD,
                 'sample_context' => [
-                    'name'         => 'M.A. Ramim',
-                    'designation'  => 'Executive Director',
-                    'blood_group'  => 'O Positive',
-                    'nationality'  => 'Bangladeshi',
+                    'name' => 'M.A. Ramim',
+                    'designation' => 'Executive Director',
+                    'blood_group' => 'O Positive',
+                    'nationality' => 'Bangladeshi',
                 ],
             ],
         );
@@ -396,11 +395,11 @@ MD,
         DocumentTemplate::updateOrCreate(
             ['name' => 'Volunteer ID Card', 'organization_id' => null],
             [
-                'document_type'   => DocumentTemplateType::IdCard->value,
+                'document_type' => DocumentTemplateType::IdCard->value,
                 'id_card_type_id' => $volType?->id,
-                'orientation'     => 'landscape',
-                'is_default'      => true,
-                'body_markdown'   => <<<'MD'
+                'orientation' => 'landscape',
+                'is_default' => true,
+                'body_markdown' => <<<'MD'
 ## {{name}}
 
 *Volunteer — {{program_name}}*
@@ -413,9 +412,9 @@ MD,
 </table>
 MD,
                 'sample_context' => [
-                    'name'         => 'Jane Doe',
+                    'name' => 'Jane Doe',
                     'program_name' => 'Community Outreach',
-                    'blood_group'  => 'A+',
+                    'blood_group' => 'A+',
                 ],
             ],
         );
@@ -424,11 +423,11 @@ MD,
         DocumentTemplate::updateOrCreate(
             ['name' => 'Visitor / Temporary ID Card', 'organization_id' => null],
             [
-                'document_type'   => DocumentTemplateType::IdCard->value,
+                'document_type' => DocumentTemplateType::IdCard->value,
                 'id_card_type_id' => $visType?->id,
-                'orientation'     => 'landscape',
-                'is_default'      => true,
-                'body_markdown'   => <<<'MD'
+                'orientation' => 'landscape',
+                'is_default' => true,
+                'body_markdown' => <<<'MD'
 ## {{name}}
 
 *Visitor Pass*
@@ -441,11 +440,11 @@ MD,
 </table>
 MD,
                 'sample_context' => [
-                    'name'         => 'Karim Uddin',
+                    'name' => 'Karim Uddin',
                     'program_name' => 'Site Visit — Q3 Audit',
-                    'nationality'  => 'Bangladeshi',
-                    'valid_from'   => now()->toFormattedDateString(),
-                    'valid_until'  => now()->addWeek()->toFormattedDateString(),
+                    'nationality' => 'Bangladeshi',
+                    'valid_from' => now()->toFormattedDateString(),
+                    'valid_until' => now()->addWeek()->toFormattedDateString(),
                 ],
             ],
         );

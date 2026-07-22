@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Nine tenant-owned tables get a nullable organization_id FK. Nullable so
      * the existing rows survive the migration; the follow-up backfill sets

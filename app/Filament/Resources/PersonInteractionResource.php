@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Enums\InteractionType;
+use App\Filament\Clusters\Crm;
 use App\Filament\Resources\PersonInteractionResource\Pages;
 use App\Models\Person;
 use App\Models\PersonInteraction;
@@ -18,7 +19,7 @@ class PersonInteractionResource extends Resource
 {
     protected static ?string $model = PersonInteraction::class;
 
-    protected static ?string $cluster = \App\Filament\Clusters\Crm::class;
+    protected static ?string $cluster = Crm::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-left-right';
 
@@ -83,9 +84,9 @@ class PersonInteractionResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListPersonInteractions::route('/'),
+            'index' => Pages\ListPersonInteractions::route('/'),
             'create' => Pages\CreatePersonInteraction::route('/create'),
-            'edit'   => Pages\EditPersonInteraction::route('/{record}/edit'),
+            'edit' => Pages\EditPersonInteraction::route('/{record}/edit'),
         ];
     }
 

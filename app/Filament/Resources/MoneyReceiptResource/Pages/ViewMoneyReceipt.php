@@ -30,9 +30,10 @@ class ViewMoneyReceipt extends ViewRecord
                 ->modalContent(function () {
                     /** @var MoneyReceipt $r */
                     $r = $this->getRecord();
+
                     return new HtmlString(
                         '<div class="flex justify-center p-6">'
-                        . (new DNS2D())->getBarcodeSVG($r->qr_code_uri, 'QRCODE', 6, 6)
+                        . (new DNS2D)->getBarcodeSVG($r->qr_code_uri, 'QRCODE', 6, 6)
                         . '</div>'
                         . '<p class="text-center text-sm text-gray-600 break-all px-4 pb-4">'
                         . e($r->qr_code_uri)

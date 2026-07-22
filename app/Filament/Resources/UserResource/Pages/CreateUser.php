@@ -17,6 +17,7 @@ class CreateUser extends CreateRecord
             $data['must_change_password'] = true;
         }
         $data['password_changed_at'] = now();
+
         return $data;
     }
 }

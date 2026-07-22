@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\PersonResource\RelationManagers;
 
+use App\Filament\Resources\DonationResource;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -32,12 +33,12 @@ class DonationsRelationManager extends RelationManager
             ->headerActions([
                 Tables\Actions\Action::make('new_donation')
                     ->label('Log donation')->icon('heroicon-o-plus')
-                    ->url(fn () => \App\Filament\Resources\DonationResource::getUrl('create', ['person_id' => $this->getOwnerRecord()->id])),
+                    ->url(fn () => DonationResource::getUrl('create', ['person_id' => $this->getOwnerRecord()->id])),
             ])
             ->actions([
                 Tables\Actions\Action::make('open')
                     ->label('Open')->icon('heroicon-o-arrow-top-right-on-square')
-                    ->url(fn ($record) => \App\Filament\Resources\DonationResource::getUrl('view', ['record' => $record])),
+                    ->url(fn ($record) => DonationResource::getUrl('view', ['record' => $record])),
             ]);
     }
 }

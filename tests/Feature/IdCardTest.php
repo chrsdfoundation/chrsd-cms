@@ -10,6 +10,7 @@ use App\Models\Position;
 use App\Services\Verification\VerificationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class IdCardTest extends TestCase
@@ -25,8 +26,8 @@ class IdCardTest extends TestCase
     protected function makeCard(): IdCard
     {
         $dept = Department::create(['code' => 'HR', 'name' => 'HR']);
-        $pos  = Position::create(['department_id' => $dept->id, 'code' => 'S', 'title' => 'Staff']);
-        $emp  = Employee::create([
+        $pos = Position::create(['department_id' => $dept->id, 'code' => 'S', 'title' => 'Staff']);
+        $emp = Employee::create([
             'first_name' => 'Jane', 'last_name' => 'Doe',
             'email' => 'jane@test.test',
             'department_id' => $dept->id, 'position_id' => $pos->id,
@@ -37,7 +38,7 @@ class IdCardTest extends TestCase
             'designation' => 'Field Officer',
             'blood_group' => 'O+',
             'nationality' => 'Bangladeshi',
-            'valid_from'  => now()->toDateString(),
+            'valid_from' => now()->toDateString(),
             'valid_until' => now()->addYears(2)->toDateString(),
         ]);
     }
@@ -72,7 +73,7 @@ class IdCardTest extends TestCase
                 'found' => true,
                 'snapshot' => [
                     'serial' => $card->serial_number,
-                    'kind'   => 'IdCard',
+                    'kind' => 'IdCard',
                 ],
             ]);
     }
@@ -103,8 +104,8 @@ class IdCardTest extends TestCase
     {
         $card = $this->makeCard();
 
-        $this->assertTrue(\Illuminate\Support\Facades\Schema::hasColumn('id_cards', 'pdf_content_hash_front'));
-        $this->assertTrue(\Illuminate\Support\Facades\Schema::hasColumn('id_cards', 'pdf_content_hash_back'));
+        $this->assertTrue(Schema::hasColumn('id_cards', 'pdf_content_hash_front'));
+        $this->assertTrue(Schema::hasColumn('id_cards', 'pdf_content_hash_back'));
         $this->assertNull($card->pdf_content_hash_front, 'Fresh card has no rendered PDF yet');
         $this->assertNull($card->pdf_content_hash_back);
     }

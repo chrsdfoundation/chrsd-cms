@@ -1,8 +1,13 @@
 <?php
 
+use App\Providers\AppServiceProvider;
+use App\Providers\Filament\AdminPanelProvider;
+use App\Providers\Filament\PortalPanelProvider;
+use App\Providers\VerificationServiceProvider;
+
 return [
-    App\Providers\AppServiceProvider::class,
-    App\Providers\Filament\AdminPanelProvider::class,
-    App\Providers\Filament\PortalPanelProvider::class,
-    App\Providers\VerificationServiceProvider::class,
+    AppServiceProvider::class,
+    AdminPanelProvider::class,
+    PortalPanelProvider::class,
+    VerificationServiceProvider::class,
 ];

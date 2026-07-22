@@ -27,8 +27,8 @@ class ExpiringDocumentsWidget extends BaseWidget
                 ->count();
         };
 
-        $urgent  = $count(Certificate::class, $today, $in7)  + $count(IdCard::class, $today, $in7);
-        $soon    = $count(Certificate::class, $in7, $in30)   + $count(IdCard::class, $in7, $in30);
+        $urgent = $count(Certificate::class, $today, $in7) + $count(IdCard::class, $today, $in7);
+        $soon = $count(Certificate::class, $in7, $in30) + $count(IdCard::class, $in7, $in30);
         $expired = Certificate::where('status', VerificationStatus::Expired->value)->count()
                  + IdCard::where('status', VerificationStatus::Expired->value)->count();
 

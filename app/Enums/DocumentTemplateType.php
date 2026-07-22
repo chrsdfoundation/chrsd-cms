@@ -6,18 +6,18 @@ use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum DocumentTemplateType: string implements HasLabel, HasColor, HasIcon
+enum DocumentTemplateType: string implements HasColor, HasIcon, HasLabel
 {
     case Certificate = 'certificate';
-    case Letter      = 'letter';
-    case IdCard      = 'id_card';
+    case Letter = 'letter';
+    case IdCard = 'id_card';
 
     public function getLabel(): string
     {
         return match ($this) {
             self::Certificate => 'Certificate',
-            self::Letter      => 'Letter',
-            self::IdCard      => 'ID Card',
+            self::Letter => 'Letter',
+            self::IdCard => 'ID Card',
         };
     }
 
@@ -25,8 +25,8 @@ enum DocumentTemplateType: string implements HasLabel, HasColor, HasIcon
     {
         return match ($this) {
             self::Certificate => 'success',
-            self::Letter      => 'info',
-            self::IdCard      => 'warning',
+            self::Letter => 'info',
+            self::IdCard => 'warning',
         };
     }
 
@@ -34,8 +34,8 @@ enum DocumentTemplateType: string implements HasLabel, HasColor, HasIcon
     {
         return match ($this) {
             self::Certificate => 'heroicon-o-document-check',
-            self::Letter      => 'heroicon-o-envelope',
-            self::IdCard      => 'heroicon-o-identification',
+            self::Letter => 'heroicon-o-envelope',
+            self::IdCard => 'heroicon-o-identification',
         };
     }
 }

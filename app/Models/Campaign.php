@@ -11,7 +11,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Campaign extends Model
 {
-    use SoftDeletes, LogsActivity, BelongsToOrganization;
+    use BelongsToOrganization, LogsActivity, SoftDeletes;
 
     protected $fillable = [
         'organization_id',
@@ -22,9 +22,9 @@ class Campaign extends Model
 
     protected $casts = [
         'goal_amount' => 'decimal:2',
-        'starts_on'   => 'date',
-        'ends_on'     => 'date',
-        'is_active'   => 'bool',
+        'starts_on' => 'date',
+        'ends_on' => 'date',
+        'is_active' => 'bool',
     ];
 
     public function donations(): HasMany
@@ -48,6 +48,7 @@ class Campaign extends Model
         if (! $this->goal_amount || (float) $this->goal_amount <= 0) {
             return null;
         }
+
         return (int) min(100, round($this->raisedAmount() / (float) $this->goal_amount * 100));
     }
 

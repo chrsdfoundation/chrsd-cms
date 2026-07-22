@@ -55,6 +55,7 @@ class HistoryRelationManager extends RelationManager
                     ->label('Add note')
                     ->mutateFormDataUsing(function (array $data) {
                         $data['recorded_by_user_id'] = Auth::id();
+
                         return $data;
                     }),
             ])

@@ -12,6 +12,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class ApiTokenResource extends Resource
@@ -59,7 +60,7 @@ class ApiTokenResource extends Resource
                     ->label('Abilities')
                     ->options([
                         'verify:read' => 'Verify documents (read)',
-                        '*'           => 'All (super-token — use sparingly)',
+                        '*' => 'All (super-token — use sparingly)',
                     ])
                     ->default(['verify:read'])
                     ->helperText('Currently, verify endpoints require `verify:read` or `*`.')
@@ -118,7 +119,7 @@ class ApiTokenResource extends Resource
 
             $abilities = array_values($data['abilities'] ?? ['verify:read']);
             $expiresAt = ! empty($data['expires_at'])
-                ? \Illuminate\Support\Carbon::parse($data['expires_at'])
+                ? Carbon::parse($data['expires_at'])
                 : null;
 
             $newToken = $user->createToken($data['name'], $abilities, $expiresAt);
@@ -142,7 +143,7 @@ class ApiTokenResource extends Resource
     {
         return [
             'index' => Pages\ListApiTokens::route('/'),
-            'view'  => Pages\ViewApiToken::route('/{record}'),
+            'view' => Pages\ViewApiToken::route('/{record}'),
         ];
     }
 }

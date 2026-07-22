@@ -20,7 +20,7 @@ class TrackApiTokenUsage
         $token = $request->user()?->currentAccessToken();
         if ($token) {
             $token->forceFill([
-                'last_used_ip'         => $request->ip(),
+                'last_used_ip' => $request->ip(),
                 'last_used_user_agent' => substr((string) $request->userAgent(), 0, 512),
             ])->save();
         }

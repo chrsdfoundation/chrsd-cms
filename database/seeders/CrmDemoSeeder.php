@@ -28,6 +28,7 @@ class CrmDemoSeeder extends Seeder
 
         if (! $orgId) {
             $this->command?->warn('CrmDemoSeeder: no CHRSD organization found — skipping.');
+
             return;
         }
 
@@ -39,28 +40,28 @@ class CrmDemoSeeder extends Seeder
 
         $people = [
             [
-                'full_name'    => 'Fatima Islam',
-                'email'        => 'fatima@example.com',
-                'phone'        => '+8801711223344',
-                'city'         => 'Dhaka',
-                'notes'        => 'Demo donor — placeholder record for CRM dev.',
-                '_role'        => 'donor',
+                'full_name' => 'Fatima Islam',
+                'email' => 'fatima@example.com',
+                'phone' => '+8801711223344',
+                'city' => 'Dhaka',
+                'notes' => 'Demo donor — placeholder record for CRM dev.',
+                '_role' => 'donor',
             ],
             [
-                'full_name'    => 'Abdul Jalil',
-                'email'        => null,
-                'phone'        => '+8801755667788',
-                'city'         => 'Sonaimuri',
-                'notes'        => 'Demo beneficiary — placeholder record for CRM dev.',
-                '_role'        => 'beneficiary',
+                'full_name' => 'Abdul Jalil',
+                'email' => null,
+                'phone' => '+8801755667788',
+                'city' => 'Sonaimuri',
+                'notes' => 'Demo beneficiary — placeholder record for CRM dev.',
+                '_role' => 'beneficiary',
             ],
             [
-                'full_name'    => 'Nusrat Chowdhury',
-                'email'        => 'nusrat@example.com',
-                'phone'        => '+8801799889900',
-                'city'         => 'Chattogram',
-                'notes'        => 'Demo volunteer — placeholder record for CRM dev.',
-                '_role'        => 'volunteer',
+                'full_name' => 'Nusrat Chowdhury',
+                'email' => 'nusrat@example.com',
+                'phone' => '+8801799889900',
+                'city' => 'Chattogram',
+                'notes' => 'Demo volunteer — placeholder record for CRM dev.',
+                '_role' => 'volunteer',
             ],
         ];
 
@@ -72,14 +73,14 @@ class CrmDemoSeeder extends Seeder
                 ['full_name' => $data['full_name']],
                 array_merge($data, [
                     'organization_id' => $orgId,
-                    'country'         => 'Bangladesh',
-                    'is_active'       => true,
+                    'country' => 'Bangladesh',
+                    'is_active' => true,
                 ]),
             );
 
             match ($role) {
-                'donor'       => DonorProfile::firstOrCreate(['person_id' => $person->id]),
-                'volunteer'   => VolunteerProfile::firstOrCreate(['person_id' => $person->id]),
+                'donor' => DonorProfile::firstOrCreate(['person_id' => $person->id]),
+                'volunteer' => VolunteerProfile::firstOrCreate(['person_id' => $person->id]),
                 'beneficiary' => BeneficiaryProfile::firstOrCreate(['person_id' => $person->id]),
             };
         }

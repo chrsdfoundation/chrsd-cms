@@ -32,7 +32,7 @@ class ComplianceExport extends Page implements HasForms
     {
         $this->form->fill([
             'from' => now()->subDays(90)->toDateString(),
-            'to'   => now()->toDateString(),
+            'to' => now()->toDateString(),
         ]);
         $this->refreshPreview();
     }
@@ -60,7 +60,7 @@ class ComplianceExport extends Page implements HasForms
     {
         return [
             Carbon::parse($this->data['from'] ?? now()->subDays(90)),
-            Carbon::parse($this->data['to']   ?? now()),
+            Carbon::parse($this->data['to'] ?? now()),
         ];
     }
 
@@ -73,6 +73,7 @@ class ComplianceExport extends Page implements HasForms
     public function exportPdf(): StreamedResponse
     {
         [$from, $to] = $this->range();
+
         return app(ReportService::class)->exportComplianceBundle($from, $to);
     }
 }

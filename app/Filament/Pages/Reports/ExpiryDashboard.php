@@ -49,7 +49,7 @@ class ExpiryDashboard extends Page implements HasForms
                         Forms\Components\Select::make('window')
                             ->label('Show items expiring within')
                             ->options([
-                                7  => 'Next 7 days',
+                                7 => 'Next 7 days',
                                 30 => 'Next 30 days',
                                 60 => 'Next 60 days',
                                 90 => 'Next 90 days',
@@ -83,8 +83,8 @@ class ExpiryDashboard extends Page implements HasForms
 
         $this->preview = [
             'expiring' => $expiring,
-            'expired'  => $expired,
-            'window'   => $days,
+            'expired' => $expired,
+            'window' => $days,
         ];
     }
 
@@ -119,14 +119,14 @@ class ExpiryDashboard extends Page implements HasForms
         $days = $doc->valid_until ? (int) $today->diffInDays($doc->valid_until, false) : null;
 
         return [
-            'kind'                => $kindLabel,
-            'serial'              => $doc->serial_number,
-            'subject'             => optional($doc->employee)->full_name ?? '—',
-            'email'               => optional($doc->employee)->email,
-            'valid_until'         => $doc->valid_until,
-            'days_left'           => $days,
-            'expiry_notified_at'  => $doc->expiry_notified_at,
-            'status'              => $doc->status,
+            'kind' => $kindLabel,
+            'serial' => $doc->serial_number,
+            'subject' => optional($doc->employee)->full_name ?? '—',
+            'email' => optional($doc->employee)->email,
+            'valid_until' => $doc->valid_until,
+            'days_left' => $days,
+            'expiry_notified_at' => $doc->expiry_notified_at,
+            'status' => $doc->status,
         ];
     }
 

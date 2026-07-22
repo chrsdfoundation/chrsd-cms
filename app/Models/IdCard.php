@@ -15,7 +15,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class IdCard extends Model implements HasMedia
 {
-    use SoftDeletes, HasVerification, LogsActivity, InteractsWithMedia, BelongsToOrganization;
+    use BelongsToOrganization, HasVerification, InteractsWithMedia, LogsActivity, SoftDeletes;
 
     protected $fillable = [
         'organization_id',
@@ -31,9 +31,9 @@ class IdCard extends Model implements HasMedia
     ];
 
     protected $casts = [
-        'issuance_status'    => IdCardIssuance::class,
-        'valid_from'         => 'date',
-        'valid_until'        => 'date',
+        'issuance_status' => IdCardIssuance::class,
+        'valid_from' => 'date',
+        'valid_until' => 'date',
         'expiry_notified_at' => 'datetime',
     ];
 
@@ -45,7 +45,7 @@ class IdCard extends Model implements HasMedia
     protected function extraVerificationFields(): array
     {
         return [
-            'employee'   => $this->employee_id,
+            'employee' => $this->employee_id,
             'valid_from' => optional($this->valid_from)->toDateString(),
             'valid_till' => optional($this->valid_until)->toDateString(),
         ];
@@ -118,6 +118,7 @@ class IdCard extends Model implements HasMedia
         if ($emp && $emp->hasMedia('avatar')) {
             return $emp->getFirstMedia('avatar')->getPath();
         }
+
         return null;
     }
 }

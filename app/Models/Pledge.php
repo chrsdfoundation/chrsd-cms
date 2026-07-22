@@ -12,7 +12,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Pledge extends Model
 {
-    use SoftDeletes, LogsActivity, BelongsToOrganization;
+    use BelongsToOrganization, LogsActivity, SoftDeletes;
 
     protected $fillable = [
         'organization_id', 'person_id', 'campaign_id',
@@ -22,10 +22,10 @@ class Pledge extends Model
     ];
 
     protected $casts = [
-        'promised_amount'       => 'decimal:2',
-        'fulfilled_amount'      => 'decimal:2',
-        'due_date'              => 'date',
-        'status'                => PledgeStatus::class,
+        'promised_amount' => 'decimal:2',
+        'fulfilled_amount' => 'decimal:2',
+        'due_date' => 'date',
+        'status' => PledgeStatus::class,
         'last_reminder_sent_at' => 'datetime',
     ];
 

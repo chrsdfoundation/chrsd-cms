@@ -12,7 +12,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Department extends Model
 {
-    use SoftDeletes, LogsActivity, BelongsToOrganization;
+    use BelongsToOrganization, LogsActivity, SoftDeletes;
 
     protected $fillable = [
         'organization_id',

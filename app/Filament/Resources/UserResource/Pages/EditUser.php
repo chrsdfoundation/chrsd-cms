@@ -27,6 +27,7 @@ class EditUser extends EditRecord
         if (! empty($data['password'])) {
             $data['password_changed_at'] = now();
         }
+
         return $data;
     }
 }

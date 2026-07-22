@@ -70,17 +70,19 @@ class ChangePassword extends Page implements HasForms
 
         if (! Hash::check($data['current_password'], $user->password)) {
             $this->addError('data.current_password', 'Current password does not match.');
+
             return;
         }
 
         if (Hash::check($data['new_password'], $user->password)) {
             $this->addError('data.new_password', 'New password must differ from the current one.');
+
             return;
         }
 
         $user->forceFill([
-            'password'             => Hash::make($data['new_password']),
-            'password_changed_at'  => now(),
+            'password' => Hash::make($data['new_password']),
+            'password_changed_at' => now(),
             'must_change_password' => false,
         ])->save();
 

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\OrgUnit;
 use App\Filament\Resources\PositionResource\Pages;
 use App\Models\Position;
 use Filament\Forms;
@@ -16,7 +17,7 @@ class PositionResource extends Resource
 {
     protected static ?string $model = Position::class;
 
-    protected static ?string $cluster = \App\Filament\Clusters\OrgUnit::class;
+    protected static ?string $cluster = OrgUnit::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-briefcase';
 
@@ -82,10 +83,10 @@ class PositionResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListPositions::route('/'),
+            'index' => Pages\ListPositions::route('/'),
             'create' => Pages\CreatePosition::route('/create'),
-            'view'   => Pages\ViewPosition::route('/{record}'),
-            'edit'   => Pages\EditPosition::route('/{record}/edit'),
+            'view' => Pages\ViewPosition::route('/{record}'),
+            'edit' => Pages\EditPosition::route('/{record}/edit'),
         ];
     }
 

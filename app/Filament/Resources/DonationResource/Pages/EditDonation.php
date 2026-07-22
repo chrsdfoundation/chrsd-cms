@@ -13,9 +13,10 @@ class EditDonation extends EditRecord
     protected function mutateFormDataBeforeSave(array $data): array
     {
         if (! empty($data['is_in_kind'])) {
-            $data['amount']         = $data['in_kind_valuation'] ?? $data['amount'] ?? 0;
+            $data['amount'] = $data['in_kind_valuation'] ?? $data['amount'] ?? 0;
             $data['payment_method'] = null;
         }
+
         return $data;
     }
 

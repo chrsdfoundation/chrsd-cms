@@ -36,8 +36,8 @@ class VerifiableObserver
     protected function nextSerial(Model $model): string
     {
         $prefix = $model->verificationPrefix();
-        $year   = now()->year;
-        $table  = $model->getTable();
+        $year = now()->year;
+        $table = $model->getTable();
 
         $seq = DB::transaction(function () use ($table, $prefix, $year) {
             $last = DB::table($table)
@@ -47,6 +47,7 @@ class VerifiableObserver
                 ->value('serial_number');
 
             $lastSeq = $last ? (int) substr($last, strrpos($last, '-') + 1) : 0;
+
             return $lastSeq + 1;
         });
 

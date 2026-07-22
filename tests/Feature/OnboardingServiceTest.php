@@ -54,17 +54,17 @@ class OnboardingServiceTest extends TestCase
             org: ['code' => 'BRAVO', 'name' => 'Bravo Ltd'],
             admin: ['name' => 'Grace', 'email' => 'g@bravo.test', 'password' => 'secret123', 'role' => 'hr_manager'],
             starter: [
-                'department'      => 'Operations',
-                'position'        => 'COO',
-                'first_name'      => 'Chief',
-                'last_name'       => 'Operator',
-                'employee_email'  => 'coo@bravo.test',
+                'department' => 'Operations',
+                'position' => 'COO',
+                'first_name' => 'Chief',
+                'last_name' => 'Operator',
+                'employee_email' => 'coo@bravo.test',
             ],
         );
 
         $this->assertArrayHasKey('department', $result);
-        $this->assertArrayHasKey('position',   $result);
-        $this->assertArrayHasKey('employee',   $result);
+        $this->assertArrayHasKey('position', $result);
+        $this->assertArrayHasKey('employee', $result);
 
         $orgId = $result['organization']->id;
         $this->assertSame($orgId, $result['department']->organization_id);

@@ -54,6 +54,7 @@ class TotpService
                 return true;
             }
         }
+
         return false;
     }
 
@@ -65,10 +66,10 @@ class TotpService
         $hash = hash_hmac('sha1', $bin, $key, true);
 
         $offset = ord($hash[strlen($hash) - 1]) & 0x0F;
-        $value  = (
-            ((ord($hash[$offset])     & 0x7F) << 24) |
+        $value = (
+            ((ord($hash[$offset]) & 0x7F) << 24) |
             ((ord($hash[$offset + 1]) & 0xFF) << 16) |
-            ((ord($hash[$offset + 2]) & 0xFF) <<  8) |
+            ((ord($hash[$offset + 2]) & 0xFF) << 8) |
              (ord($hash[$offset + 3]) & 0xFF)
         );
 
@@ -101,6 +102,7 @@ class TotpService
         for ($i = 0; $i + 5 <= strlen($bits); $i += 5) {
             $out .= self::BASE32[bindec(substr($bits, $i, 5))];
         }
+
         return $out;
     }
 
@@ -110,13 +112,16 @@ class TotpService
         $bits = '';
         for ($i = 0, $n = strlen($s); $i < $n; $i++) {
             $pos = strpos(self::BASE32, $s[$i]);
-            if ($pos === false) continue;
+            if ($pos === false) {
+                continue;
+            }
             $bits .= str_pad(decbin($pos), 5, '0', STR_PAD_LEFT);
         }
         $out = '';
         for ($i = 0, $n = strlen($bits); $i + 8 <= $n; $i += 8) {
             $out .= chr(bindec(substr($bits, $i, 8)));
         }
+
         return $out;
     }
 }

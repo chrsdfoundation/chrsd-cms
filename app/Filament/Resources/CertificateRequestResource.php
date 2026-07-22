@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Enums\CertificateRequestStatus;
+use App\Filament\Clusters\Documents;
 use App\Filament\Resources\CertificateRequestResource\Pages;
 use App\Models\CertificateRequest;
 use App\Models\Employee;
@@ -20,7 +21,7 @@ class CertificateRequestResource extends Resource
 {
     protected static ?string $model = CertificateRequest::class;
 
-    protected static ?string $cluster = \App\Filament\Clusters\Documents::class;
+    protected static ?string $cluster = Documents::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-inbox-arrow-down';
 
@@ -127,10 +128,10 @@ class CertificateRequestResource extends Resource
             ->modalDescription('This creates a Certificate for the employee and generates the PDF immediately.')
             ->action(function (CertificateRequest $record, array $data) {
                 $cert = app(CertificateRequestService::class)->approveAndIssue(
-                    request:      $record,
-                    reviewer:     Auth::user(),
-                    signatoryId:  $data['signed_by_id'] ?? null,
-                    reviewNotes:  $data['review_notes'] ?? null,
+                    request: $record,
+                    reviewer: Auth::user(),
+                    signatoryId: $data['signed_by_id'] ?? null,
+                    reviewNotes: $data['review_notes'] ?? null,
                 );
                 Notification::make()
                     ->success()
@@ -154,9 +155,9 @@ class CertificateRequestResource extends Resource
             ->requiresConfirmation()
             ->action(function (CertificateRequest $record, array $data) {
                 app(CertificateRequestService::class)->reject(
-                    request:  $record,
+                    request: $record,
                     reviewer: Auth::user(),
-                    reason:   $data['reason'],
+                    reason: $data['reason'],
                 );
                 Notification::make()->danger()->title('Request rejected')->send();
             })
@@ -167,7 +168,7 @@ class CertificateRequestResource extends Resource
     {
         return [
             'index' => Pages\ListCertificateRequests::route('/'),
-            'view'  => Pages\ViewCertificateRequest::route('/{record}'),
+            'view' => Pages\ViewCertificateRequest::route('/{record}'),
         ];
     }
 

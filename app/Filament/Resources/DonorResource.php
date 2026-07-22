@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Enums\EngagementTier;
+use App\Filament\Clusters\Crm;
 use App\Filament\Resources\DonorResource\Pages;
 use App\Models\DonorProfile;
 use Filament\Resources\Resource;
@@ -14,7 +15,7 @@ class DonorResource extends Resource
 {
     protected static ?string $model = DonorProfile::class;
 
-    protected static ?string $cluster = \App\Filament\Clusters\Crm::class;
+    protected static ?string $cluster = Crm::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-currency-bangladeshi';
 

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Enums\EmploymentEventType;
+use App\Filament\Clusters\OrgUnit;
 use App\Filament\Resources\EmploymentEventResource\Pages;
 use App\Models\Employee;
 use App\Models\EmploymentEvent;
@@ -17,7 +18,7 @@ class EmploymentEventResource extends Resource
 {
     protected static ?string $model = EmploymentEvent::class;
 
-    protected static ?string $cluster = \App\Filament\Clusters\OrgUnit::class;
+    protected static ?string $cluster = OrgUnit::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-clock';
 
@@ -90,10 +91,10 @@ class EmploymentEventResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListEmploymentEvents::route('/'),
+            'index' => Pages\ListEmploymentEvents::route('/'),
             'create' => Pages\CreateEmploymentEvent::route('/create'),
-            'view'   => Pages\ViewEmploymentEvent::route('/{record}'),
-            'edit'   => Pages\EditEmploymentEvent::route('/{record}/edit'),
+            'view' => Pages\ViewEmploymentEvent::route('/{record}'),
+            'edit' => Pages\EditEmploymentEvent::route('/{record}/edit'),
         ];
     }
 }

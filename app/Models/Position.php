@@ -12,7 +12,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Position extends Model
 {
-    use SoftDeletes, LogsActivity, BelongsToOrganization;
+    use BelongsToOrganization, LogsActivity, SoftDeletes;
 
     protected $fillable = [
         'organization_id',
@@ -20,7 +20,7 @@ class Position extends Model
     ];
 
     protected $casts = [
-        'is_active'    => 'boolean',
+        'is_active' => 'boolean',
         'salary_grade' => 'decimal:2',
     ];
 

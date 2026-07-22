@@ -3,8 +3,8 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
-use App\Models\Organization;
 use App\Models\User;
+use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password as PasswordRule;
-use Spatie\Permission\Models\Role;
 
 class UserResource extends Resource
 {
@@ -120,13 +119,14 @@ class UserResource extends Resource
     }
 
     /** Header-scoped equivalent for View/Edit page toolbars. */
-    public static function forceResetHeaderAction(): \Filament\Actions\Action
+    public static function forceResetHeaderAction(): Action
     {
-        return self::applyForceResetShape(\Filament\Actions\Action::make('force_reset'));
+        return self::applyForceResetShape(Action::make('force_reset'));
     }
 
     /**
      * @template T of Tables\Actions\Action|\Filament\Actions\Action
+     *
      * @param  T  $action
      * @return T
      */
@@ -153,8 +153,8 @@ class UserResource extends Resource
                 if (! empty($data['random_temp'])) {
                     $temp = Str::password(16);
                     $record->forceFill([
-                        'password'             => Hash::make($temp),
-                        'password_changed_at'  => now(),
+                        'password' => Hash::make($temp),
+                        'password_changed_at' => now(),
                     ])->save();
 
                     Notification::make()
@@ -185,10 +185,10 @@ class UserResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListUsers::route('/'),
+            'index' => Pages\ListUsers::route('/'),
             'create' => Pages\CreateUser::route('/create'),
-            'view'   => Pages\ViewUser::route('/{record}'),
-            'edit'   => Pages\EditUser::route('/{record}/edit'),
+            'view' => Pages\ViewUser::route('/{record}'),
+            'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
     }
 }

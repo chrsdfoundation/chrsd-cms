@@ -19,8 +19,8 @@ class ComplianceManifestTest extends TestCase
     protected function seedSomeDocs(): void
     {
         $dept = Department::create(['code' => 'HR', 'name' => 'Human Resources']);
-        $pos  = Position::create(['department_id' => $dept->id, 'code' => 'HR-STAFF', 'title' => 'HR Staff']);
-        $emp  = Employee::create([
+        $pos = Position::create(['department_id' => $dept->id, 'code' => 'HR-STAFF', 'title' => 'HR Staff']);
+        $emp = Employee::create([
             'first_name' => 'Jane', 'last_name' => 'Doe',
             'email' => 'jane.doe@example.com',
             'department_id' => $dept->id, 'position_id' => $pos->id,
@@ -45,7 +45,7 @@ class ComplianceManifestTest extends TestCase
         $this->seedSomeDocs();
 
         $from = Carbon::now()->subDay();
-        $to   = Carbon::now();
+        $to = Carbon::now();
 
         $a = app(ReportService::class)->complianceBundle($from, $to);
         $b = app(ReportService::class)->complianceBundle($from, $to);

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\Documents;
 use App\Filament\Resources\CertificateTypeResource\Pages;
 use App\Models\CertificateType;
 use Filament\Forms;
@@ -9,12 +10,13 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Collection;
 
 class CertificateTypeResource extends Resource
 {
     protected static ?string $model = CertificateType::class;
 
-    protected static ?string $cluster = \App\Filament\Clusters\Documents::class;
+    protected static ?string $cluster = Documents::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-document-check';
 
@@ -81,7 +83,7 @@ class CertificateTypeResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
                         ->requiresConfirmation()
-                        ->before(fn (\Illuminate\Support\Collection $records) => $records->each(
+                        ->before(fn (Collection $records) => $records->each(
                             fn (CertificateType $r) => $r->certificates()->withTrashed()->update(['certificate_type_id' => null])
                         )),
                 ]),
@@ -92,10 +94,10 @@ class CertificateTypeResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListCertificateTypes::route('/'),
+            'index' => Pages\ListCertificateTypes::route('/'),
             'create' => Pages\CreateCertificateType::route('/create'),
-            'view'   => Pages\ViewCertificateType::route('/{record}'),
-            'edit'   => Pages\EditCertificateType::route('/{record}/edit'),
+            'view' => Pages\ViewCertificateType::route('/{record}'),
+            'edit' => Pages\EditCertificateType::route('/{record}/edit'),
         ];
     }
 }

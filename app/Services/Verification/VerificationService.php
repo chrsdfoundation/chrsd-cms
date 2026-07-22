@@ -14,11 +14,11 @@ class VerificationService
 {
     /** Registry of verifiable models — extend when new document types are introduced. */
     protected array $verifiables = [
-        'EMP'  => Employee::class,
+        'EMP' => Employee::class,
         'CERT' => Certificate::class,
-        'LTR'  => OfficialLetter::class,
-        'ID'   => IdCard::class,
-        'MR'   => MoneyReceipt::class,
+        'LTR' => OfficialLetter::class,
+        'ID' => IdCard::class,
+        'MR' => MoneyReceipt::class,
     ];
 
     /** Public accessor so admin pages can iterate the registry (e.g. serial-number lookup). */
@@ -39,6 +39,7 @@ class VerificationService
                 return $model;
             }
         }
+
         return null;
     }
 
@@ -49,24 +50,24 @@ class VerificationService
     public function publicSnapshot(Model $model): array
     {
         $snap = [
-            'serial'            => $model->serial_number,
-            'kind'              => class_basename($model),
-            'status'            => $model->status?->value,
-            'issued_on'         => optional($model->released_on ?? $model->verified_at ?? $model->created_at)->toDateString(),
-            'valid_until'       => $model->valid_until ?? null,
-            'revoked_at'        => optional($model->revoked_at)->toDateString(),
+            'serial' => $model->serial_number,
+            'kind' => class_basename($model),
+            'status' => $model->status?->value,
+            'issued_on' => optional($model->released_on ?? $model->verified_at ?? $model->created_at)->toDateString(),
+            'valid_until' => $model->valid_until ?? null,
+            'revoked_at' => optional($model->revoked_at)->toDateString(),
             'revocation_reason' => $model->revocation_reason,
-            'is_valid'          => $model->status === VerificationStatus::Valid,
+            'is_valid' => $model->status === VerificationStatus::Valid,
             // Dynamic metadata — populated from model-specific fields below
-            'recipient'         => null,
-            'signatory'         => null,
-            'purpose'           => null,
+            'recipient' => null,
+            'signatory' => null,
+            'purpose' => null,
         ];
 
         if ($model instanceof OfficialLetter) {
             $model->loadMissing(['signedBy.position', 'author.position', 'category']);
             $snap['recipient'] = $model->recipient_name ?: null;
-            $snap['purpose']   = $model->subject ?: ($model->category?->name ?? null);
+            $snap['purpose'] = $model->subject ?: ($model->category?->name ?? null);
             $signer = $model->signedBy ?? $model->author;
             if ($signer) {
                 $title = optional($signer->position)->title;
@@ -86,15 +87,15 @@ class VerificationService
         }
 
         if ($model instanceof MoneyReceipt) {
-            $snap['recipient']       = $model->payer_name;
-            $snap['purpose']         = $model->purpose;
-            $snap['issued_on']       = optional($model->receipt_date)->toDateString();
+            $snap['recipient'] = $model->payer_name;
+            $snap['purpose'] = $model->purpose;
+            $snap['issued_on'] = optional($model->receipt_date)->toDateString();
             // Receipt-specific fields — surfaced only when kind === 'MoneyReceipt'.
-            $snap['amount']          = number_format((float) $model->amount, 2);
-            $snap['currency']        = $model->currency;
-            $snap['payment_method']  = $model->payment_method?->getLabel();
-            $snap['reference_no']    = $model->reference_no;
-            $snap['received_by']     = $model->received_by;
+            $snap['amount'] = number_format((float) $model->amount, 2);
+            $snap['currency'] = $model->currency;
+            $snap['payment_method'] = $model->payment_method?->getLabel();
+            $snap['reference_no'] = $model->reference_no;
+            $snap['received_by'] = $model->received_by;
         }
 
         return $snap;

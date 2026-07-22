@@ -30,8 +30,7 @@ class ViewOfficialLetter extends ViewRecord
                     app(LetterGeneratorService::class)->generate($r);
                     Notification::make()->success()->title('Letter generated and released')->send();
                 })
-                ->visible(fn () =>
-                    $this->getRecord()->isValid()
+                ->visible(fn () => $this->getRecord()->isValid()
                     && in_array($this->getRecord()->letter_status, [OfficialLetterStatus::Draft, OfficialLetterStatus::ForReview, OfficialLetterStatus::Approved])
                 ),
 
@@ -48,8 +47,7 @@ class ViewOfficialLetter extends ViewRecord
                     Notification::make()->success()->title('PDF regenerated')
                         ->body('The old PDF has been replaced.')->send();
                 })
-                ->visible(fn () =>
-                    $this->getRecord()->isValid()
+                ->visible(fn () => $this->getRecord()->isValid()
                     && $this->getRecord()->letter_status === OfficialLetterStatus::Released
                 ),
 

@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Enums\PaymentMethod;
 use App\Enums\RecurringCadence;
+use App\Filament\Clusters\Fundraising;
 use App\Filament\Resources\DonationResource\Pages;
 use App\Models\Campaign;
 use App\Models\Donation;
@@ -20,7 +21,7 @@ class DonationResource extends Resource
 {
     protected static ?string $model = Donation::class;
 
-    protected static ?string $cluster = \App\Filament\Clusters\Fundraising::class;
+    protected static ?string $cluster = Fundraising::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
 
@@ -163,10 +164,10 @@ class DonationResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListDonations::route('/'),
+            'index' => Pages\ListDonations::route('/'),
             'create' => Pages\CreateDonation::route('/create'),
-            'view'   => Pages\ViewDonation::route('/{record}'),
-            'edit'   => Pages\EditDonation::route('/{record}/edit'),
+            'view' => Pages\ViewDonation::route('/{record}'),
+            'edit' => Pages\EditDonation::route('/{record}/edit'),
         ];
     }
 

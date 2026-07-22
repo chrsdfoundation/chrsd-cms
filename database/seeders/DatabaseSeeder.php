@@ -44,19 +44,19 @@ class DatabaseSeeder extends Seeder
         $emp = Employee::firstOrCreate(
             ['email' => 'employee@chrsd.org'],
             [
-                'first_name'    => 'Demo',
-                'last_name'     => 'Employee',
+                'first_name' => 'Demo',
+                'last_name' => 'Employee',
                 'department_id' => $hr->id,
-                'position_id'   => $pos->id,
-                'hired_at'      => now()->subYear(),
+                'position_id' => $pos->id,
+                'hired_at' => now()->subYear(),
             ],
         );
         $portalUser = User::updateOrCreate(
             ['email' => 'employee@chrsd.org'],
             [
                 'employee_id' => $emp->id,
-                'name'        => $emp->full_name,
-                'password'    => Hash::make('password'),
+                'name' => $emp->full_name,
+                'password' => Hash::make('password'),
             ],
         );
         $portalUser->organizations()->syncWithoutDetaching([$org->id => ['is_default' => true]]);

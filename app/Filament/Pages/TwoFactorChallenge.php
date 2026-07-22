@@ -33,11 +33,13 @@ class TwoFactorChallenge extends Page implements HasForms
 
         if (! $user->hasEnabledTwoFactor()) {
             redirect('/admin')->send();
+
             return;
         }
 
         if (session()->has('two_factor_passed_at')) {
             redirect('/admin')->send();
+
             return;
         }
 
@@ -68,6 +70,7 @@ class TwoFactorChallenge extends Page implements HasForms
         // Try TOTP first — the common case.
         if ($svc->verify($user->two_factor_secret, $code)) {
             $this->passChallenge();
+
             return;
         }
 
@@ -82,6 +85,7 @@ class TwoFactorChallenge extends Page implements HasForms
             ])->save();
 
             $this->passChallenge('Recovery code accepted — one fewer remaining.');
+
             return;
         }
 

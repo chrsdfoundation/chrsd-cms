@@ -18,10 +18,10 @@ class VolunteerProfile extends Model
     ];
 
     protected $casts = [
-        'status'       => VolunteerStatus::class,
-        'skills'       => 'array',
+        'status' => VolunteerStatus::class,
+        'skills' => 'array',
         'availability' => 'array',
-        'joined_on'    => 'date',
+        'joined_on' => 'date',
     ];
 
     public function person(): BelongsTo

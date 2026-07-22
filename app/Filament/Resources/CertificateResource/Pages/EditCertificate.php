@@ -28,6 +28,7 @@ class EditCertificate extends EditRecord
                 ->body('Click "Regenerate PDF" to rebuild the certificate with your changes and refresh the verification hash.')
                 ->persistent();
         }
+
         return parent::getSavedNotification();
     }
 
@@ -46,8 +47,7 @@ class EditCertificate extends EditRecord
                     Notification::make()->success()->title('Certificate PDF generated')->send();
                     $this->refreshFormData(['issuance_status']);
                 })
-                ->visible(fn () =>
-                    $this->getRecord() instanceof Certificate
+                ->visible(fn () => $this->getRecord() instanceof Certificate
                     && $this->getRecord()->isValid()
                     && ! $this->getRecord()->hasMedia('rendered')
                 ),
@@ -65,8 +65,7 @@ class EditCertificate extends EditRecord
                     Notification::make()->success()->title('PDF regenerated')
                         ->body('The old certificate PDF has been replaced.')->send();
                 })
-                ->visible(fn () =>
-                    $this->getRecord() instanceof Certificate
+                ->visible(fn () => $this->getRecord() instanceof Certificate
                     && $this->getRecord()->isValid()
                     && $this->getRecord()->hasMedia('rendered')
                 ),

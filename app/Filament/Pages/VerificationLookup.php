@@ -89,6 +89,7 @@ class VerificationLookup extends Page implements HasForms
                 ->title('No matching document')
                 ->body('No employee, certificate, or letter matched your query.')
                 ->warning()->send();
+
             return;
         }
 

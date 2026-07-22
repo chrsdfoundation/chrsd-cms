@@ -19,8 +19,8 @@ class CreatePerson extends CreateRecord
         // Filament still surfaces them in $data. Cache the flags for
         // afterCreate() and strip them so Eloquent doesn't complain.
         $this->roleFlags = [
-            'donor'       => (bool) ($data['_is_donor'] ?? false),
-            'volunteer'   => (bool) ($data['_is_volunteer'] ?? false),
+            'donor' => (bool) ($data['_is_donor'] ?? false),
+            'volunteer' => (bool) ($data['_is_volunteer'] ?? false),
             'beneficiary' => (bool) ($data['_is_beneficiary'] ?? false),
         ];
 
@@ -39,9 +39,15 @@ class CreatePerson extends CreateRecord
         // Profile rows get default enum values (Cold / Prospective / Enrolled)
         // set on their tables. Admin can edit each profile from the
         // person's view page afterwards.
-        if ($this->roleFlags['donor']       ?? false) { $record->donorProfile()->create([]); }
-        if ($this->roleFlags['volunteer']   ?? false) { $record->volunteerProfile()->create([]); }
-        if ($this->roleFlags['beneficiary'] ?? false) { $record->beneficiaryProfile()->create([]); }
+        if ($this->roleFlags['donor'] ?? false) {
+            $record->donorProfile()->create([]);
+        }
+        if ($this->roleFlags['volunteer'] ?? false) {
+            $record->volunteerProfile()->create([]);
+        }
+        if ($this->roleFlags['beneficiary'] ?? false) {
+            $record->beneficiaryProfile()->create([]);
+        }
     }
 
     protected function getRedirectUrl(): string

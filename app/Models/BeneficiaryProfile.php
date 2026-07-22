@@ -17,7 +17,7 @@ class BeneficiaryProfile extends Model
     ];
 
     protected $casts = [
-        'status'      => BeneficiaryStatus::class,
+        'status' => BeneficiaryStatus::class,
         'enrolled_on' => 'date',
     ];
 

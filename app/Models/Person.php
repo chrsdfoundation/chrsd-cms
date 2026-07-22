@@ -12,7 +12,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Person extends Model
 {
-    use SoftDeletes, LogsActivity, BelongsToOrganization;
+    use BelongsToOrganization, LogsActivity, SoftDeletes;
 
     protected $table = 'people';
 
@@ -70,9 +70,16 @@ class Person extends Model
     public function getRolesAttribute(): array
     {
         $roles = [];
-        if ($this->relationLoaded('donorProfile')       ? $this->donorProfile       : $this->donorProfile()->exists())       $roles[] = 'donor';
-        if ($this->relationLoaded('volunteerProfile')   ? $this->volunteerProfile   : $this->volunteerProfile()->exists())   $roles[] = 'volunteer';
-        if ($this->relationLoaded('beneficiaryProfile') ? $this->beneficiaryProfile : $this->beneficiaryProfile()->exists()) $roles[] = 'beneficiary';
+        if ($this->relationLoaded('donorProfile') ? $this->donorProfile : $this->donorProfile()->exists()) {
+            $roles[] = 'donor';
+        }
+        if ($this->relationLoaded('volunteerProfile') ? $this->volunteerProfile : $this->volunteerProfile()->exists()) {
+            $roles[] = 'volunteer';
+        }
+        if ($this->relationLoaded('beneficiaryProfile') ? $this->beneficiaryProfile : $this->beneficiaryProfile()->exists()) {
+            $roles[] = 'beneficiary';
+        }
+
         return $roles;
     }
 

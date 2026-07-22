@@ -33,8 +33,8 @@ class LetterGeneratorService
                 ->toMediaCollection('rendered');
 
             $letter->forceFill([
-                'letter_status'    => OfficialLetterStatus::Released,
-                'released_on'      => $letter->released_on ?? now()->toDateString(),
+                'letter_status' => OfficialLetterStatus::Released,
+                'released_on' => $letter->released_on ?? now()->toDateString(),
                 'pdf_content_hash' => $signature,
             ])->save();
 
@@ -56,17 +56,17 @@ class LetterGeneratorService
             $signatory = $letter->signedBy;
 
             $html = View::make('documents.letters.default-browsershot', [
-                'letter'              => $letter,
-                'letterAuthor'        => $letter->letterAuthor,
-                'author'              => $letter->author,
-                'resolvedAuthor'      => $resolvedAuthor,
-                'signatory'           => $signatory,
-                'category'            => $letter->category,
-                'qr_svg'              => $this->qr->svg($letter),
-                'verify_url'          => $this->qr->verificationUrl($letter),
-                'watermark_uri'       => $this->dataUriFor(public_path('images/brand/letterhead-watermark.png')),
+                'letter' => $letter,
+                'letterAuthor' => $letter->letterAuthor,
+                'author' => $letter->author,
+                'resolvedAuthor' => $resolvedAuthor,
+                'signatory' => $signatory,
+                'category' => $letter->category,
+                'qr_svg' => $this->qr->svg($letter),
+                'verify_url' => $this->qr->verificationUrl($letter),
+                'watermark_uri' => $this->dataUriFor(public_path('images/brand/letterhead-watermark.png')),
                 'signature_image_uri' => $this->resolveSignatureDataUri($letter),
-                'body_html'           => $this->transformBodyMarkup($letter->body ?? ''),
+                'body_html' => $this->transformBodyMarkup($letter->body ?? ''),
             ])->render();
         }
 
@@ -85,21 +85,21 @@ class LetterGeneratorService
             $letterheadImages = $this->cropLetterheadImages();
 
             $opts = [
-                'html'        => $html,
+                'html' => $html,
                 'headerImage' => $letterheadImages['header'],
                 'footerImage' => $letterheadImages['footer'],
                 // 220px top / 190px bottom: extra 30px past the letterhead
                 // strip prevents body text from butting up against the header
                 // logo / footer address bar (LTR-2026-000022 fix).
-                'margin'      => ['top' => '220px', 'right' => '60px', 'bottom' => '190px', 'left' => '60px'],
-                'output'      => $pdfFile,
-                'chromePath'  => (string) config('chrsd.puppeteer.chromium', ''),
+                'margin' => ['top' => '220px', 'right' => '60px', 'bottom' => '190px', 'left' => '60px'],
+                'output' => $pdfFile,
+                'chromePath' => (string) config('chrsd.puppeteer.chromium', ''),
             ];
             file_put_contents($optFile, json_encode($opts));
 
-            $node   = (string) config('chrsd.puppeteer.node', 'node');
+            $node = (string) config('chrsd.puppeteer.node', 'node');
             $script = base_path('node_scripts/pdf-letter.cjs');
-            $cmd    = escapeshellarg($node) . ' ' . escapeshellarg($script) . ' ' . escapeshellarg($optFile);
+            $cmd = escapeshellarg($node) . ' ' . escapeshellarg($script) . ' ' . escapeshellarg($optFile);
 
             exec($cmd . ' 2>&1', $output, $exitCode);
 
@@ -138,6 +138,7 @@ class LetterGeneratorService
         // Better than a blank page while a dev sorts out image assets.
         if (! $header || ! $footer) {
             $whole = $this->dataUriFor(public_path('images/brand/Letterhead.png'));
+
             return ['header' => $whole, 'footer' => $whole];
         }
 
@@ -151,6 +152,7 @@ class LetterGeneratorService
             return null;
         }
         $mime = 'image/png';
+
         return 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($path));
     }
 
@@ -159,15 +161,15 @@ class LetterGeneratorService
     {
         // Prefer the new Author model; fall back to legacy Employee author.
         $letterAuthor = $letter->letterAuthor;
-        $employee     = $letter->author;
-        $signatory    = $letter->signedBy;
+        $employee = $letter->author;
+        $signatory = $letter->signedBy;
 
-        $authorName  = $letterAuthor?->name ?? $employee?->full_name ?? '';
+        $authorName = $letterAuthor?->name ?? $employee?->full_name ?? '';
         $authorTitle = $letterAuthor?->designation ?? optional($employee?->position)->title ?? '';
-        $authorOrg   = $letterAuthor?->organization ?? config('app.name');
+        $authorOrg = $letterAuthor?->organization ?? config('app.name');
 
         // Signatory falls back to letter author.
-        $signatoryName  = $signatory?->full_name ?? $authorName;
+        $signatoryName = $signatory?->full_name ?? $authorName;
         $signatoryTitle = optional($signatory?->position)->title ?? $authorTitle;
 
         // Prefer SVG for the template-shell QR: Chromium renders the vector
@@ -181,28 +183,28 @@ class LetterGeneratorService
         $signatureImg = $this->resolveSignatureImage($letter);
 
         return [
-            'name'               => $letter->recipient_name ?? '',
-            'designation'        => $letter->recipient_title ?? '',
-            'organization'       => optional($letter->organization)->name ?? $authorOrg,
+            'name' => $letter->recipient_name ?? '',
+            'designation' => $letter->recipient_title ?? '',
+            'organization' => optional($letter->organization)->name ?? $authorOrg,
             'certificate_number' => $letter->serial_number,
-            'letter_reference'   => $letter->serial_number,
-            'date'               => optional($letter->dated_on ?? $letter->created_at)->toFormattedDateString(),
-            'issue_date'         => optional($letter->dated_on ?? $letter->created_at)->toFormattedDateString(),
-            'position'           => $authorTitle,
-            'subject'            => $letter->subject ?? '',
+            'letter_reference' => $letter->serial_number,
+            'date' => optional($letter->dated_on ?? $letter->created_at)->toFormattedDateString(),
+            'issue_date' => optional($letter->dated_on ?? $letter->created_at)->toFormattedDateString(),
+            'position' => $authorTitle,
+            'subject' => $letter->subject ?? '',
             // Body is pipe-table-normalised here too so DB-template letters
             // (which don't go through the default-browsershot transform) still
             // get real <table> markup when authors type pipe rows.
-            'body'               => $this->transformBodyMarkup($letter->body ?? ''),
-            'recipient_name'     => $letter->recipient_name ?? '',
-            'recipient_title'    => $letter->recipient_title ?? '',
-            'recipient_address'  => $letter->recipient_address ?? '',
-            'signatory_name'     => $signatoryName,
-            'signatory_title'    => $signatoryTitle,
-            'verification_url'   => $this->qr->verificationUrl($letter),
-            'qr_code'            => $qrImg,
-            'signature_image'    => $signatureImg,
-            'watermark_uri'      => (string) $this->dataUriFor(public_path('images/brand/letterhead-watermark.png')),
+            'body' => $this->transformBodyMarkup($letter->body ?? ''),
+            'recipient_name' => $letter->recipient_name ?? '',
+            'recipient_title' => $letter->recipient_title ?? '',
+            'recipient_address' => $letter->recipient_address ?? '',
+            'signatory_name' => $signatoryName,
+            'signatory_title' => $signatoryTitle,
+            'verification_url' => $this->qr->verificationUrl($letter),
+            'qr_code' => $qrImg,
+            'signature_image' => $signatureImg,
+            'watermark_uri' => (string) $this->dataUriFor(public_path('images/brand/letterhead-watermark.png')),
         ];
     }
 
@@ -218,6 +220,7 @@ class LetterGeneratorService
         if ($uri === '') {
             return '';
         }
+
         return sprintf(
             '<img src="%s" alt="Signature" style="display:block;max-height:70px;max-width:220px;margin-bottom:2px;object-fit:contain;" />',
             $uri,
@@ -236,6 +239,7 @@ class LetterGeneratorService
             $path = $letter->getFirstMedia('signature')->getPath();
             if (is_file($path)) {
                 $mime = mime_content_type($path) ?: 'image/png';
+
                 return 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($path));
             }
         }
@@ -290,6 +294,7 @@ class LetterGeneratorService
             // Strip a leading <p> and any leading whitespace before deciding.
             $stripped = preg_replace('#^\s*<p[^>]*>\s*#i', '', $line);
             $stripped = ltrim((string) $stripped);
+
             return $stripped !== '' && $stripped[0] === '|' && str_contains($stripped, '|');
         };
 
@@ -300,6 +305,7 @@ class LetterGeneratorService
         // on the </p> before another row could join it.
         $isBoundaryLine = static function (string $line): bool {
             $t = trim($line);
+
             return $t === '' || (bool) preg_match('#^</?p[^>]*>$#i', $t);
         };
 
@@ -327,10 +333,12 @@ class LetterGeneratorService
                 // discard them; they were noise between table cells.
                 $pending = [];
                 $buffer[] = $line;
+
                 continue;
             }
             if (! empty($buffer) && $isBoundaryLine($line)) {
                 $pending[] = $line;
+
                 continue;
             }
             $flush();
@@ -364,7 +372,7 @@ class LetterGeneratorService
         }
 
         // Drop optional separator row of form | --- | --- |
-        $header   = array_shift($rows);
+        $header = array_shift($rows);
         if (! empty($rows) && $this->isSeparatorRow($rows[0])) {
             array_shift($rows);
         }
@@ -407,6 +415,7 @@ class LetterGeneratorService
                 return false;
             }
         }
+
         return count($cells) > 0;
     }
 }

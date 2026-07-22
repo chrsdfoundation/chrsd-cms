@@ -15,7 +15,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class OfficialLetter extends Model implements HasMedia
 {
-    use SoftDeletes, HasVerification, LogsActivity, InteractsWithMedia, BelongsToOrganization;
+    use BelongsToOrganization, HasVerification, InteractsWithMedia, LogsActivity, SoftDeletes;
 
     protected $fillable = [
         'organization_id',
@@ -28,8 +28,8 @@ class OfficialLetter extends Model implements HasMedia
 
     protected $casts = [
         'letter_status' => OfficialLetterStatus::class,
-        'dated_on'      => 'date',
-        'released_on'   => 'date',
+        'dated_on' => 'date',
+        'released_on' => 'date',
     ];
 
     public function verificationPrefix(): string
@@ -41,8 +41,8 @@ class OfficialLetter extends Model implements HasMedia
     {
         return [
             'category' => $this->letter_category_id,
-            'author'   => $this->author_id,
-            'subject'  => $this->subject,
+            'author' => $this->author_id,
+            'subject' => $this->subject,
         ];
     }
 

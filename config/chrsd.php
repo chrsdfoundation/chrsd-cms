@@ -42,7 +42,7 @@ return [
      */
     'puppeteer' => [
         'chromium' => env('CHROMIUM_PATH'),
-        'node'     => env('NODE_PATH', 'node'),
+        'node' => env('NODE_PATH', 'node'),
     ],
 
 ];

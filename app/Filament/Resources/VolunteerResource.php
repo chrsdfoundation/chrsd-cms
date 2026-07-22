@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Enums\VolunteerStatus;
+use App\Filament\Clusters\Crm;
 use App\Filament\Resources\VolunteerResource\Pages;
 use App\Models\VolunteerProfile;
 use Filament\Resources\Resource;
@@ -14,7 +15,7 @@ class VolunteerResource extends Resource
 {
     protected static ?string $model = VolunteerProfile::class;
 
-    protected static ?string $cluster = \App\Filament\Clusters\Crm::class;
+    protected static ?string $cluster = Crm::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-hand-raised';
 

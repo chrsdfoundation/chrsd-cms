@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Certificate;
+use App\Models\OfficialLetter;
 use App\Services\Documents\PdfSignatureService;
 use App\Services\Verification\QrCodeService;
 use App\Services\Verification\VerificationService;
@@ -30,16 +32,16 @@ class KioskVerifyController extends Controller
     {
         $data = $request->validate([
             'query' => ['nullable', 'string', 'max:128'],
-            'pdf'   => ['nullable', 'file', 'mimetypes:application/pdf', 'max:20480'],
+            'pdf' => ['nullable', 'file', 'mimetypes:application/pdf', 'max:20480'],
         ]);
 
         $model = null;
 
         if ($request->hasFile('pdf')) {
             $sig = $this->signer->sign($request->file('pdf')->get());
-            $model = \App\Models\Certificate::query()->acrossOrganizations()
+            $model = Certificate::query()->acrossOrganizations()
                 ->where('pdf_content_hash', $sig)->first()
-                ?? \App\Models\OfficialLetter::query()->acrossOrganizations()
+                ?? OfficialLetter::query()->acrossOrganizations()
                     ->where('pdf_content_hash', $sig)->first();
         } elseif (! empty($data['query'])) {
             $q = trim($data['query']);
@@ -50,29 +52,31 @@ class KioskVerifyController extends Controller
                 foreach ($this->verifier->registry() as $class) {
                     $model = $class::query()->acrossOrganizations()
                         ->where('serial_number', $q)->first();
-                    if ($model) break;
+                    if ($model) {
+                        break;
+                    }
                 }
             }
         }
 
         return view('kiosk.index', $this->baseData([
             'attempted' => true,
-            'model'     => $model,
-            'snapshot'  => $model ? $this->verifier->publicSnapshot($model) : null,
-            'qr_svg'    => $model ? $this->qr->svg($model, 5) : null,
-            'query'     => $data['query'] ?? null,
+            'model' => $model,
+            'snapshot' => $model ? $this->verifier->publicSnapshot($model) : null,
+            'qr_svg' => $model ? $this->qr->svg($model, 5) : null,
+            'query' => $data['query'] ?? null,
         ]));
     }
 
     protected function baseData(array $extra): array
     {
         return array_merge([
-            'app'       => config('app.name'),
+            'app' => config('app.name'),
             'attempted' => false,
-            'model'     => null,
-            'snapshot'  => null,
-            'qr_svg'    => null,
-            'query'     => null,
+            'model' => null,
+            'snapshot' => null,
+            'qr_svg' => null,
+            'query' => null,
         ], $extra);
     }
 }

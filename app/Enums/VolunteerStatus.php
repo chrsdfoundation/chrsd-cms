@@ -5,12 +5,12 @@ namespace App\Enums;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 
-enum VolunteerStatus: string implements HasLabel, HasColor
+enum VolunteerStatus: string implements HasColor, HasLabel
 {
     case Prospective = 'prospective';
-    case Active      = 'active';
-    case Inactive    = 'inactive';
-    case Alumni      = 'alumni';
+    case Active = 'active';
+    case Inactive = 'inactive';
+    case Alumni = 'alumni';
 
     public function getLabel(): string
     {
@@ -21,9 +21,9 @@ enum VolunteerStatus: string implements HasLabel, HasColor
     {
         return match ($this) {
             self::Prospective => 'info',
-            self::Active      => 'success',
-            self::Inactive    => 'warning',
-            self::Alumni      => 'gray',
+            self::Active => 'success',
+            self::Inactive => 'warning',
+            self::Alumni => 'gray',
         };
     }
 }

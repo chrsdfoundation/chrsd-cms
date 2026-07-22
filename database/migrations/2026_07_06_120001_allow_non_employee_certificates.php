@@ -16,7 +16,8 @@ use Illuminate\Support\Facades\Schema;
  * This migration is idempotent — safe to run against a database that already
  * has the columns / relaxed constraint.
  */
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         if (! Schema::hasColumn('certificates', 'recipient_name')) {

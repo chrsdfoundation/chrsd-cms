@@ -12,6 +12,7 @@ class MultiTenancyTest extends TestCase
     use RefreshDatabase;
 
     protected Organization $orgA;
+
     protected Organization $orgB;
 
     protected function setUp(): void

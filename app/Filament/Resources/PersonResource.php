@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\Crm;
 use App\Filament\Resources\PersonResource\Pages;
 use App\Filament\Resources\PersonResource\RelationManagers;
 use App\Models\Person;
@@ -17,7 +18,7 @@ class PersonResource extends Resource
 {
     protected static ?string $model = Person::class;
 
-    protected static ?string $cluster = \App\Filament\Clusters\Crm::class;
+    protected static ?string $cluster = Crm::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
@@ -100,10 +101,10 @@ class PersonResource extends Resource
                     ->label('Type')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
-                        'donor'       => 'warning',
-                        'volunteer'   => 'success',
+                        'donor' => 'warning',
+                        'volunteer' => 'success',
                         'beneficiary' => 'info',
-                        default       => 'gray',
+                        default => 'gray',
                     })
                     ->formatStateUsing(fn (string $state) => str($state)->title()),
 
@@ -162,10 +163,10 @@ class PersonResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListPeople::route('/'),
+            'index' => Pages\ListPeople::route('/'),
             'create' => Pages\CreatePerson::route('/create'),
-            'view'   => Pages\ViewPerson::route('/{record}'),
-            'edit'   => Pages\EditPerson::route('/{record}/edit'),
+            'view' => Pages\ViewPerson::route('/{record}'),
+            'edit' => Pages\EditPerson::route('/{record}/edit'),
         ];
     }
 

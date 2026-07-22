@@ -11,7 +11,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class CertificateRequest extends Model
 {
-    use LogsActivity, BelongsToOrganization;
+    use BelongsToOrganization, LogsActivity;
 
     protected $fillable = [
         'organization_id',
@@ -27,7 +27,7 @@ class CertificateRequest extends Model
     ];
 
     protected $casts = [
-        'status'      => CertificateRequestStatus::class,
+        'status' => CertificateRequestStatus::class,
         'reviewed_at' => 'datetime',
     ];
 

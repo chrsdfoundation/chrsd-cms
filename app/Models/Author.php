@@ -47,6 +47,7 @@ class Author extends Model
         }
 
         $bytes = Storage::disk('public')->get($this->signature_path);
+
         return 'data:image/png;base64,' . base64_encode($bytes);
     }
 
@@ -61,6 +62,7 @@ class Author extends Model
         }
 
         $bytes = Storage::disk('public')->get($this->initial_path);
+
         return 'data:image/png;base64,' . base64_encode($bytes);
     }
 

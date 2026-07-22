@@ -3,9 +3,13 @@
 namespace App\Filament\Resources;
 
 use App\Enums\CertificateIssuance;
+use App\Enums\DocumentTemplateType;
 use App\Enums\VerificationStatus;
+use App\Filament\Clusters\Documents;
 use App\Filament\Resources\CertificateResource\Pages;
 use App\Models\Certificate;
+use App\Models\CertificateType;
+use App\Models\DocumentTemplate;
 use App\Services\Documents\CertificateGeneratorService;
 use App\Services\Verification\QrCodeService;
 use Filament\Forms;
@@ -22,7 +26,7 @@ class CertificateResource extends Resource
 {
     protected static ?string $model = Certificate::class;
 
-    protected static ?string $cluster = \App\Filament\Clusters\Documents::class;
+    protected static ?string $cluster = Documents::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
@@ -68,7 +72,7 @@ class CertificateResource extends Resource
                         ->relationship('type', 'name')
                         ->searchable()->preload()->required()
                         ->live()
-                        ->default(fn () => \App\Models\CertificateType::query()->where('name', 'Certificate of Achievement')->value('id')),
+                        ->default(fn () => CertificateType::query()->where('name', 'Certificate of Achievement')->value('id')),
                     Forms\Components\Select::make('issuance_status')
                         ->options(CertificateIssuance::class)
                         ->default(CertificateIssuance::Draft->value)->required(),
@@ -80,13 +84,14 @@ class CertificateResource extends Resource
                     Forms\Components\Select::make('document_template_id')
                         ->label('Template')
                         ->options(function (Forms\Get $get) {
-                            $q = \App\Models\DocumentTemplate::query()
-                                ->where('document_type', \App\Enums\DocumentTemplateType::Certificate->value);
+                            $q = DocumentTemplate::query()
+                                ->where('document_type', DocumentTemplateType::Certificate->value);
                             $typeId = $get('certificate_type_id');
                             if ($typeId) {
                                 $q->where(fn ($qq) => $qq->whereNull('certificate_type_id')
                                     ->orWhere('certificate_type_id', $typeId));
                             }
+
                             return $q->orderBy('name')->pluck('name', 'id');
                         })
                         // No searchable() + no preload() — the list is short and
@@ -102,20 +107,25 @@ class CertificateResource extends Resource
                             if (! $state || $record !== null) {
                                 return;
                             }
-                            $tpl = \App\Models\DocumentTemplate::find($state);
+                            $tpl = DocumentTemplate::find($state);
                             $sample = (array) ($tpl?->sample_context ?? []);
                             $map = [
-                                'purpose'           => ['course_name', 'event_name', 'purpose'],
-                                'recipient_name'    => ['name', 'recipient_name'],
-                                'signatory_1_name'  => ['signatory_left', 'signatory_name'],
+                                'purpose' => ['course_name', 'event_name', 'purpose'],
+                                'recipient_name' => ['name', 'recipient_name'],
+                                'signatory_1_name' => ['signatory_left', 'signatory_name'],
                                 'signatory_1_title' => ['signatory_left_title', 'signatory_title'],
-                                'signatory_2_name'  => ['signatory_right', 'signatory_name'],
+                                'signatory_2_name' => ['signatory_right', 'signatory_name'],
                                 'signatory_2_title' => ['signatory_right_title', 'signatory_title'],
                             ];
                             foreach ($map as $field => $sources) {
-                                if (! empty($get($field))) continue;
+                                if (! empty($get($field))) {
+                                    continue;
+                                }
                                 foreach ($sources as $s) {
-                                    if (! empty($sample[$s])) { $set($field, $sample[$s]); break; }
+                                    if (! empty($sample[$s])) {
+                                        $set($field, $sample[$s]);
+                                        break;
+                                    }
                                 }
                             }
                         })
@@ -291,10 +301,10 @@ class CertificateResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListCertificates::route('/'),
+            'index' => Pages\ListCertificates::route('/'),
             'create' => Pages\CreateCertificate::route('/create'),
-            'view'   => Pages\ViewCertificate::route('/{record}'),
-            'edit'   => Pages\EditCertificate::route('/{record}/edit'),
+            'view' => Pages\ViewCertificate::route('/{record}'),
+            'edit' => Pages\EditCertificate::route('/{record}/edit'),
         ];
     }
 

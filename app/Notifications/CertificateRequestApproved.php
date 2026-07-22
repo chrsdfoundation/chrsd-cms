@@ -39,7 +39,7 @@ class CertificateRequestApproved extends Notification implements ShouldQueue
         if ($cert && $cert->hasMedia('rendered')) {
             $media = $cert->getFirstMedia('rendered');
             $mail->attach($media->getPath(), [
-                'as'   => $cert->serial_number . '.pdf',
+                'as' => $cert->serial_number . '.pdf',
                 'mime' => 'application/pdf',
             ]);
         }

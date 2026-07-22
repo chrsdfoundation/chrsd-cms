@@ -3,6 +3,7 @@
 namespace App\Concerns;
 
 use App\Enums\VerificationStatus;
+use App\Notifications\DocumentRevoked;
 use App\Observers\VerifiableObserver;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -16,9 +17,9 @@ trait HasVerification
     public function initializeHasVerification(): void
     {
         $this->mergeCasts([
-            'status'      => VerificationStatus::class,
+            'status' => VerificationStatus::class,
             'verified_at' => 'datetime',
-            'revoked_at'  => 'datetime',
+            'revoked_at' => 'datetime',
         ]);
     }
 
@@ -29,10 +30,10 @@ trait HasVerification
     public function verificationPayload(): array
     {
         return array_merge([
-            'id'      => $this->getKey(),
-            'class'   => static::class,
-            'serial'  => $this->serial_number,
-            'issued'  => optional($this->created_at)->toIso8601String(),
+            'id' => $this->getKey(),
+            'class' => static::class,
+            'serial' => $this->serial_number,
+            'issued' => optional($this->created_at)->toIso8601String(),
         ], $this->extraVerificationFields());
     }
 
@@ -50,14 +51,14 @@ trait HasVerification
     public function revoke(?string $reason = null): void
     {
         $this->forceFill([
-            'status'            => VerificationStatus::Revoked,
-            'revoked_at'        => now(),
+            'status' => VerificationStatus::Revoked,
+            'revoked_at' => now(),
             'revocation_reason' => $reason,
         ])->save();
 
         $notifiable = $this->getRevocationNotifiable();
         if ($notifiable && ($notifiable->email ?? null)) {
-            $notifiable->notify(new \App\Notifications\DocumentRevoked($this));
+            $notifiable->notify(new DocumentRevoked($this));
         }
     }
 

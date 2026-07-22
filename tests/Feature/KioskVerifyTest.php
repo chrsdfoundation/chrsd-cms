@@ -26,13 +26,14 @@ class KioskVerifyTest extends TestCase
     protected function makeCertificate(): Certificate
     {
         $dept = Department::create(['code' => 'HR', 'name' => 'HR']);
-        $pos  = Position::create(['department_id' => $dept->id, 'code' => 'S', 'title' => 'Staff']);
-        $emp  = Employee::create([
+        $pos = Position::create(['department_id' => $dept->id, 'code' => 'S', 'title' => 'Staff']);
+        $emp = Employee::create([
             'first_name' => 'Jane', 'last_name' => 'Doe',
             'email' => 'jane@test.test',
             'department_id' => $dept->id, 'position_id' => $pos->id,
         ]);
         $type = CertificateType::create(['code' => 'COE', 'name' => 'Certificate of Employment']);
+
         return Certificate::create([
             'employee_id' => $emp->id, 'certificate_type_id' => $type->id,
         ]);

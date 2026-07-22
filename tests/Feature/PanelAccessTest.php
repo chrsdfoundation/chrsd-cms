@@ -17,12 +17,13 @@ class PanelAccessTest extends TestCase
     use RefreshDatabase;
 
     protected Panel $adminPanel;
+
     protected Panel $portalPanel;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->adminPanel  = filament()->getPanel('admin');
+        $this->adminPanel = filament()->getPanel('admin');
         $this->portalPanel = filament()->getPanel('portal');
 
         foreach (['super_admin', 'hr_manager', 'hr_staff', 'viewer'] as $r) {
@@ -38,8 +39,8 @@ class PanelAccessTest extends TestCase
         $employeeId = null;
         if ($withEmployee) {
             $dept = Department::firstOrCreate(['code' => 'HR'], ['name' => 'Human Resources']);
-            $pos  = Position::firstOrCreate(['department_id' => $dept->id, 'code' => 'HR-STAFF'], ['title' => 'HR Staff']);
-            $emp  = Employee::create([
+            $pos = Position::firstOrCreate(['department_id' => $dept->id, 'code' => 'HR-STAFF'], ['title' => 'HR Staff']);
+            $emp = Employee::create([
                 'first_name' => 'User', 'last_name' => (string) $seq,
                 'email' => "user{$seq}@example.com",
                 'department_id' => $dept->id, 'position_id' => $pos->id,
@@ -56,6 +57,7 @@ class PanelAccessTest extends TestCase
         if ($roles) {
             $user->syncRoles($roles);
         }
+
         return $user->refresh();
     }
 

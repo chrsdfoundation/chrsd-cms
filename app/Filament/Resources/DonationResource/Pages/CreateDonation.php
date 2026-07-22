@@ -26,9 +26,10 @@ class CreateDonation extends CreateRecord
         // queries (raised/lifetime) still work. Payment method is nulled out
         // because it's meaningless for a non-cash gift.
         if (! empty($data['is_in_kind'])) {
-            $data['amount']         = $data['in_kind_valuation'] ?? 0;
+            $data['amount'] = $data['in_kind_valuation'] ?? 0;
             $data['payment_method'] = null;
         }
+
         return $data;
     }
 

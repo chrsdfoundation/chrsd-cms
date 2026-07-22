@@ -5,7 +5,9 @@ namespace Tests\Feature;
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -64,10 +66,10 @@ class PasswordChangeFlowTest extends TestCase
         $this->user->forceFill(['must_change_password' => false])->save();
 
         // Directly invoke the same logic the Filament action calls.
-        $temp = \Illuminate\Support\Str::password(16);
+        $temp = Str::password(16);
         $this->user->forceFill([
-            'password'             => Hash::make($temp),
-            'password_changed_at'  => now(),
+            'password' => Hash::make($temp),
+            'password_changed_at' => now(),
             'must_change_password' => true,
         ])->save();
         $this->user->refresh();
@@ -81,6 +83,6 @@ class PasswordChangeFlowTest extends TestCase
     {
         $this->assertTrue($this->user->hasCast('must_change_password'));
         $this->assertTrue($this->user->hasCast('password_changed_at'));
-        $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $this->user->password_changed_at);
+        $this->assertInstanceOf(Carbon::class, $this->user->password_changed_at);
     }
 }

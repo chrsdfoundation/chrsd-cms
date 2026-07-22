@@ -17,7 +17,7 @@ class DonorProfile extends Model
     ];
 
     protected $casts = [
-        'engagement_tier'  => EngagementTier::class,
+        'engagement_tier' => EngagementTier::class,
         'first_donated_at' => 'date',
     ];
 

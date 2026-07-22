@@ -15,7 +15,8 @@ use Illuminate\Support\Facades\Schema;
  * the verification hash and audit trail reference. The new columns are
  * for CERTIFICATE-DISPLAY only.
  */
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::table('certificates', function (Blueprint $table) {

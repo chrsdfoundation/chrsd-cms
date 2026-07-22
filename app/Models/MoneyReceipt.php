@@ -7,13 +7,14 @@ use App\Concerns\HasVerification;
 use App\Enums\PaymentMethod;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class MoneyReceipt extends Model
 {
-    use SoftDeletes, HasVerification, LogsActivity, BelongsToOrganization;
+    use BelongsToOrganization, HasVerification, LogsActivity, SoftDeletes;
 
     protected $fillable = [
         'organization_id', 'person_id', 'created_by',
@@ -25,8 +26,8 @@ class MoneyReceipt extends Model
     ];
 
     protected $casts = [
-        'receipt_date'   => 'date',
-        'amount'         => 'decimal:2',
+        'receipt_date' => 'date',
+        'amount' => 'decimal:2',
         'payment_method' => PaymentMethod::class,
     ];
 
@@ -43,10 +44,10 @@ class MoneyReceipt extends Model
     protected function extraVerificationFields(): array
     {
         return [
-            'amount'   => (string) $this->amount,
+            'amount' => (string) $this->amount,
             'currency' => $this->currency,
-            'payer'    => $this->payer_name,
-            'method'   => $this->payment_method?->value,
+            'payer' => $this->payer_name,
+            'method' => $this->payment_method?->value,
         ];
     }
 
@@ -93,7 +94,7 @@ class MoneyReceipt extends Model
         return $this->belongsTo(Person::class);
     }
 
-    public function donation(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function donation(): HasOne
     {
         return $this->hasOne(Donation::class, 'money_receipt_id');
     }

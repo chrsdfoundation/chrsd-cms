@@ -16,7 +16,8 @@ use Illuminate\Support\Facades\Schema;
  *
  * Idempotent — safe to run against an existing DB.
  */
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::table('id_cards', function (Blueprint $table) {

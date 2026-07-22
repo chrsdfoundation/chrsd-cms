@@ -24,13 +24,14 @@ class VerifyEndpointTest extends TestCase
     protected function makeCertificate(): Certificate
     {
         $dept = Department::create(['code' => 'HR', 'name' => 'Human Resources']);
-        $pos  = Position::create(['department_id' => $dept->id, 'code' => 'HR-STAFF', 'title' => 'HR Staff']);
-        $emp  = Employee::create([
+        $pos = Position::create(['department_id' => $dept->id, 'code' => 'HR-STAFF', 'title' => 'HR Staff']);
+        $emp = Employee::create([
             'first_name' => 'Jane', 'last_name' => 'Doe',
             'email' => 'jane.doe@example.com',
             'department_id' => $dept->id, 'position_id' => $pos->id,
         ]);
         $type = CertificateType::create(['code' => 'COE', 'name' => 'Certificate of Employment']);
+
         return Certificate::create([
             'employee_id' => $emp->id, 'certificate_type_id' => $type->id,
         ]);
@@ -73,8 +74,8 @@ class VerifyEndpointTest extends TestCase
             ->assertJson([
                 'found' => true,
                 'snapshot' => [
-                    'serial'   => $cert->serial_number,
-                    'kind'     => 'Certificate',
+                    'serial' => $cert->serial_number,
+                    'kind' => 'Certificate',
                     'is_valid' => true,
                 ],
             ]);
@@ -103,7 +104,7 @@ class VerifyEndpointTest extends TestCase
     public function test_rate_limiter_blocks_after_the_configured_threshold(): void
     {
         $cert = $this->makeCertificate();
-        $url  = "/verify/{$cert->verification_hash}";
+        $url = "/verify/{$cert->verification_hash}";
 
         // 30 per minute → first 30 must all succeed
         for ($i = 0; $i < 30; $i++) {

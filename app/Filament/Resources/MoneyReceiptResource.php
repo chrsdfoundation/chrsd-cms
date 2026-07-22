@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Enums\PaymentMethod;
 use App\Enums\VerificationStatus;
+use App\Filament\Clusters\Fundraising;
 use App\Filament\Resources\MoneyReceiptResource\Pages;
 use App\Models\MoneyReceipt;
 use Filament\Forms;
@@ -21,7 +22,7 @@ class MoneyReceiptResource extends Resource
 {
     protected static ?string $model = MoneyReceipt::class;
 
-    protected static ?string $cluster = \App\Filament\Clusters\Fundraising::class;
+    protected static ?string $cluster = Fundraising::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
@@ -146,7 +147,7 @@ class MoneyReceiptResource extends Resource
                         Forms\Components\DatePicker::make('until')->native(false),
                     ])
                     ->query(fn (Builder $q, array $data) => $q
-                        ->when($data['from']  ?? null, fn ($qq, $v) => $qq->whereDate('receipt_date', '>=', $v))
+                        ->when($data['from'] ?? null, fn ($qq, $v) => $qq->whereDate('receipt_date', '>=', $v))
                         ->when($data['until'] ?? null, fn ($qq, $v) => $qq->whereDate('receipt_date', '<=', $v))
                     ),
                 Tables\Filters\TrashedFilter::make(),
@@ -174,10 +175,10 @@ class MoneyReceiptResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListMoneyReceipts::route('/'),
+            'index' => Pages\ListMoneyReceipts::route('/'),
             'create' => Pages\CreateMoneyReceipt::route('/create'),
-            'view'   => Pages\ViewMoneyReceipt::route('/{record}'),
-            'edit'   => Pages\EditMoneyReceipt::route('/{record}/edit'),
+            'view' => Pages\ViewMoneyReceipt::route('/{record}'),
+            'edit' => Pages\EditMoneyReceipt::route('/{record}/edit'),
         ];
     }
 
@@ -205,7 +206,7 @@ class MoneyReceiptResource extends Resource
             ->modalHeading('Verification QR')
             ->modalContent(fn (MoneyReceipt $record) => new HtmlString(
                 '<div class="flex justify-center p-6">'
-                . (new DNS2D())->getBarcodeSVG($record->qr_code_uri, 'QRCODE', 6, 6)
+                . (new DNS2D)->getBarcodeSVG($record->qr_code_uri, 'QRCODE', 6, 6)
                 . '</div>'
                 . '<p class="text-center text-sm text-gray-600 break-all px-4 pb-4">'
                 . e($record->qr_code_uri)

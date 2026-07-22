@@ -84,10 +84,10 @@ class OrganizationResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListOrganizations::route('/'),
+            'index' => Pages\ListOrganizations::route('/'),
             'create' => Pages\CreateOrganization::route('/create'),
-            'view'   => Pages\ViewOrganization::route('/{record}'),
-            'edit'   => Pages\EditOrganization::route('/{record}/edit'),
+            'view' => Pages\ViewOrganization::route('/{record}'),
+            'edit' => Pages\EditOrganization::route('/{record}/edit'),
         ];
     }
 

@@ -31,7 +31,7 @@ class DocumentExpiryTest extends TestCase
         parent::setUp();
 
         $dept = Department::create(['code' => 'HR', 'name' => 'HR']);
-        $pos  = Position::create(['department_id' => $dept->id, 'code' => 'S', 'title' => 'Staff']);
+        $pos = Position::create(['department_id' => $dept->id, 'code' => 'S', 'title' => 'Staff']);
         $this->employee = Employee::create([
             'first_name' => 'Jane', 'last_name' => 'Doe',
             'email' => 'jane@example.test',
@@ -43,15 +43,15 @@ class DocumentExpiryTest extends TestCase
     protected function makeCert(?string $validUntil, ?string $notifiedAt = null, ?string $status = null): Certificate
     {
         $cert = Certificate::create([
-            'employee_id'         => $this->employee->id,
+            'employee_id' => $this->employee->id,
             'certificate_type_id' => $this->certType->id,
-            'valid_until'         => $validUntil,
+            'valid_until' => $validUntil,
         ]);
 
         if ($notifiedAt || $status) {
             $cert->forceFill(array_filter([
                 'expiry_notified_at' => $notifiedAt,
-                'status'             => $status,
+                'status' => $status,
             ]))->save();
             $cert->refresh();
         }
@@ -64,7 +64,7 @@ class DocumentExpiryTest extends TestCase
         return IdCard::create([
             'employee_id' => $this->employee->id,
             'designation' => 'Staff',
-            'valid_from'  => now()->toDateString(),
+            'valid_from' => now()->toDateString(),
             'valid_until' => $validUntil,
         ]);
     }
@@ -183,8 +183,8 @@ class DocumentExpiryTest extends TestCase
 
         Role::firstOrCreate(['name' => 'hr_manager', 'guard_name' => 'web']);
         $hr = User::create([
-            'name'     => 'HR Manager',
-            'email'    => 'hr@example.test',
+            'name' => 'HR Manager',
+            'email' => 'hr@example.test',
             'password' => bcrypt('secret'),
         ]);
         $hr->assignRole('hr_manager');

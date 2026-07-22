@@ -12,7 +12,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class DocumentTemplate extends Model
 {
-    use SoftDeletes, LogsActivity;
+    use LogsActivity, SoftDeletes;
 
     /**
      * Templates are a shared library: null organization_id = system-wide default
@@ -63,9 +63,9 @@ class DocumentTemplate extends Model
     ];
 
     protected $casts = [
-        'document_type'   => DocumentTemplateType::class,
-        'is_default'      => 'boolean',
-        'sample_context'  => 'array',
+        'document_type' => DocumentTemplateType::class,
+        'is_default' => 'boolean',
+        'sample_context' => 'array',
     ];
 
     public function getActivitylogOptions(): LogOptions

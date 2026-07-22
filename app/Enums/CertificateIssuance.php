@@ -5,11 +5,11 @@ namespace App\Enums;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 
-enum CertificateIssuance: string implements HasLabel, HasColor
+enum CertificateIssuance: string implements HasColor, HasLabel
 {
-    case Draft     = 'draft';
+    case Draft = 'draft';
     case Generated = 'generated';
-    case Issued    = 'issued';
+    case Issued = 'issued';
     case Delivered = 'delivered';
 
     public function getLabel(): string
@@ -20,9 +20,9 @@ enum CertificateIssuance: string implements HasLabel, HasColor
     public function getColor(): string|array|null
     {
         return match ($this) {
-            self::Draft     => 'warning',
+            self::Draft => 'warning',
             self::Generated => 'info',
-            self::Issued    => 'success',
+            self::Issued => 'success',
             self::Delivered => 'gray',
         };
     }

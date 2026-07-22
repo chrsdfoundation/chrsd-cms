@@ -46,16 +46,16 @@ class PdfVerificationController extends Controller
 
         if (! $model) {
             return response()->json([
-                'found'       => false,
-                'signature'   => $this->signer->humanFingerprint($signature),
-                'reason'      => 'no_matching_document',
+                'found' => false,
+                'signature' => $this->signer->humanFingerprint($signature),
+                'reason' => 'no_matching_document',
             ], 404);
         }
 
         return response()->json([
-            'found'        => true,
-            'signature'    => $this->signer->humanFingerprint($signature),
-            'snapshot'     => $this->verifier->publicSnapshot($model),
+            'found' => true,
+            'signature' => $this->signer->humanFingerprint($signature),
+            'snapshot' => $this->verifier->publicSnapshot($model),
         ]);
     }
 }

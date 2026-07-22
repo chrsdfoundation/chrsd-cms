@@ -29,6 +29,7 @@ class CreateOfficialLetter extends CreateRecord
                 unset($data[$k]);
             }
         }
+
         return $data;
     }
 }

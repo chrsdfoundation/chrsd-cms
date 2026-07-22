@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Enums\CertificateIssuance;
 use App\Enums\CertificateRequestStatus;
 use App\Models\Certificate;
-use App\Models\CertificateRequest;
 use App\Models\CertificateType;
 use App\Models\Department;
 use App\Models\Employee;
@@ -27,7 +26,9 @@ class CertificateRequestWorkflowTest extends TestCase
     use RefreshDatabase;
 
     protected Employee $employee;
+
     protected User $admin;
+
     protected CertificateType $coe;
 
     protected function setUp(): void
@@ -35,10 +36,10 @@ class CertificateRequestWorkflowTest extends TestCase
         parent::setUp();
 
         $dept = Department::create(['code' => 'HR', 'name' => 'Human Resources']);
-        $pos  = Position::create(['department_id' => $dept->id, 'code' => 'HR-STAFF', 'title' => 'HR Staff']);
+        $pos = Position::create(['department_id' => $dept->id, 'code' => 'HR-STAFF', 'title' => 'HR Staff']);
         $this->employee = Employee::create([
             'first_name' => 'Jane', 'last_name' => 'Doe',
-            'email'      => 'jane.doe@example.com',
+            'email' => 'jane.doe@example.com',
             'department_id' => $dept->id, 'position_id' => $pos->id,
         ]);
 
@@ -57,9 +58,9 @@ class CertificateRequestWorkflowTest extends TestCase
         Notification::fake();
 
         $req = app(CertificateRequestService::class)->submit([
-            'employee_id'         => $this->employee->id,
+            'employee_id' => $this->employee->id,
             'certificate_type_id' => $this->coe->id,
-            'purpose'             => 'Bank loan',
+            'purpose' => 'Bank loan',
         ]);
 
         $this->assertSame(CertificateRequestStatus::Pending, $req->status);
@@ -77,9 +78,9 @@ class CertificateRequestWorkflowTest extends TestCase
 
         $svc = app(CertificateRequestService::class);
         $req = $svc->submit([
-            'employee_id'         => $this->employee->id,
+            'employee_id' => $this->employee->id,
             'certificate_type_id' => $this->coe->id,
-            'purpose'             => 'Personal record',
+            'purpose' => 'Personal record',
         ]);
 
         $cert = $svc->approveAndIssue($req, $this->admin, null, 'ok');
@@ -103,9 +104,9 @@ class CertificateRequestWorkflowTest extends TestCase
 
         $svc = app(CertificateRequestService::class);
         $req = $svc->submit([
-            'employee_id'         => $this->employee->id,
+            'employee_id' => $this->employee->id,
             'certificate_type_id' => $this->coe->id,
-            'purpose'             => 'Duplicate',
+            'purpose' => 'Duplicate',
         ]);
 
         $svc->reject($req, $this->admin, 'Duplicate — see prior request');
@@ -128,9 +129,9 @@ class CertificateRequestWorkflowTest extends TestCase
 
         $svc = app(CertificateRequestService::class);
         $req = $svc->submit([
-            'employee_id'         => $this->employee->id,
+            'employee_id' => $this->employee->id,
             'certificate_type_id' => $this->coe->id,
-            'purpose'             => 'Test',
+            'purpose' => 'Test',
         ]);
 
         $svc->approveAndIssue($req, $this->admin);
@@ -151,9 +152,9 @@ class CertificateRequestWorkflowTest extends TestCase
 
         $svc = app(CertificateRequestService::class);
         $req = $svc->submit([
-            'employee_id'         => $this->employee->id,
+            'employee_id' => $this->employee->id,
             'certificate_type_id' => $this->coe->id,
-            'purpose'             => 'Rollback drill',
+            'purpose' => 'Rollback drill',
         ]);
 
         $certsBefore = Certificate::count();

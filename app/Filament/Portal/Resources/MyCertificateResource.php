@@ -65,7 +65,7 @@ class MyCertificateResource extends Resource
     {
         return [
             'index' => Pages\ListMyCertificates::route('/'),
-            'view'  => Pages\ViewMyCertificate::route('/{record}'),
+            'view' => Pages\ViewMyCertificate::route('/{record}'),
         ];
     }
 }

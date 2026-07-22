@@ -3,7 +3,6 @@
 namespace App\Filament\Pages;
 
 use App\Services\Auth\TotpService;
-use App\Services\Verification\QrCodeService;
 use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -89,6 +88,7 @@ class TwoFactorAuthentication extends Page implements HasForms
         if (! $svc->verify($this->pendingSecret, $this->data['code'])) {
             Notification::make()->danger()->title('Code did not match')
                 ->body('Check your device clock or try the next 6 digits.')->send();
+
             return;
         }
 
@@ -96,9 +96,9 @@ class TwoFactorAuthentication extends Page implements HasForms
 
         $user = Auth::user();
         $user->forceFill([
-            'two_factor_secret'         => $this->pendingSecret,
+            'two_factor_secret' => $this->pendingSecret,
             'two_factor_recovery_codes' => $recovery,
-            'two_factor_confirmed_at'   => now(),
+            'two_factor_confirmed_at' => now(),
         ])->save();
 
         // Mark THIS session as already 2FA-passed so we don't immediately kick
@@ -106,9 +106,9 @@ class TwoFactorAuthentication extends Page implements HasForms
         session(['two_factor_passed_at' => now()->timestamp]);
 
         $this->pendingSecret = null;
-        $this->qrDataUri     = null;
+        $this->qrDataUri = null;
         $this->recoveryCodes = $recovery;
-        $this->data['code']  = null;
+        $this->data['code'] = null;
 
         Notification::make()->success()->title('Two-factor authentication enabled')
             ->body('Store the recovery codes below in a safe place.')->send();
@@ -118,9 +118,9 @@ class TwoFactorAuthentication extends Page implements HasForms
     {
         $user = Auth::user();
         $user->forceFill([
-            'two_factor_secret'         => null,
+            'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
-            'two_factor_confirmed_at'   => null,
+            'two_factor_confirmed_at' => null,
         ])->save();
 
         session()->forget('two_factor_passed_at');

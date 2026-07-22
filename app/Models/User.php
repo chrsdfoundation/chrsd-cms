@@ -3,10 +3,12 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -14,15 +16,15 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles, HasApiTokens;
+    /** @use HasFactory<UserFactory> */
+    use HasApiTokens, HasFactory, HasRoles, Notifiable;
 
     public function canAccessPanel(Panel $panel): bool
     {
         return match ($panel->getId()) {
-            'admin'  => $this->hasAnyRole(['super_admin', 'hr_manager', 'hr_staff', 'viewer']),
+            'admin' => $this->hasAnyRole(['super_admin', 'hr_manager', 'hr_staff', 'viewer']),
             'portal' => $this->employee_id !== null,
-            default  => false,
+            default => false,
         };
     }
 
@@ -48,7 +50,7 @@ class User extends Authenticatable implements FilamentUser
         return $this->belongsTo(Employee::class);
     }
 
-    public function organizations(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function organizations(): BelongsToMany
     {
         return $this->belongsToMany(Organization::class)
             ->withPivot('is_default')
@@ -75,13 +77,13 @@ class User extends Authenticatable implements FilamentUser
     protected function casts(): array
     {
         return [
-            'email_verified_at'         => 'datetime',
-            'password'                  => 'hashed',
-            'password_changed_at'       => 'datetime',
-            'must_change_password'      => 'boolean',
-            'two_factor_secret'         => 'encrypted',
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+            'password_changed_at' => 'datetime',
+            'must_change_password' => 'boolean',
+            'two_factor_secret' => 'encrypted',
             'two_factor_recovery_codes' => 'encrypted:array',
-            'two_factor_confirmed_at'   => 'datetime',
+            'two_factor_confirmed_at' => 'datetime',
         ];
     }
 

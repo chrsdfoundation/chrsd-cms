@@ -32,7 +32,7 @@ class RevocationRegister extends Page implements HasForms
     {
         $this->form->fill([
             'from' => now()->subDays(30)->toDateString(),
-            'to'   => now()->toDateString(),
+            'to' => now()->toDateString(),
         ]);
         $this->refreshPreview();
     }
@@ -59,7 +59,7 @@ class RevocationRegister extends Page implements HasForms
     {
         return [
             Carbon::parse($this->data['from'] ?? now()->subDays(30)),
-            Carbon::parse($this->data['to']   ?? now()),
+            Carbon::parse($this->data['to'] ?? now()),
         ];
     }
 
@@ -72,6 +72,7 @@ class RevocationRegister extends Page implements HasForms
     public function exportPdf(): StreamedResponse
     {
         [$from, $to] = $this->range();
+
         return app(ReportService::class)->exportRevocationRegister($from, $to);
     }
 }

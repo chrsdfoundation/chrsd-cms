@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\PersonResource\RelationManagers;
 
+use App\Filament\Resources\PledgeResource;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -29,12 +30,12 @@ class PledgesRelationManager extends RelationManager
             ->headerActions([
                 Tables\Actions\Action::make('new_pledge')
                     ->label('Log pledge')->icon('heroicon-o-plus')
-                    ->url(fn () => \App\Filament\Resources\PledgeResource::getUrl('create', ['person_id' => $this->getOwnerRecord()->id])),
+                    ->url(fn () => PledgeResource::getUrl('create', ['person_id' => $this->getOwnerRecord()->id])),
             ])
             ->actions([
                 Tables\Actions\Action::make('open')
                     ->label('Open')->icon('heroicon-o-arrow-top-right-on-square')
-                    ->url(fn ($record) => \App\Filament\Resources\PledgeResource::getUrl('view', ['record' => $record])),
+                    ->url(fn ($record) => PledgeResource::getUrl('view', ['record' => $record])),
             ]);
     }
 }

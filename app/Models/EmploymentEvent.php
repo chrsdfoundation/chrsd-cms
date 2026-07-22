@@ -11,7 +11,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class EmploymentEvent extends Model
 {
-    use LogsActivity, BelongsToOrganization;
+    use BelongsToOrganization, LogsActivity;
 
     protected $fillable = [
         'organization_id',
@@ -25,10 +25,10 @@ class EmploymentEvent extends Model
     ];
 
     protected $casts = [
-        'event_type'     => EmploymentEventType::class,
-        'occurred_on'    => 'date',
+        'event_type' => EmploymentEventType::class,
+        'occurred_on' => 'date',
         'previous_state' => 'array',
-        'new_state'      => 'array',
+        'new_state' => 'array',
     ];
 
     public function getActivitylogOptions(): LogOptions

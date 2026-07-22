@@ -21,7 +21,7 @@ class QrCodeService
     /** SVG QR string, safe to embed in PDF/HTML templates. */
     public function svg(Model $model, int $size = 4): string
     {
-        return (new DNS2D())->getBarcodeSVG(
+        return (new DNS2D)->getBarcodeSVG(
             $this->verificationUrl($model),
             'QRCODE',
             $size,
@@ -32,7 +32,7 @@ class QrCodeService
     /** PNG base64 (data URI), for DomPDF where SVG is limited. */
     public function pngDataUri(Model $model, int $size = 4): string
     {
-        $png = (new DNS2D())->getBarcodePNG(
+        $png = (new DNS2D)->getBarcodePNG(
             $this->verificationUrl($model),
             'QRCODE',
             $size,

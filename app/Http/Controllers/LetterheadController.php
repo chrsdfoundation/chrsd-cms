@@ -55,13 +55,13 @@ Centre for Humanitarian Research and Social Development Foundation</p>
 HTML;
 
         return view('documents.templates.letter-shell', [
-            'bodyHtml'           => $bodyHtml,
-            'orientation'        => 'portrait',
-            'letter_reference'   => 'CHRSD-LTR-2026-000047',
+            'bodyHtml' => $bodyHtml,
+            'orientation' => 'portrait',
+            'letter_reference' => 'CHRSD-LTR-2026-000047',
             'certificate_number' => null,
-            'qr_raw'             => '',
-            'template'           => null,
-            'shell_variant'      => null,
+            'qr_raw' => '',
+            'template' => null,
+            'shell_variant' => null,
         ]);
     }
 }

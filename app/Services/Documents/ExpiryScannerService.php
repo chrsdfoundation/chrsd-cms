@@ -11,6 +11,7 @@ use App\Notifications\DocumentExpiring;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Notification;
+use Spatie\Permission\Models\Role;
 
 /**
  * Nightly scan for verifiable documents approaching or past their valid_until.
@@ -61,7 +62,7 @@ class ExpiryScannerService
 
         foreach ($query->cursor() as $doc) {
             $doc->forceFill([
-                'status'             => VerificationStatus::Expired,
+                'status' => VerificationStatus::Expired,
                 'expiry_notified_at' => now(),
             ])->save();
 
@@ -119,11 +120,12 @@ class ExpiryScannerService
         $inbox = config('cms.hr_inbox');
         if (! empty($inbox)) {
             Notification::route('mail', $inbox)->notify($notification);
+
             return 1;
         }
 
         $wanted = config('cms.hr_fallback_roles', ['hr_manager', 'super_admin']);
-        $existing = \Spatie\Permission\Models\Role::query()
+        $existing = Role::query()
             ->whereIn('name', $wanted)
             ->pluck('name')
             ->all();
@@ -142,6 +144,7 @@ class ExpiryScannerService
         }
 
         Notification::send($recipients, $notification);
+
         return 1;
     }
 }

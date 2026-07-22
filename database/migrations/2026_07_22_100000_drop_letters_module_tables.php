@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Schema;
  * app/Domain/Letters/ was never wired into the app; forward work continued
  * on the legacy OfficialLetter path. Removed together with the source.
  */
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::dropIfExists('letter_settings');

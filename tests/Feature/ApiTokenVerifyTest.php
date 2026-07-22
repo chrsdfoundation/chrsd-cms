@@ -18,6 +18,7 @@ class ApiTokenVerifyTest extends TestCase
     use RefreshDatabase;
 
     protected Certificate $cert;
+
     protected User $user;
 
     protected function setUp(): void
@@ -29,8 +30,8 @@ class ApiTokenVerifyTest extends TestCase
         RateLimiter::clear('verify');
 
         $dept = Department::create(['code' => 'HR', 'name' => 'HR']);
-        $pos  = Position::create(['department_id' => $dept->id, 'code' => 'S', 'title' => 'Staff']);
-        $emp  = Employee::create([
+        $pos = Position::create(['department_id' => $dept->id, 'code' => 'S', 'title' => 'Staff']);
+        $emp = Employee::create([
             'first_name' => 'J', 'last_name' => 'D',
             'email' => 'j@test.test',
             'department_id' => $dept->id, 'position_id' => $pos->id,

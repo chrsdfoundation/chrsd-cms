@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\Documents;
 use App\Filament\Resources\IdCardTypeResource\Pages;
 use App\Models\IdCardType;
 use Filament\Forms;
@@ -14,7 +15,7 @@ class IdCardTypeResource extends Resource
 {
     protected static ?string $model = IdCardType::class;
 
-    protected static ?string $cluster = \App\Filament\Clusters\Documents::class;
+    protected static ?string $cluster = Documents::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-identification';
 
@@ -72,10 +73,10 @@ class IdCardTypeResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListIdCardTypes::route('/'),
+            'index' => Pages\ListIdCardTypes::route('/'),
             'create' => Pages\CreateIdCardType::route('/create'),
-            'view'   => Pages\ViewIdCardType::route('/{record}'),
-            'edit'   => Pages\EditIdCardType::route('/{record}/edit'),
+            'view' => Pages\ViewIdCardType::route('/{record}'),
+            'edit' => Pages\EditIdCardType::route('/{record}/edit'),
         ];
     }
 }

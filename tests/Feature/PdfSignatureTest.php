@@ -26,7 +26,7 @@ class PdfSignatureTest extends TestCase
     public function test_signature_is_deterministic_for_the_same_bytes(): void
     {
         $svc = app(PdfSignatureService::class);
-        $bytes = "%PDF-1.7 fake bytes for testing purposes";
+        $bytes = '%PDF-1.7 fake bytes for testing purposes';
 
         $this->assertSame($svc->sign($bytes), $svc->sign($bytes));
     }
@@ -72,8 +72,8 @@ class PdfSignatureTest extends TestCase
     {
         // Seed a certificate with a known signature attached
         $dept = Department::create(['code' => 'HR', 'name' => 'HR']);
-        $pos  = Position::create(['department_id' => $dept->id, 'code' => 'S', 'title' => 'Staff']);
-        $emp  = Employee::create(['first_name' => 'A', 'last_name' => 'B',
+        $pos = Position::create(['department_id' => $dept->id, 'code' => 'S', 'title' => 'Staff']);
+        $emp = Employee::create(['first_name' => 'A', 'last_name' => 'B',
             'email' => 'a.b@test.test', 'department_id' => $dept->id, 'position_id' => $pos->id]);
         $type = CertificateType::create(['code' => 'COE', 'name' => 'Certificate of Employment']);
 
@@ -92,7 +92,7 @@ class PdfSignatureTest extends TestCase
                 'found' => true,
                 'snapshot' => [
                     'serial' => $cert->serial_number,
-                    'kind'   => 'Certificate',
+                    'kind' => 'Certificate',
                 ],
             ]);
     }

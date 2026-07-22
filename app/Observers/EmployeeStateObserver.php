@@ -4,8 +4,10 @@ namespace App\Observers;
 
 use App\Enums\EmployeeStatus;
 use App\Enums\EmploymentEventType;
+use App\Models\Department;
 use App\Models\Employee;
 use App\Models\EmploymentEvent;
+use App\Models\Position;
 use Illuminate\Support\Facades\Auth;
 
 class EmployeeStateObserver
@@ -34,7 +36,7 @@ class EmployeeStateObserver
     public function updated(Employee $employee): void
     {
         $previous = $this->snapshotFromOriginals($employee);
-        $current  = $this->snapshot($employee);
+        $current = $this->snapshot($employee);
 
         // Position change → promotion (semantic: any position transition is
         // "promotion" from a records point of view — the direction is legible
@@ -70,11 +72,11 @@ class EmployeeStateObserver
         ?array $new,
     ): void {
         EmploymentEvent::create([
-            'employee_id'         => $employee->id,
-            'event_type'          => $type,
-            'occurred_on'         => $on,
-            'previous_state'      => $previous,
-            'new_state'           => $new,
+            'employee_id' => $employee->id,
+            'event_type' => $type,
+            'occurred_on' => $on,
+            'previous_state' => $previous,
+            'new_state' => $new,
             'recorded_by_user_id' => Auth::id(),
         ]);
     }
@@ -87,8 +89,8 @@ class EmployeeStateObserver
     protected function snapshot(Employee $employee): array
     {
         return $this->buildSnapshot(
-            departmentId:   $employee->department_id,
-            positionId:     $employee->position_id,
+            departmentId: $employee->department_id,
+            positionId: $employee->position_id,
             employmentType: $employee->employment_type?->value ?? $employee->getAttributes()['employment_type'] ?? null,
             employeeStatus: $employee->employee_status?->value ?? $employee->getAttributes()['employee_status'] ?? null,
         );
@@ -98,8 +100,8 @@ class EmployeeStateObserver
     protected function snapshotFromOriginals(Employee $employee): array
     {
         return $this->buildSnapshot(
-            departmentId:   $employee->getOriginal('department_id'),
-            positionId:     $employee->getOriginal('position_id'),
+            departmentId: $employee->getOriginal('department_id'),
+            positionId: $employee->getOriginal('position_id'),
             employmentType: $employee->getOriginal('employment_type'),
             employeeStatus: $employee->getOriginal('employee_status'),
         );
@@ -112,10 +114,10 @@ class EmployeeStateObserver
         mixed $employeeStatus,
     ): array {
         return [
-            'department_id'   => $departmentId,
-            'department_name' => $departmentId ? optional(\App\Models\Department::find($departmentId))->name : null,
-            'position_id'     => $positionId,
-            'position_title'  => $positionId ? optional(\App\Models\Position::find($positionId))->title : null,
+            'department_id' => $departmentId,
+            'department_name' => $departmentId ? optional(Department::find($departmentId))->name : null,
+            'position_id' => $positionId,
+            'position_title' => $positionId ? optional(Position::find($positionId))->title : null,
             'employment_type' => $this->stringify($employmentType),
             'employee_status' => $this->stringify($employeeStatus),
         ];
@@ -123,8 +125,13 @@ class EmployeeStateObserver
 
     protected function stringify(mixed $v): ?string
     {
-        if ($v === null) return null;
-        if ($v instanceof \BackedEnum) return (string) $v->value;
+        if ($v === null) {
+            return null;
+        }
+        if ($v instanceof \BackedEnum) {
+            return (string) $v->value;
+        }
+
         return (string) $v;
     }
 }

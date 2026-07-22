@@ -4,11 +4,13 @@ namespace App\Filament\Resources;
 
 use App\Enums\IdCardIssuance;
 use App\Enums\VerificationStatus;
+use App\Filament\Clusters\Documents;
 use App\Filament\Resources\IdCardResource\Pages;
 use App\Models\Employee;
 use App\Models\IdCard;
 use App\Services\Documents\IdCardGeneratorService;
 use App\Services\Verification\QrCodeService;
+use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -23,7 +25,7 @@ class IdCardResource extends Resource
 {
     protected static ?string $model = IdCard::class;
 
-    protected static ?string $cluster = \App\Filament\Clusters\Documents::class;
+    protected static ?string $cluster = Documents::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-identification';
 
@@ -49,11 +51,11 @@ class IdCardResource extends Resource
         $idTypeLabels = [
             'Employee Identity' => 'Employee Identity',
             'Volunteer ID Card' => 'Volunteer ID Card',
-            'Consultant ID Card'=> 'Consultant ID Card',
-            'Visitor Pass'      => 'Visitor Pass',
-            'Field Officer ID'  => 'Field Officer ID',
-            'Media Pass'        => 'Media Pass',
-            'Intern ID Card'    => 'Intern ID Card',
+            'Consultant ID Card' => 'Consultant ID Card',
+            'Visitor Pass' => 'Visitor Pass',
+            'Field Officer ID' => 'Field Officer ID',
+            'Media Pass' => 'Media Pass',
+            'Intern ID Card' => 'Intern ID Card',
         ];
 
         return $form->schema([
@@ -109,7 +111,7 @@ class IdCardResource extends Resource
                         ->helperText('Optional label shown when there\'s no designation.'),
 
                     Forms\Components\Select::make('blood_group')
-                        ->options(collect(['A+','A-','B+','B-','AB+','AB-','O+','O-'])
+                        ->options(collect(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
                             ->mapWithKeys(fn ($v) => [$v => $v])),
 
                     Forms\Components\TextInput::make('nationality')
@@ -210,10 +212,10 @@ class IdCardResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListIdCards::route('/'),
+            'index' => Pages\ListIdCards::route('/'),
             'create' => Pages\CreateIdCard::route('/create'),
-            'view'   => Pages\ViewIdCard::route('/{record}'),
-            'edit'   => Pages\EditIdCard::route('/{record}/edit'),
+            'view' => Pages\ViewIdCard::route('/{record}'),
+            'edit' => Pages\EditIdCard::route('/{record}/edit'),
         ];
     }
 
@@ -230,20 +232,75 @@ class IdCardResource extends Resource
     // The chained shape is identical between the two variants — only the
     // factory class differs, so the shape lives in a private applier.
 
-    public static function generateAction(): Tables\Actions\Action        { return self::applyGenerateShape(Tables\Actions\Action::make('generate')); }
-    public static function generateHeaderAction(): \Filament\Actions\Action { return self::applyGenerateShape(\Filament\Actions\Action::make('generate')); }
-    public static function updatePhotoAction(): Tables\Actions\Action        { return self::applyUpdatePhotoShape(Tables\Actions\Action::make('update_photo')); }
-    public static function updatePhotoHeaderAction(): \Filament\Actions\Action { return self::applyUpdatePhotoShape(\Filament\Actions\Action::make('update_photo')); }
-    public static function downloadFrontAction(): Tables\Actions\Action        { return self::applyDownloadFrontShape(Tables\Actions\Action::make('download_front')); }
-    public static function downloadFrontHeaderAction(): \Filament\Actions\Action { return self::applyDownloadFrontShape(\Filament\Actions\Action::make('download_front')); }
-    public static function downloadBackAction(): Tables\Actions\Action        { return self::applyDownloadBackShape(Tables\Actions\Action::make('download_back')); }
-    public static function downloadBackHeaderAction(): \Filament\Actions\Action { return self::applyDownloadBackShape(\Filament\Actions\Action::make('download_back')); }
-    public static function markDeliveredAction(): Tables\Actions\Action        { return self::applyMarkDeliveredShape(Tables\Actions\Action::make('mark_delivered')); }
-    public static function markDeliveredHeaderAction(): \Filament\Actions\Action { return self::applyMarkDeliveredShape(\Filament\Actions\Action::make('mark_delivered')); }
-    public static function qrPreviewAction(): Tables\Actions\Action        { return self::applyQrPreviewShape(Tables\Actions\Action::make('qr_preview')); }
-    public static function qrPreviewHeaderAction(): \Filament\Actions\Action { return self::applyQrPreviewShape(\Filament\Actions\Action::make('qr_preview')); }
-    public static function revokeAction(): Tables\Actions\Action        { return self::applyRevokeShape(Tables\Actions\Action::make('revoke')); }
-    public static function revokeHeaderAction(): \Filament\Actions\Action { return self::applyRevokeShape(\Filament\Actions\Action::make('revoke')); }
+    public static function generateAction(): Tables\Actions\Action
+    {
+        return self::applyGenerateShape(Tables\Actions\Action::make('generate'));
+    }
+
+    public static function generateHeaderAction(): Action
+    {
+        return self::applyGenerateShape(Action::make('generate'));
+    }
+
+    public static function updatePhotoAction(): Tables\Actions\Action
+    {
+        return self::applyUpdatePhotoShape(Tables\Actions\Action::make('update_photo'));
+    }
+
+    public static function updatePhotoHeaderAction(): Action
+    {
+        return self::applyUpdatePhotoShape(Action::make('update_photo'));
+    }
+
+    public static function downloadFrontAction(): Tables\Actions\Action
+    {
+        return self::applyDownloadFrontShape(Tables\Actions\Action::make('download_front'));
+    }
+
+    public static function downloadFrontHeaderAction(): Action
+    {
+        return self::applyDownloadFrontShape(Action::make('download_front'));
+    }
+
+    public static function downloadBackAction(): Tables\Actions\Action
+    {
+        return self::applyDownloadBackShape(Tables\Actions\Action::make('download_back'));
+    }
+
+    public static function downloadBackHeaderAction(): Action
+    {
+        return self::applyDownloadBackShape(Action::make('download_back'));
+    }
+
+    public static function markDeliveredAction(): Tables\Actions\Action
+    {
+        return self::applyMarkDeliveredShape(Tables\Actions\Action::make('mark_delivered'));
+    }
+
+    public static function markDeliveredHeaderAction(): Action
+    {
+        return self::applyMarkDeliveredShape(Action::make('mark_delivered'));
+    }
+
+    public static function qrPreviewAction(): Tables\Actions\Action
+    {
+        return self::applyQrPreviewShape(Tables\Actions\Action::make('qr_preview'));
+    }
+
+    public static function qrPreviewHeaderAction(): Action
+    {
+        return self::applyQrPreviewShape(Action::make('qr_preview'));
+    }
+
+    public static function revokeAction(): Tables\Actions\Action
+    {
+        return self::applyRevokeShape(Tables\Actions\Action::make('revoke'));
+    }
+
+    public static function revokeHeaderAction(): Action
+    {
+        return self::applyRevokeShape(Action::make('revoke'));
+    }
 
     private static function applyGenerateShape($action)
     {
@@ -264,6 +321,7 @@ class IdCardResource extends Resource
             ->label('Download front')->icon('heroicon-o-arrow-down-tray')->color('gray')
             ->url(function (IdCard $r) {
                 $media = $r->getMedia('rendered')->firstWhere(fn ($m) => str_contains($m->file_name, '-front.pdf'));
+
                 return $media?->getUrl();
             })
             ->openUrlInNewTab()
@@ -277,6 +335,7 @@ class IdCardResource extends Resource
             ->label('Download back')->icon('heroicon-o-arrow-down-tray')->color('gray')
             ->url(function (IdCard $r) {
                 $media = $r->getMedia('rendered')->firstWhere(fn ($m) => str_contains($m->file_name, '-back.pdf'));
+
                 return $media?->getUrl();
             })
             ->openUrlInNewTab()

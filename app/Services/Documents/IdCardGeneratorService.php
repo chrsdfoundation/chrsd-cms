@@ -35,31 +35,31 @@ class IdCardGeneratorService
         return DB::transaction(function () use ($card) {
             $card->loadMissing(['employee.department', 'employee.position', 'documentTemplate']);
 
-            $photoUrl     = $card->photoUrl();
+            $photoUrl = $card->photoUrl();
             $signatureUrl = $card->signatureUrl();
             // Vector QR — Chromium rasterises it at print resolution, so the
             // modules stay crisp at 17mm even when scanned from paper. The
             // Milon\Barcode PNG we used before was 1-bit indexed and washed
             // out over the ID-card guilloche background.
-            $qrSvg        = $this->qr->svg($card, 4);
-            $verifyUrl    = $this->qr->verificationUrl($card);
+            $qrSvg = $this->qr->svg($card, 4);
+            $verifyUrl = $this->qr->verificationUrl($card);
 
             // Puppeteer renders in headless Chromium — images must be base64
             // data URIs; filesystem paths and file:// URLs are not reliable
             // from setContent() context.
-            $logoUrl      = $this->toDataUri(public_path('images/brand/chrsd-full-logo.png'));
+            $logoUrl = $this->toDataUri(public_path('images/brand/chrsd-full-logo.png'));
             $roundLogoUrl = $this->toDataUri(public_path('images/brand/chrsd-round-logo.png'));
-            $photoUrl     = $this->toDataUri($card->photoUrl());
+            $photoUrl = $this->toDataUri($card->photoUrl());
             $signatureUrl = $this->toDataUri($card->signatureUrl());
 
             $sharedViewData = [
-                'idCard'       => $card,
-                'employee'     => $card->employee,
-                'photoUrl'     => $photoUrl,
+                'idCard' => $card,
+                'employee' => $card->employee,
+                'photoUrl' => $photoUrl,
                 'signatureUrl' => $signatureUrl,
-                'qr_svg'       => $qrSvg,
-                'verify_url'   => $verifyUrl,
-                'logoUrl'      => $logoUrl,
+                'qr_svg' => $qrSvg,
+                'verify_url' => $verifyUrl,
+                'logoUrl' => $logoUrl,
                 'roundLogoUrl' => $roundLogoUrl,
             ];
 
@@ -70,8 +70,8 @@ class IdCardGeneratorService
                 $frontHtml = view('documents.id_cards.default-front', $sharedViewData)->render();
             }
 
-            $frontBytes    = $this->renderCardPdf($frontHtml);
-            $backBytes     = $this->renderCardPdf(view('documents.id_cards.default-back', $sharedViewData)->render());
+            $frontBytes = $this->renderCardPdf($frontHtml);
+            $backBytes = $this->renderCardPdf(view('documents.id_cards.default-back', $sharedViewData)->render());
             $combinedBytes = $this->renderCardPdf(view('documents.id_cards.combined', $sharedViewData)->render(), false);
 
             $card->addMediaFromString($combinedBytes)
@@ -90,9 +90,9 @@ class IdCardGeneratorService
                 ->toMediaCollection('rendered');
 
             $card->forceFill([
-                'issuance_status'         => IdCardIssuance::Printed,
-                'pdf_content_hash_front'  => $this->signer->sign($frontBytes),
-                'pdf_content_hash_back'   => $this->signer->sign($backBytes),
+                'issuance_status' => IdCardIssuance::Printed,
+                'pdf_content_hash_front' => $this->signer->sign($frontBytes),
+                'pdf_content_hash_back' => $this->signer->sign($backBytes),
             ])->save();
 
             return $card->refresh();
@@ -105,6 +105,7 @@ class IdCardGeneratorService
             return null;
         }
         $mime = mime_content_type($path) ?: 'image/png';
+
         return 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($path));
     }
 
@@ -119,7 +120,7 @@ class IdCardGeneratorService
             'pageSize' => $cr80
                 ? ['width' => '85.6mm', 'height' => '54mm']
                 : ['width' => '210mm', 'height' => '297mm'],
-            'margin'   => ['top' => '0mm', 'right' => '0mm', 'bottom' => '0mm', 'left' => '0mm'],
+            'margin' => ['top' => '0mm', 'right' => '0mm', 'bottom' => '0mm', 'left' => '0mm'],
         ]);
     }
 
@@ -130,29 +131,30 @@ class IdCardGeneratorService
         $qrImg = sprintf('<img src="%s" alt="QR" />', $this->qr->pngDataUri($card));
 
         return [
-            'name'               => $card->recipient_name
+            'name' => $card->recipient_name
                                      ?: (optional($employee)->full_name ?? ''),
-            'designation'        => $card->designation ?: optional(optional($employee)->position)->title ?? '',
-            'organization'       => optional($card->organization)->name ?? config('app.name'),
+            'designation' => $card->designation ?: optional(optional($employee)->position)->title ?? '',
+            'organization' => optional($card->organization)->name ?? config('app.name'),
             'certificate_number' => $card->serial_number,
-            'letter_reference'   => $card->serial_number,
-            'date'               => optional($card->valid_from ?? $card->created_at)->toFormattedDateString(),
-            'issue_date'         => optional($card->valid_from ?? $card->created_at)->toFormattedDateString(),
-            'position'           => optional(optional($employee)->position)->title ?? '',
-            'blood_group'        => $card->blood_group ?? '',
-            'nationality'        => $card->nationality ?? '',
-            'program_name'       => $card->program_name ?? '',
-            'valid_from'         => optional($card->valid_from)->toFormattedDateString() ?? '',
-            'valid_until'        => optional($card->valid_until)->toFormattedDateString() ?? '',
-            'verification_url'   => $this->qr->verificationUrl($card),
-            'qr_code'            => $qrImg,
-            'photo_url'          => $card->photoUrl(),
+            'letter_reference' => $card->serial_number,
+            'date' => optional($card->valid_from ?? $card->created_at)->toFormattedDateString(),
+            'issue_date' => optional($card->valid_from ?? $card->created_at)->toFormattedDateString(),
+            'position' => optional(optional($employee)->position)->title ?? '',
+            'blood_group' => $card->blood_group ?? '',
+            'nationality' => $card->nationality ?? '',
+            'program_name' => $card->program_name ?? '',
+            'valid_from' => optional($card->valid_from)->toFormattedDateString() ?? '',
+            'valid_until' => optional($card->valid_until)->toFormattedDateString() ?? '',
+            'verification_url' => $this->qr->verificationUrl($card),
+            'qr_code' => $qrImg,
+            'photo_url' => $card->photoUrl(),
         ];
     }
 
     public function markDelivered(IdCard $card): IdCard
     {
         $card->forceFill(['issuance_status' => IdCardIssuance::Delivered])->save();
+
         return $card;
     }
 }

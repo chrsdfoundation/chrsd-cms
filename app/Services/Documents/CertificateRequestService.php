@@ -12,6 +12,7 @@ use App\Notifications\CertificateRequestRejected;
 use App\Notifications\CertificateRequestSubmitted;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
+use Spatie\Permission\Models\Role;
 
 class CertificateRequestService
 {
@@ -50,13 +51,13 @@ class CertificateRequestService
             $request->loadMissing(['employee', 'type']);
 
             $cert = Certificate::create([
-                'employee_id'         => $request->employee_id,
+                'employee_id' => $request->employee_id,
                 'certificate_type_id' => $request->certificate_type_id,
-                'signed_by_id'        => $signatoryId,
-                'purpose'             => $request->purpose,
-                'issuance_status'     => CertificateIssuance::Draft,
-                'issued_on'           => now()->toDateString(),
-                'valid_until'         => $request->type?->validity_days
+                'signed_by_id' => $signatoryId,
+                'purpose' => $request->purpose,
+                'issuance_status' => CertificateIssuance::Draft,
+                'issued_on' => now()->toDateString(),
+                'valid_until' => $request->type?->validity_days
                     ? now()->addDays($request->type->validity_days)->toDateString()
                     : null,
             ]);
@@ -64,10 +65,10 @@ class CertificateRequestService
             $this->generator->generate($cert);
 
             $request->forceFill([
-                'status'                   => CertificateRequestStatus::Issued,
-                'reviewed_by_id'           => $reviewer->id,
-                'reviewed_at'              => now(),
-                'review_notes'             => $reviewNotes,
+                'status' => CertificateRequestStatus::Issued,
+                'reviewed_by_id' => $reviewer->id,
+                'reviewed_at' => now(),
+                'review_notes' => $reviewNotes,
                 'resulting_certificate_id' => $cert->id,
             ])->save();
 
@@ -93,10 +94,10 @@ class CertificateRequestService
         }
 
         $request->forceFill([
-            'status'         => CertificateRequestStatus::Rejected,
+            'status' => CertificateRequestStatus::Rejected,
             'reviewed_by_id' => $reviewer->id,
-            'reviewed_at'    => now(),
-            'review_notes'   => $reason,
+            'reviewed_at' => now(),
+            'review_notes' => $reason,
         ])->save();
 
         $request->refresh();
@@ -123,11 +124,12 @@ class CertificateRequestService
         if (! empty($inbox)) {
             Notification::route('mail', $inbox)
                 ->notify(new CertificateRequestSubmitted($request));
+
             return;
         }
 
         $wanted = config('cms.hr_fallback_roles', ['hr_manager', 'super_admin']);
-        $existing = \Spatie\Permission\Models\Role::query()
+        $existing = Role::query()
             ->whereIn('name', $wanted)
             ->pluck('name')
             ->all();

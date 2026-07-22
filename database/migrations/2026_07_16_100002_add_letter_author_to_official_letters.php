@@ -59,14 +59,14 @@ return new class extends Migration
         foreach ($rows as $row) {
             if (! isset($employeeToAuthor[$row->employee_id])) {
                 $authorId = DB::table('authors')->insertGetId([
-                    'name'        => $row->full_name,
+                    'name' => $row->full_name,
                     'designation' => $row->designation ?? 'Staff',
-                    'department'  => $row->department,
-                    'organization'=> config('app.name', 'CHRSD'),
-                    'email'       => $row->email,
-                    'is_active'   => true,
-                    'created_at'  => now(),
-                    'updated_at'  => now(),
+                    'department' => $row->department,
+                    'organization' => config('app.name', 'CHRSD'),
+                    'email' => $row->email,
+                    'is_active' => true,
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ]);
                 $employeeToAuthor[$row->employee_id] = $authorId;
             }

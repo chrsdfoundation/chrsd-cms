@@ -10,7 +10,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class IdCardType extends Model
 {
-    use LogsActivity, BelongsToOrganization;
+    use BelongsToOrganization, LogsActivity;
 
     protected $fillable = [
         'organization_id',
@@ -19,8 +19,8 @@ class IdCardType extends Model
     ];
 
     protected $casts = [
-        'is_active'                => 'boolean',
-        'default_validity_months'  => 'integer',
+        'is_active' => 'boolean',
+        'default_validity_months' => 'integer',
     ];
 
     public function getActivitylogOptions(): LogOptions

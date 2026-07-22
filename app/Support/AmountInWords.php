@@ -28,14 +28,15 @@ final class AmountInWords
      */
     public static function convert(float|int|string $value, string $unit = 'Taka', string $subUnit = 'Poisha'): string
     {
-        $value  = (float) $value;
-        $major  = (int) floor(abs($value));
-        $minor  = (int) round((abs($value) - $major) * 100);
+        $value = (float) $value;
+        $major = (int) floor(abs($value));
+        $minor = (int) round((abs($value) - $major) * 100);
 
         $words = self::inWords($major) . ' ' . $unit;
         if ($minor > 0) {
             $words .= ' and ' . self::inWords($minor) . ' ' . $subUnit;
         }
+
         return $words . ' Only';
     }
 
@@ -47,14 +48,25 @@ final class AmountInWords
 
         $parts = [];
 
-        $crore = intdiv($n, 10_000_000); $n %= 10_000_000;
-        $lakh  = intdiv($n, 100_000);    $n %= 100_000;
-        $thou  = intdiv($n, 1_000);      $n %= 1_000;
+        $crore = intdiv($n, 10_000_000);
+        $n %= 10_000_000;
+        $lakh = intdiv($n, 100_000);
+        $n %= 100_000;
+        $thou = intdiv($n, 1_000);
+        $n %= 1_000;
 
-        if ($crore) { $parts[] = self::three($crore) . ' Crore'; }
-        if ($lakh)  { $parts[] = self::two($lakh)   . ' Lakh'; }
-        if ($thou)  { $parts[] = self::three($thou) . ' Thousand'; }
-        if ($n)     { $parts[] = self::three($n); }
+        if ($crore) {
+            $parts[] = self::three($crore) . ' Crore';
+        }
+        if ($lakh) {
+            $parts[] = self::two($lakh) . ' Lakh';
+        }
+        if ($thou) {
+            $parts[] = self::three($thou) . ' Thousand';
+        }
+        if ($n) {
+            $parts[] = self::three($n);
+        }
 
         return implode(' ', $parts);
     }
@@ -66,6 +78,7 @@ final class AmountInWords
         }
         $tens = self::TENS[intdiv($x, 10)];
         $ones = $x % 10;
+
         return $ones ? $tens . ' ' . self::ONES[$ones] : $tens;
     }
 
@@ -76,6 +89,7 @@ final class AmountInWords
         }
         $hundreds = self::ONES[intdiv($x, 100)] . ' Hundred';
         $rest = $x % 100;
+
         return $rest ? $hundreds . ' ' . self::two($rest) : $hundreds;
     }
 }

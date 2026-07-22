@@ -8,6 +8,8 @@ use App\Http\Controllers\MoneyReceiptVerificationController;
 use App\Http\Controllers\OpenApiController;
 use App\Http\Controllers\PdfVerificationController;
 use App\Http\Controllers\VerificationController;
+use App\Http\Middleware\ResolveSanctumToken;
+use App\Http\Middleware\TrackApiTokenUsage;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -65,9 +67,9 @@ Route::middleware(['web', 'auth'])->group(function () {
  * Anonymous callers still work, they just get the IP-based limit.
  */
 Route::middleware([
-    \App\Http\Middleware\ResolveSanctumToken::class,
+    ResolveSanctumToken::class,
     'throttle:verify_authed',
-    \App\Http\Middleware\TrackApiTokenUsage::class,
+    TrackApiTokenUsage::class,
 ])->group(function () {
     Route::get('/api/verify/{hash}', [VerificationController::class, 'api'])
         ->where('hash', '[a-f0-9]{64}')
@@ -82,7 +84,7 @@ Route::middleware([
 });
 
 Route::middleware('throttle:verify_kiosk')->group(function () {
-    Route::get('/verify/kiosk',  [KioskVerifyController::class, 'show'])->name('kiosk.show');
+    Route::get('/verify/kiosk', [KioskVerifyController::class, 'show'])->name('kiosk.show');
     Route::post('/verify/kiosk', [KioskVerifyController::class, 'verify'])->name('kiosk.verify');
 });
 
@@ -90,5 +92,5 @@ Route::middleware('throttle:verify_kiosk')->group(function () {
 // Sanctum token (or an active session) before they can read the spec.
 Route::middleware(['auth:sanctum,web'])->group(function () {
     Route::get('/api/openapi.json', [OpenApiController::class, 'json'])->name('openapi.json');
-    Route::get('/api/docs',         [OpenApiController::class, 'docs'])->name('openapi.docs');
+    Route::get('/api/docs', [OpenApiController::class, 'docs'])->name('openapi.docs');
 });

@@ -5,13 +5,13 @@ namespace App\Enums;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 
-enum OfficialLetterStatus: string implements HasLabel, HasColor
+enum OfficialLetterStatus: string implements HasColor, HasLabel
 {
-    case Draft     = 'draft';
+    case Draft = 'draft';
     case ForReview = 'for_review';
-    case Approved  = 'approved';
-    case Released  = 'released';
-    case Filed     = 'filed';
+    case Approved = 'approved';
+    case Released = 'released';
+    case Filed = 'filed';
 
     public function getLabel(): string
     {
@@ -22,9 +22,9 @@ enum OfficialLetterStatus: string implements HasLabel, HasColor
     {
         return match ($this) {
             self::Draft, self::ForReview => 'warning',
-            self::Approved               => 'info',
-            self::Released               => 'success',
-            self::Filed                  => 'gray',
+            self::Approved => 'info',
+            self::Released => 'success',
+            self::Filed => 'gray',
         };
     }
 }

@@ -40,8 +40,7 @@ class MyProfile extends Page
                 ->label('Download Service Record')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->color('primary')
-                ->action(fn (): StreamedResponse =>
-                    app(ReportService::class)->exportServiceRecord($this->employee)
+                ->action(fn (): StreamedResponse => app(ReportService::class)->exportServiceRecord($this->employee)
                 ),
         ];
     }

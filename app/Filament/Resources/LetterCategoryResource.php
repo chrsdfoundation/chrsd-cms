@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\Documents;
 use App\Filament\Resources\LetterCategoryResource\Pages;
 use App\Models\LetterCategory;
 use Filament\Forms;
@@ -9,12 +10,13 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Collection;
 
 class LetterCategoryResource extends Resource
 {
     protected static ?string $model = LetterCategory::class;
 
-    protected static ?string $cluster = \App\Filament\Clusters\Documents::class;
+    protected static ?string $cluster = Documents::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-envelope-open';
 
@@ -62,7 +64,7 @@ class LetterCategoryResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
                         ->requiresConfirmation()
-                        ->before(fn (\Illuminate\Support\Collection $records) => $records->each(
+                        ->before(fn (Collection $records) => $records->each(
                             fn (LetterCategory $r) => $r->letters()->withTrashed()->update(['letter_category_id' => null])
                         )),
                 ]),
@@ -73,10 +75,10 @@ class LetterCategoryResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListLetterCategories::route('/'),
+            'index' => Pages\ListLetterCategories::route('/'),
             'create' => Pages\CreateLetterCategory::route('/create'),
-            'view'   => Pages\ViewLetterCategory::route('/{record}'),
-            'edit'   => Pages\EditLetterCategory::route('/{record}/edit'),
+            'view' => Pages\ViewLetterCategory::route('/{record}'),
+            'edit' => Pages\EditLetterCategory::route('/{record}/edit'),
         ];
     }
 }

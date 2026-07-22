@@ -30,8 +30,8 @@ class OpenApiSpecTest extends TestCase
         // These paths MUST be documented — regression guard if someone adds a
         // route without updating the spec.
         $this->assertArrayHasKey('/api/verify/{hash}', $spec['paths']);
-        $this->assertArrayHasKey('/api/verify/pdf',    $spec['paths']);
-        $this->assertArrayHasKey('/verify/{hash}',     $spec['paths']);
+        $this->assertArrayHasKey('/api/verify/pdf', $spec['paths']);
+        $this->assertArrayHasKey('/verify/{hash}', $spec['paths']);
     }
 
     public function test_spec_declares_sanctum_bearer_scheme(): void
@@ -39,7 +39,7 @@ class OpenApiSpecTest extends TestCase
         $spec = $this->getJson('/api/openapi.json')->json();
 
         $this->assertArrayHasKey('sanctumBearerToken', $spec['components']['securitySchemes']);
-        $this->assertSame('http',   $spec['components']['securitySchemes']['sanctumBearerToken']['type']);
+        $this->assertSame('http', $spec['components']['securitySchemes']['sanctumBearerToken']['type']);
         $this->assertSame('bearer', $spec['components']['securitySchemes']['sanctumBearerToken']['scheme']);
     }
 

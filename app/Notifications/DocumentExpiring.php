@@ -34,7 +34,7 @@ class DocumentExpiring extends Notification implements ShouldQueue
             ->subject("Expiring soon: {$kind} {$this->document->serial_number}")
             ->greeting('Hello ' . ($notifiable->first_name ?? 'there') . ',')
             ->line("Your **{$kind}** with serial `{$this->document->serial_number}` will expire on **{$when}**.")
-            ->line("That's in about **{$this->daysUntil} day" . ($this->daysUntil === 1 ? '' : 's') . "** from today.")
+            ->line("That's in about **{$this->daysUntil} day" . ($this->daysUntil === 1 ? '' : 's') . '** from today.')
             ->action('View verification page', $verifyUrl)
             ->line('Please contact HR if you need a renewal issued before the expiry date.')
             ->salutation('— ' . config('app.name'));

@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\CertificateResource\Pages;
 
-use App\Enums\CertificateIssuance;
 use App\Enums\VerificationStatus;
 use App\Filament\Resources\CertificateResource;
 use App\Models\Certificate;

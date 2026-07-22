@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Clusters\Documents;
 use App\Filament\Resources\AuthorResource\Pages;
 use App\Models\Author;
 use Filament\Forms;
@@ -15,7 +16,7 @@ class AuthorResource extends Resource
 {
     protected static ?string $model = Author::class;
 
-    protected static ?string $cluster = \App\Filament\Clusters\Documents::class;
+    protected static ?string $cluster = Documents::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-user-circle';
 
@@ -149,9 +150,9 @@ class AuthorResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListAuthors::route('/'),
+            'index' => Pages\ListAuthors::route('/'),
             'create' => Pages\CreateAuthor::route('/create'),
-            'edit'   => Pages\EditAuthor::route('/{record}/edit'),
+            'edit' => Pages\EditAuthor::route('/{record}/edit'),
         ];
     }
 }

@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PersonInteraction extends Model
 {
-    use SoftDeletes, BelongsToOrganization;
+    use BelongsToOrganization, SoftDeletes;
 
     protected $fillable = [
         'organization_id',
@@ -23,7 +23,7 @@ class PersonInteraction extends Model
     ];
 
     protected $casts = [
-        'type'        => InteractionType::class,
+        'type' => InteractionType::class,
         'occurred_at' => 'datetime',
     ];
 

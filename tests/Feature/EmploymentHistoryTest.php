@@ -16,29 +16,33 @@ class EmploymentHistoryTest extends TestCase
     use RefreshDatabase;
 
     protected Department $hr;
+
     protected Department $fin;
+
     protected Position $staff;
+
     protected Position $lead;
+
     protected Position $acct;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->hr  = Department::create(['code' => 'HR',  'name' => 'Human Resources']);
+        $this->hr = Department::create(['code' => 'HR',  'name' => 'Human Resources']);
         $this->fin = Department::create(['code' => 'FIN', 'name' => 'Finance']);
         $this->staff = Position::create(['department_id' => $this->hr->id,  'code' => 'HR-STAFF', 'title' => 'HR Staff']);
-        $this->lead  = Position::create(['department_id' => $this->hr->id,  'code' => 'HR-LEAD',  'title' => 'HR Lead']);
-        $this->acct  = Position::create(['department_id' => $this->fin->id, 'code' => 'FIN-ACCT', 'title' => 'Accountant']);
+        $this->lead = Position::create(['department_id' => $this->hr->id,  'code' => 'HR-LEAD',  'title' => 'HR Lead']);
+        $this->acct = Position::create(['department_id' => $this->fin->id, 'code' => 'FIN-ACCT', 'title' => 'Accountant']);
     }
 
     protected function makeEmp(): Employee
     {
         return Employee::create([
-            'first_name'    => 'Jane', 'last_name' => 'Doe',
-            'email'         => 'jane.doe@example.com',
+            'first_name' => 'Jane', 'last_name' => 'Doe',
+            'email' => 'jane.doe@example.com',
             'department_id' => $this->hr->id,
-            'position_id'   => $this->staff->id,
-            'hired_at'      => now()->subYear(),
+            'position_id' => $this->staff->id,
+            'hired_at' => now()->subYear(),
         ]);
     }
 
@@ -63,7 +67,7 @@ class EmploymentHistoryTest extends TestCase
 
         $this->assertNotNull($promotion);
         $this->assertSame('HR Staff', $promotion->previous_state['position_title']);
-        $this->assertSame('HR Lead',  $promotion->new_state['position_title']);
+        $this->assertSame('HR Lead', $promotion->new_state['position_title']);
     }
 
     public function test_department_change_creates_transfer_event(): void
@@ -75,7 +79,7 @@ class EmploymentHistoryTest extends TestCase
 
         $this->assertNotNull($transfer);
         $this->assertSame('Human Resources', $transfer->previous_state['department_name']);
-        $this->assertSame('Finance',         $transfer->new_state['department_name']);
+        $this->assertSame('Finance', $transfer->new_state['department_name']);
     }
 
     public function test_contract_change_creates_contract_change_event(): void

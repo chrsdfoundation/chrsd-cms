@@ -10,7 +10,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class CertificateType extends Model
 {
-    use LogsActivity, BelongsToOrganization;
+    use BelongsToOrganization, LogsActivity;
 
     protected $fillable = [
         'organization_id',
@@ -19,10 +19,10 @@ class CertificateType extends Model
     ];
 
     protected $casts = [
-        'default_fields'    => 'array',
+        'default_fields' => 'array',
         'requires_approval' => 'boolean',
-        'is_active'         => 'boolean',
-        'validity_days'     => 'integer',
+        'is_active' => 'boolean',
+        'validity_days' => 'integer',
     ];
 
     public function getActivitylogOptions(): LogOptions

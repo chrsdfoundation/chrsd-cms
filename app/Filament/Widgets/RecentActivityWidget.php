@@ -34,7 +34,7 @@ class RecentActivityWidget extends BaseWidget
                     ->colors([
                         'success' => 'created',
                         'warning' => 'updated',
-                        'danger'  => 'deleted',
+                        'danger' => 'deleted',
                     ]),
                 Tables\Columns\TextColumn::make('subject_type')
                     ->label('Subject')

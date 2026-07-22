@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Enums\PledgeStatus;
+use App\Filament\Clusters\Fundraising;
 use App\Filament\Resources\PledgeResource\Pages;
 use App\Models\Campaign;
 use App\Models\Person;
@@ -19,7 +20,7 @@ class PledgeResource extends Resource
 {
     protected static ?string $model = Pledge::class;
 
-    protected static ?string $cluster = \App\Filament\Clusters\Fundraising::class;
+    protected static ?string $cluster = Fundraising::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-hand-thumb-up';
 
@@ -89,7 +90,7 @@ class PledgeResource extends Resource
                     ->requiresConfirmation()
                     ->action(function (Pledge $record) {
                         $record->forceFill([
-                            'status'           => PledgeStatus::Fulfilled,
+                            'status' => PledgeStatus::Fulfilled,
                             'fulfilled_amount' => $record->promised_amount,
                         ])->save();
                     })
@@ -103,10 +104,10 @@ class PledgeResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListPledges::route('/'),
+            'index' => Pages\ListPledges::route('/'),
             'create' => Pages\CreatePledge::route('/create'),
-            'view'   => Pages\ViewPledge::route('/{record}'),
-            'edit'   => Pages\EditPledge::route('/{record}/edit'),
+            'view' => Pages\ViewPledge::route('/{record}'),
+            'edit' => Pages\EditPledge::route('/{record}/edit'),
         ];
     }
 
