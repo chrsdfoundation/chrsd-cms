@@ -1,0 +1,399 @@
+@php
+    use App\Models\MoneyReceipt;
+    use App\Support\AmountInWords;
+    use Milon\Barcode\DNS2D;
+
+    // Freshly-computed URL so that when VERIFY_BASE_URL is flipped from
+    // http://localhost:8001 to https://chrsd.org, re-prints of historical
+    // receipts encode the new URL. The stored $receipt->qr_code_uri is kept
+    // as an audit trail of "what URL was on the QR at issue time".
+    $verifyUrl   = MoneyReceipt::buildVerificationUrl($receipt->serial_number);
+    $amountFmt   = number_format((float) $receipt->amount, 2);
+    $amountWords = AmountInWords::convert((float) $receipt->amount, 'Taka', 'Poisha');
+    $qrSvg       = (new DNS2D())->getBarcodeSVG($verifyUrl, 'QRCODE', 3, 3);
+
+    // Short integrity checksum displayed on the receipt so a physical copy is
+    // tamper-detectable at a glance: first 16 hex chars of the row's HMAC.
+    // The full 64-char verification_hash is still shown on the verify page.
+    $checksum = substr((string) $receipt->verification_hash, 0, 16);
+@endphp
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ $receipt->serial_number }} — CHRSD Money Receipt</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --ink: #14342B;
+            --paper: #FBFAF6;
+            --brass: #B5894E;
+            --brass-soft: #cdaa78;
+            --rule: #D8D3C4;
+            --bg: #0d211c;
+        }
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background:
+                radial-gradient(900px 500px at 12% -8%, #16413444 0%, transparent 60%),
+                var(--bg);
+            color: #eceae3;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+        .wrap { max-width: 780px; margin: 0 auto; padding: 22px 22px 60px; }
+
+        header.app {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 16px; padding-bottom: 18px; margin-bottom: 22px;
+            border-bottom: 1px solid #ffffff1a;
+        }
+        header.app .brandline { display: flex; align-items: center; gap: 14px; }
+        header.app .mark {
+            width: 42px; height: 42px; border-radius: 50%;
+            border: 1.5px solid var(--brass-soft);
+            display: grid; place-items: center;
+            font-family: 'Spectral', serif; font-weight: 700;
+            color: var(--brass-soft); font-size: 20px;
+        }
+        header.app h1 {
+            font-family: 'Spectral', serif; font-weight: 600;
+            font-size: 19px; margin: 0; color: #f2efe6;
+        }
+        header.app p { margin: 2px 0 0; font-size: 12px; color: #aebdb2; }
+
+        .actions {
+            display: flex; gap: 10px; flex-wrap: wrap;
+        }
+        .btn {
+            font-family: 'Inter'; font-weight: 600; font-size: 13px;
+            border-radius: 8px; padding: 10px 16px; cursor: pointer;
+            border: 1px solid transparent; transition: .16s;
+        }
+        .btn-primary { background: var(--brass); color: #23160a; }
+        .btn-primary:hover { background: var(--brass-soft); }
+        .btn-ghost { background: transparent; border-color: #ffffff33; color: #dfe9e0; }
+        .btn-ghost:hover { background: #ffffff10; }
+
+        /* ================= receipt (fits on one A4 page) ================= */
+        #receipt {
+            background: var(--paper);
+            color: #26221c;
+            border-radius: 6px;
+            padding: 26px 30px 24px;
+            box-shadow: 0 24px 60px -24px #000a, 0 2px 0 #ffffff10;
+            position: relative; overflow: hidden;
+            font-size: 13px;
+            width: 100%;
+        }
+        #receipt::before {
+            content: ""; position: absolute; inset: 0 0 auto 0; height: 5px;
+            background: linear-gradient(90deg, var(--ink) 0 33%, var(--brass) 33% 66%, var(--ink) 66% 100%);
+        }
+
+        .rcpt-head {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            gap: 18px; border-bottom: 2px solid var(--ink);
+            padding-bottom: 14px; margin-bottom: 6px;
+        }
+        .rcpt-org { display: flex; gap: 13px; align-items: flex-start; }
+        .rcpt-logo {
+            width: 48px; height: 48px; border-radius: 50%; flex: none;
+            border: 2px solid var(--ink); background: #fff;
+            display: grid; place-items: center; overflow: hidden;
+        }
+        .rcpt-logo img { width: 100%; height: 100%; object-fit: contain; }
+        .rcpt-org h3 {
+            font-family: 'Spectral', serif; font-size: 18px; margin: 0;
+            color: var(--ink); line-height: 1.15; font-weight: 700;
+        }
+        .rcpt-org .sub {
+            font-size: 11px; color: #6c655a; margin-top: 3px;
+            line-height: 1.4; max-width: 340px;
+        }
+        .rcpt-org .reg {
+            font-size: 10px; color: #6c655a; margin-top: 4px;
+            line-height: 1.4; max-width: 340px; font-style: italic;
+        }
+        .rcpt-title { text-align: right; }
+        .rcpt-title .lbl {
+            font-family: 'Spectral', serif; font-size: 16px; font-weight: 700;
+            color: var(--ink); letter-spacing: 1.4px; text-transform: uppercase;
+        }
+        .rcpt-title .no {
+            font-family: 'JetBrains Mono', monospace; font-size: 12px;
+            color: #7a3b1f; margin-top: 4px; font-weight: 600;
+        }
+        .rcpt-title .dt { font-size: 11.5px; color: #6c655a; margin-top: 3px; }
+
+        .rcpt-body { margin-top: 14px; }
+        .line { display: flex; gap: 10px; align-items: baseline; margin-bottom: 9px; }
+        .line .k {
+            flex: 0 0 auto; font-size: 11.5px; color: #6c655a;
+            font-weight: 600; white-space: nowrap;
+        }
+        .line .v {
+            flex: 1; border-bottom: 1px dotted #b3a998;
+            min-height: 17px; font-weight: 500; color: #26221c;
+            padding: 0 2px 2px; font-size: 13px;
+        }
+
+        .amount-box {
+            margin: 14px 0 4px; display: flex; justify-content: space-between;
+            align-items: center;
+            background: #f3efe4; border: 1px solid var(--rule);
+            border-radius: 7px; padding: 12px 16px;
+        }
+        .amount-box .albl {
+            font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
+            color: #6c655a; font-weight: 700;
+        }
+        .amount-box .aval {
+            font-family: 'JetBrains Mono', monospace; font-size: 22px;
+            font-weight: 600; color: var(--ink);
+        }
+        .amount-words {
+            font-size: 12px; color: #4d4639; font-style: italic;
+            margin-top: 2px; line-height: 1.5;
+        }
+        .amount-words b {
+            font-style: normal; color: #6c655a; font-weight: 600;
+            font-size: 10.5px; text-transform: uppercase; letter-spacing: .5px;
+        }
+
+        /* Foot — QR only, centered. No signature block: this receipt is
+           valid without signature or seal. */
+        .rcpt-foot {
+            display: flex; justify-content: center; align-items: center;
+            margin-top: 18px;
+        }
+        .qr-block { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .qr {
+            width: 96px; height: 96px; flex: 0 0 auto;
+            display: grid; place-items: center;
+        }
+        .qr svg { width: 100%; height: 100%; }
+        .qr-caption {
+            font-size: 10.5px; color: #6c655a; text-align: center;
+            letter-spacing: .3px;
+        }
+
+        /* Contact + integrity footer */
+        .rcpt-contact {
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid var(--rule);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 22px;
+            font-size: 10.5px;
+            color: #4d4639;
+            line-height: 1.5;
+        }
+        .rcpt-contact .item {
+            display: flex; gap: 6px; align-items: flex-start;
+        }
+        .rcpt-contact .item .ico {
+            flex: 0 0 auto; font-size: 12px; line-height: 1.3;
+            color: #6c655a;
+        }
+        .rcpt-contact .item .txt { flex: 1; }
+        .rcpt-contact .item .txt b {
+            font-weight: 700; color: #6c655a; font-size: 9.5px;
+            text-transform: uppercase; letter-spacing: .5px;
+            display: block; margin-bottom: 1px;
+        }
+
+        .rcpt-integrity {
+            margin-top: 12px; padding: 8px 12px;
+            background: #f3efe4; border: 1px solid var(--rule);
+            border-radius: 5px;
+            display: flex; justify-content: space-between; align-items: center;
+            gap: 10px;
+            font-size: 10px; color: #6c655a;
+            font-family: 'JetBrains Mono', monospace;
+            line-height: 1.4;
+        }
+        .rcpt-integrity .lbl {
+            font-family: 'Inter'; font-weight: 700;
+            font-size: 9.5px; text-transform: uppercase; letter-spacing: .8px;
+            color: #6c655a;
+        }
+        .rcpt-integrity .val {
+            font-weight: 600; color: var(--ink);
+            word-break: break-all;
+        }
+
+        .rcpt-note {
+            margin-top: 10px; padding-top: 8px;
+            font-size: 9.5px; color: #9a9182;
+            text-align: center; letter-spacing: .3px;
+            line-height: 1.5;
+        }
+        .rcpt-note .url {
+            font-family: 'JetBrains Mono', monospace;
+            color: #6c655a; word-break: break-all;
+        }
+        .revoked {
+            margin-top: 12px; padding: 10px 12px;
+            background: #f4e1de; border: 1px solid #d1a29a;
+            border-radius: 6px; color: #7a1f16; font-size: 12px;
+        }
+
+        @media print {
+            @page { size: A4 portrait; margin: 14mm; }
+            body { background: #fff; }
+            .wrap { max-width: none; margin: 0; padding: 0; }
+            header.app, .no-print { display: none !important; }
+            #receipt { box-shadow: none; border: 1px solid #00000022; border-radius: 0; page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <header class="app no-print">
+        <div class="brandline">
+            <div class="mark">C</div>
+            <div>
+                <h1>CHRSD Foundation</h1>
+                <p>Money Receipt · {{ $receipt->serial_number }}</p>
+            </div>
+        </div>
+        <div class="actions">
+            <button class="btn btn-primary" onclick="downloadPDF()">Download PDF</button>
+            <button class="btn btn-ghost" onclick="window.print()">Print</button>
+        </div>
+    </header>
+
+    <div id="receipt">
+        <div class="rcpt-head">
+            <div class="rcpt-org">
+                <div class="rcpt-logo">
+                    <img src="{{ asset('images/chrsd-round-logo.png') }}" alt="CHRSD">
+                </div>
+                <div>
+                    <h3>CHRSD Foundation</h3>
+                    <div class="sub">Centre for Humanitarian Research &amp; Social Development · Dhaka, Bangladesh</div>
+                    <div class="reg">Registered under the Registrar of Joint Stock Companies &amp; Firms (RJSC), Bangladesh · Reg No. S-14480/2026.</div>
+                </div>
+            </div>
+            <div class="rcpt-title">
+                <div class="lbl">Money Receipt</div>
+                <div class="no">No. {{ $receipt->serial_number }}</div>
+                <div class="dt">Date: {{ optional($receipt->receipt_date)->format('d M Y') }}</div>
+            </div>
+        </div>
+
+        <div class="rcpt-body">
+            <div class="line">
+                <span class="k">Received with thanks from:</span>
+                <span class="v">{{ $receipt->payer_name }}</span>
+            </div>
+            <div class="line">
+                <span class="k">On account of:</span>
+                <span class="v">{{ $receipt->purpose }}</span>
+            </div>
+            <div class="line">
+                <span class="k">Payment method:</span>
+                <span class="v">
+                    {{ $receipt->payment_method?->getLabel() }}@if ($receipt->reference_no) · {{ $receipt->reference_no }}@endif
+                </span>
+            </div>
+            @if ($receipt->received_by)
+            <div class="line">
+                <span class="k">Received by:</span>
+                <span class="v">{{ $receipt->received_by }}</span>
+            </div>
+            @endif
+
+            <div class="amount-box">
+                <span class="albl">Amount received</span>
+                <span class="aval">৳ {{ $amountFmt }}</span>
+            </div>
+            <div class="amount-words"><b>In words:</b> {{ $amountWords }}</div>
+        </div>
+
+        <div class="rcpt-foot">
+            <div class="qr-block">
+                <div class="qr">{!! $qrSvg !!}</div>
+                <div class="qr-caption">Scan to verify</div>
+            </div>
+        </div>
+
+        @if ($receipt->status === \App\Enums\VerificationStatus::Revoked)
+            <div class="revoked">
+                <strong>Revoked.</strong>
+                @if ($receipt->revocation_reason) Reason: {{ $receipt->revocation_reason }}. @endif
+                This copy is retained for records only.
+            </div>
+        @endif
+
+        <div class="rcpt-contact">
+            <div class="item">
+                <span class="ico">📍</span>
+                <span class="txt">
+                    <b>Address</b>
+                    29 Toyenbee Circular Road (5th Floor), Motijheel C/A, Dhaka
+                </span>
+            </div>
+            <div class="item">
+                <span class="ico">☎</span>
+                <span class="txt">
+                    <b>Phone</b>
+                    +880-2-1234-567890
+                </span>
+            </div>
+            <div class="item" style="grid-column: 1 / -1;">
+                <span class="ico">✉</span>
+                <span class="txt">
+                    <b>For questions</b>
+                    Contact <a href="mailto:info@chrsd.org" style="color:#4d4639;text-decoration:underline;">info@chrsd.org</a>
+                </span>
+            </div>
+        </div>
+
+        <div class="rcpt-integrity" title="Truncated HMAC-SHA256 checksum — first 16 hex chars of the full verification hash on the verify page.">
+            <span class="lbl">Integrity Checksum</span>
+            <span class="val">{{ $checksum }}</span>
+        </div>
+
+        <div class="rcpt-note">
+            This is a computer-generated receipt. Valid without signature or seal.<br>
+            Verify at: <span class="url">{{ $verifyUrl }}</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    function downloadPDF() {
+        const node = document.getElementById('receipt');
+        const filename = @json($receipt->serial_number . '_' . preg_replace('/[^A-Za-z0-9]+/', '-', $receipt->payer_name)) + '.pdf';
+        // useCORS + allowTaint + higher imageTimeout so the logo PNG is
+        // definitely painted onto the canvas before jsPDF rips it out.
+        // foreignObjectRendering:false is the html2canvas default; leaving it
+        // explicit as a reminder we tried the SVG route and it's flaky.
+        html2pdf().set({
+            margin: 14,
+            filename: filename,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: {
+                scale: 2,
+                useCORS: true,
+                allowTaint: true,
+                imageTimeout: 15000,
+                foreignObjectRendering: false,
+                backgroundColor: '#FBFAF6',
+            },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak: { mode: ['avoid-all'] }
+        }).from(node).save();
+    }
+</script>
+</body>
+</html>

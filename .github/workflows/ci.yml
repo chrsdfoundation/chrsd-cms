@@ -1,0 +1,172 @@
+name: CI / CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+# Supersede in-flight runs on the same ref (saves runner minutes)
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test (PHPUnit)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl, gd, curl, pdo, pdo_sqlite, sqlite3, zip, exif, fileinfo, bcmath, openssl
+          coverage: none
+          tools: composer:v2
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.composer/cache
+            vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress --no-security-blocking
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate --ansi
+      - name: Run PHPUnit
+        run: php artisan test --parallel --processes=2   # DB = sqlite :memory: via phpunit.xml
+
+  lint:
+    name: Lint (Pint + PHPStan if present)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          tools: composer:v2
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.composer/cache
+            vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress --no-security-blocking
+      - name: Laravel Pint (code style)
+        run: vendor/bin/pint --test --format=github
+      - name: PHPStan (only if installed)
+        run: |
+          if [ -f vendor/bin/phpstan ]; then
+            vendor/bin/phpstan analyse --no-progress
+          else
+            echo "PHPStan binary absent — skipping (not configured for this repo)."
+          fi
+
+  build:
+    name: Build assets (Vite)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PUPPETEER_SKIP_DOWNLOAD: 'true'   # asset build doesn't need Chromium (~150 MB saved)
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - name: Install npm dependencies
+        run: npm ci
+      - name: Build production assets
+        run: npm run build
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-assets
+          path: public/build
+          retention-days: 7
+          if-no-files-found: error
+
+  deploy:
+    name: Deploy to cPanel (SFTP over SSH)
+    runs-on: ubuntu-latest
+    needs: [test, lint, build]
+    # ENABLED: only a real push to main deploys — never PRs, never develop
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    timeout-minutes: 20
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false   # never interrupt a deploy mid-flight
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl, gd, curl, pdo, pdo_mysql, sqlite3, zip, exif, fileinfo, bcmath, openssl
+          coverage: none
+          tools: composer:v2
+      - name: Install production Composer dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress --no-security-blocking
+      - name: Download built assets
+        uses: actions/download-artifact@v4
+        with:
+          name: build-assets
+          path: public/build
+      - name: Package release tarball
+        run: |
+          tar \
+            --exclude='./.git' --exclude='./.github' --exclude='./node_modules' \
+            --exclude='./tests' --exclude='./docker' --exclude='./.env*' \
+            --exclude='./storage/app/public/*' --exclude='./storage/logs/*' \
+            --exclude='./storage/media-library/*' \
+            --exclude='./storage/framework/cache/*' \
+            --exclude='./storage/framework/sessions/*' \
+            --exclude='./storage/framework/views/*' \
+            -czf /tmp/release.tar.gz .
+      - name: Copy release to server (SFTP)
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.CPANEL_SSH_HOST }}
+          port: ${{ secrets.CPANEL_SSH_PORT }}
+          username: ${{ secrets.CPANEL_SSH_USER }}
+          key: ${{ secrets.CPANEL_SSH_KEY }}
+          passphrase: ${{ secrets.CPANEL_SSH_PASSPHRASE }}
+          source: /tmp/release.tar.gz
+          target: ${{ secrets.CPANEL_DEPLOY_PATH }}
+      - name: Extract & release (SSH)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.CPANEL_SSH_HOST }}
+          port: ${{ secrets.CPANEL_SSH_PORT }}
+          username: ${{ secrets.CPANEL_SSH_USER }}
+          key: ${{ secrets.CPANEL_SSH_KEY }}
+          passphrase: ${{ secrets.CPANEL_SSH_PASSPHRASE }}
+          script: |
+            set -e
+            cd "${{ secrets.CPANEL_DEPLOY_PATH }}"
+            php artisan down --retry=30 || true
+            tar -xzf release.tar.gz -C .
+            rm -f release.tar.gz
+            php artisan migrate --force
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            php artisan storage:link || true
+            php artisan queue:restart || true
+            php artisan up
