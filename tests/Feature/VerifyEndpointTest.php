@@ -44,7 +44,7 @@ class VerifyEndpointTest extends TestCase
         $this->get("/verify/{$cert->verification_hash}")
             ->assertOk()
             ->assertSee($cert->serial_number)
-            ->assertSee('Valid', false); // case-insensitive not needed; blade uppercases
+            ->assertSee('Authentic Document Verified'); // the banner shown for a valid document
     }
 
     public function test_html_endpoint_returns_404_for_unknown_hash_of_correct_shape(): void

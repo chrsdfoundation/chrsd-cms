@@ -2,10 +2,29 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class OpenApiSpecTest extends TestCase
 {
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // The OpenAPI spec + docs are intentionally restricted to authenticated
+        // users (see routes/web.php: middleware auth:sanctum,web). Authenticate
+        // so these tests exercise the real, protected endpoints.
+        $this->actingAs(User::create([
+            'name' => 'Spec Reader',
+            'email' => 'spec@example.test',
+            'password' => Hash::make('secret'),
+        ]));
+    }
+
     public function test_spec_endpoint_returns_valid_oas_3_1(): void
     {
         $res = $this->getJson('/api/openapi.json');

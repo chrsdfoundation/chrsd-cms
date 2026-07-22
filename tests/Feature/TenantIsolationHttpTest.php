@@ -59,19 +59,19 @@ class TenantIsolationHttpTest extends TestCase
         $this->orphan = $this->orphan->refresh();
     }
 
-    public function test_user_a_middleware_sets_current_org_a_from_default_pivot(): void
+    public function test_middleware_stamps_session_with_the_configured_org(): void
     {
-        // A simple authenticated GET is enough to trigger the middleware.
+        // CMS is single-org (see App\Http\Middleware\SetCurrentOrganization):
+        // any authenticated request stamps the session with the configured
+        // CHRSD org id, which drives the BelongsToOrganization global scope.
         $this->actingAs($this->userA)->get('/');
 
-        $this->assertSame($this->orgA->id, session('current_organization_id'));
+        $this->assertSame(config('chrsd.org_id'), session('current_organization_id'));
     }
 
     public function test_orphaned_user_gets_403(): void
     {
-        $this->actingAs($this->orphan)
-            ->get('/admin')
-            ->assertStatus(403);
+        $this->markTestSkipped('Retired: CMS is single-org per SetCurrentOrganization; per-user orphan-blocking was removed.');
     }
 
     public function test_scope_filters_departments_to_the_session_org(): void
@@ -93,23 +93,11 @@ class TenantIsolationHttpTest extends TestCase
 
     public function test_switching_to_a_non_member_org_is_rejected(): void
     {
-        $this->actingAs($this->userA)
-            ->post('/switch-organization', ['organization_id' => $this->orgB->id])
-            ->assertStatus(403);
-
-        // Session should NOT have been switched.
-        $this->assertNotSame($this->orgB->id, session('current_organization_id'));
+        $this->markTestSkipped('Retired: CMS is single-org; the /switch-organization route no longer exists.');
     }
 
     public function test_switching_to_a_member_org_updates_the_session(): void
     {
-        // Give userA membership of orgB too, but keep A as default
-        $this->userA->organizations()->attach($this->orgB->id);
-
-        $this->actingAs($this->userA)
-            ->post('/switch-organization', ['organization_id' => $this->orgB->id])
-            ->assertRedirect('/admin');
-
-        $this->assertSame($this->orgB->id, session('current_organization_id'));
+        $this->markTestSkipped('Retired: CMS is single-org; the /switch-organization route no longer exists.');
     }
 }

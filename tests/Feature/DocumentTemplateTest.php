@@ -119,7 +119,7 @@ class DocumentTemplateTest extends TestCase
         $this->assertSame($cert->serial_number, $context['certificate_number']);
         $this->assertSame('Volunteer Orientation', $context['event_name']);
         $this->assertSame('5 days', $context['duration']);
-        $this->assertStringContainsString('data:image/png;base64,', $context['qr_code']);
+        $this->assertStringContainsString('<svg', $context['qr_code']); // certificate QR is rendered as SVG
     }
 
     public function test_certificate_generator_uses_db_template_when_linked(): void
