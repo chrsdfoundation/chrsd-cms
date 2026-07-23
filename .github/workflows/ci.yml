@@ -129,6 +129,8 @@ jobs:
       cancel-in-progress: false   # never interrupt a deploy mid-flight
     steps:
       - uses: actions/checkout@v4
+        with:
+          path: app
       - name: Setup PHP 8.3
         uses: shivammathur/setup-php@v2
         with:
@@ -137,14 +139,21 @@ jobs:
           coverage: none
           tools: composer:v2
       - name: Install production Composer dependencies
+        working-directory: app
         run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress --no-security-blocking
       - name: Download built assets
         uses: actions/download-artifact@v4
         with:
           name: build-assets
-          path: public/build
+          path: app/public/build
       - name: Package release tarball
+        # Written one dir above the checkout (path: app) so tar isn't archiving
+        # its own output — doing that in-place changes the scanned directory's
+        # mtime mid-read and GNU tar treats it as fatal. Workspace-relative so
+        # appleboy/scp-action (runs in Docker, mounts the workspace not /tmp)
+        # can see the file.
         run: |
+          cd app
           tar \
             --exclude='./.git' --exclude='./.github' --exclude='./node_modules' \
             --exclude='./tests' --exclude='./docker' --exclude='./.env*' \
@@ -153,7 +162,7 @@ jobs:
             --exclude='./storage/framework/cache/*' \
             --exclude='./storage/framework/sessions/*' \
             --exclude='./storage/framework/views/*' \
-            -czf /tmp/release.tar.gz .
+            -czf ../release.tar.gz .
       - name: Copy release to server (SFTP)
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -162,7 +171,7 @@ jobs:
           username: ${{ secrets.CPANEL_SSH_USER }}
           key: ${{ secrets.CPANEL_SSH_KEY }}
           passphrase: ${{ secrets.CPANEL_SSH_PASSPHRASE }}
-          source: /tmp/release.tar.gz
+          source: release.tar.gz
           target: ${{ secrets.CPANEL_DEPLOY_PATH }}
       - name: Extract & release (SSH)
         uses: appleboy/ssh-action@v1.0.3
