@@ -19,6 +19,10 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
+        <!-- Pin empty so the HR-notification tests deterministically exercise the
+             role-fallback path; otherwise CMS_HR_INBOX leaks in from the copied
+             .env and notifyHr() short-circuits to the inbox mail route. -->
+        <env name="CMS_HR_INBOX" value=""/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_STORE" value="array"/>
