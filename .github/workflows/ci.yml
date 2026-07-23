@@ -51,6 +51,12 @@ jobs:
         run: |
           echo "CHROMIUM_PATH=${{ steps.chrome.outputs.chrome-path }}" >> "$GITHUB_ENV"
           echo "Using Chromium at: ${{ steps.chrome.outputs.chrome-path }}"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install Node dependencies (Puppeteer for Browsershot)
+        run: npm install
       - name: Run PHPUnit
         run: php artisan test   # DB = sqlite :memory: via phpunit.xml
 
