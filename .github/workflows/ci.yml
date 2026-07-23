@@ -43,7 +43,7 @@ jobs:
           cp .env.example .env
           php artisan key:generate --ansi
       - name: Run PHPUnit
-        run: php artisan test --parallel --processes=2   # DB = sqlite :memory: via phpunit.xml
+        run: php artisan test   # DB = sqlite :memory: via phpunit.xml
 
   lint:
     name: Lint (Pint + PHPStan if present)
@@ -68,7 +68,7 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --no-progress --no-security-blocking
       - name: Laravel Pint (code style)
-        run: vendor/bin/pint --test --format=github
+        run: vendor/bin/pint --test
       - name: PHPStan (only if installed)
         run: |
           if [ -f vendor/bin/phpstan ]; then
