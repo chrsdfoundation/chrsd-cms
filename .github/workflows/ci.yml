@@ -42,6 +42,15 @@ jobs:
         run: |
           cp .env.example .env
           php artisan key:generate --ansi
+      - name: Install Chromium for Browsershot
+        id: chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+      - name: Export Chromium path for Browsershot
+        run: |
+          echo "CHROMIUM_PATH=${{ steps.chrome.outputs.chrome-path }}" >> "$GITHUB_ENV"
+          echo "Using Chromium at: ${{ steps.chrome.outputs.chrome-path }}"
       - name: Run PHPUnit
         run: php artisan test   # DB = sqlite :memory: via phpunit.xml
 
