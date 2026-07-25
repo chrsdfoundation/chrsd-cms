@@ -13,7 +13,10 @@ use App\Http\Middleware\TrackApiTokenUsage;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    // Back-office app: send the bare root to the admin panel instead of the
+    // default Laravel welcome page. (The 'web' middleware group still runs,
+    // so SetCurrentOrganization session-stamping is unaffected.)
+    return redirect('/admin');
 });
 
 // Design-time template previews — super_admin only.
