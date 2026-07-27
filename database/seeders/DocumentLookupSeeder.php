@@ -57,5 +57,15 @@ class DocumentLookupSeeder extends Seeder
         foreach ($idCardTypes as $t) {
             IdCardType::updateOrCreate(['code' => $t['code']], $t);
         }
+
+        // Additional lookups synced from the live CMS (HR + corporate letter
+        // categories and the Certificate of Achievement type). See data/*.php.
+        foreach (require __DIR__ . '/data/sync_certificate_types.php' as $t) {
+            CertificateType::updateOrCreate(['code' => $t['code']], $t);
+        }
+
+        foreach (require __DIR__ . '/data/sync_letter_categories.php' as $c) {
+            LetterCategory::updateOrCreate(['code' => $c['code']], $c);
+        }
     }
 }
