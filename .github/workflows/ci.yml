@@ -110,7 +110,7 @@ jobs:
       - name: Build production assets
         run: npm run build
       - name: Upload build artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: build-assets
           path: public/build
@@ -142,7 +142,7 @@ jobs:
         working-directory: app
         run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress --no-security-blocking
       - name: Download built assets
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: build-assets
           path: app/public/build
