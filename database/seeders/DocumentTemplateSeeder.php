@@ -16,6 +16,40 @@ class DocumentTemplateSeeder extends Seeder
         $this->seedCertificates();
         $this->seedLetters();
         $this->seedIdCards();
+        $this->seedSynced();
+    }
+
+    /**
+     * Seed the templates carried over from the live CMS (HR letters, corporate
+     * letters, and the service/achievement certificates). Data lives in
+     * data/sync_document_templates.php; lookup relations are resolved by code
+     * so the IDs stay portable across environments. Must run after the lookup
+     * seeder so the certificate types and letter categories already exist.
+     */
+    protected function seedSynced(): void
+    {
+        foreach (require __DIR__ . '/data/sync_document_templates.php' as $row) {
+            DocumentTemplate::updateOrCreate(
+                ['name' => $row['name'], 'organization_id' => null],
+                [
+                    'document_type' => $row['document_type'],
+                    'certificate_type_id' => $row['certificate_type_code']
+                        ? CertificateType::where('code', $row['certificate_type_code'])->value('id')
+                        : null,
+                    'letter_category_id' => $row['letter_category_code']
+                        ? LetterCategory::where('code', $row['letter_category_code'])->value('id')
+                        : null,
+                    'id_card_type_id' => $row['id_card_type_code']
+                        ? IdCardType::where('code', $row['id_card_type_code'])->value('id')
+                        : null,
+                    'orientation' => $row['orientation'],
+                    'shell_variant' => $row['shell_variant'],
+                    'is_default' => $row['is_default'],
+                    'body_markdown' => $row['body_markdown'],
+                    'sample_context' => $row['sample_context'],
+                ],
+            );
+        }
     }
 
     protected function seedCertificates(): void
