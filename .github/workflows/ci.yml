@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup PHP 8.3
         uses: shivammathur/setup-php@v2
         with:
@@ -29,7 +29,7 @@ jobs:
           coverage: none
           tools: composer:v2
       - name: Cache Composer packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.composer/cache
@@ -44,7 +44,7 @@ jobs:
           php artisan key:generate --ansi
       - name: Install Chromium for Browsershot
         id: chrome
-        uses: browser-actions/setup-chrome@v1
+        uses: browser-actions/setup-chrome@v2
         with:
           chrome-version: stable
       - name: Export Chromium path for Browsershot
@@ -52,7 +52,7 @@ jobs:
           echo "CHROMIUM_PATH=${{ steps.chrome.outputs.chrome-path }}" >> "$GITHUB_ENV"
           echo "Using Chromium at: ${{ steps.chrome.outputs.chrome-path }}"
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '20'
       - name: Install Node dependencies (Puppeteer for Browsershot)
@@ -65,7 +65,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup PHP 8.3
         uses: shivammathur/setup-php@v2
         with:
@@ -73,7 +73,7 @@ jobs:
           coverage: none
           tools: composer:v2
       - name: Cache Composer packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.composer/cache
@@ -99,9 +99,9 @@ jobs:
     env:
       PUPPETEER_SKIP_DOWNLOAD: 'true'   # asset build doesn't need Chromium (~150 MB saved)
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup Node 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '22'
           cache: 'npm'
@@ -110,7 +110,7 @@ jobs:
       - name: Build production assets
         run: npm run build
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: build-assets
           path: public/build
@@ -128,7 +128,7 @@ jobs:
       group: deploy-production
       cancel-in-progress: false   # never interrupt a deploy mid-flight
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           path: app
       - name: Setup PHP 8.3
@@ -142,7 +142,7 @@ jobs:
         working-directory: app
         run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress --no-security-blocking
       - name: Download built assets
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: build-assets
           path: app/public/build
