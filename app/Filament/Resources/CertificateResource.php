@@ -28,6 +28,8 @@ class CertificateResource extends Resource
 
     protected static ?string $cluster = Documents::class;
 
+    protected static ?string $slug = 'certificates';
+
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
     protected static ?int $navigationSort = 30;

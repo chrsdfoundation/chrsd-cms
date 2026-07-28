@@ -27,6 +27,8 @@ class IdCardResource extends Resource
 
     protected static ?string $cluster = Documents::class;
 
+    protected static ?string $slug = 'id-cards';
+
     protected static ?string $navigationIcon = 'heroicon-o-identification';
 
     protected static ?int $navigationSort = 25;

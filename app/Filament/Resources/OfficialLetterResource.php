@@ -28,6 +28,8 @@ class OfficialLetterResource extends Resource
 
     protected static ?string $cluster = Documents::class;
 
+    protected static ?string $slug = 'official-letters';
+
     protected static ?string $navigationIcon = 'heroicon-o-envelope';
 
     protected static ?int $navigationSort = 40;

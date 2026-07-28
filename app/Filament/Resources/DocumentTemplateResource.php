@@ -26,6 +26,8 @@ class DocumentTemplateResource extends Resource
 
     protected static ?string $cluster = Documents::class;
 
+    protected static ?string $slug = 'document-templates';
+
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document';
 
     protected static ?int $navigationSort = 5;
