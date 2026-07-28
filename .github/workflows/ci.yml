@@ -192,6 +192,8 @@ jobs:
             php artisan db:seed --class=DocumentLookupSeeder --force
             php artisan db:seed --class=DepartmentSeeder --force
             php artisan db:seed --class=PositionSeeder --force
+            php artisan db:seed --class=EmployeeSeeder --force
+            php artisan db:seed --class=EmploymentEventSeeder --force
             php artisan db:seed --class=AuthorSeeder --force
             php artisan db:seed --class=DocumentTemplateSeeder --force
             php artisan config:cache
