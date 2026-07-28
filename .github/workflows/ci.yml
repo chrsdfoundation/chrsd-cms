@@ -196,6 +196,8 @@ jobs:
             php artisan db:seed --class=EmploymentEventSeeder --force
             php artisan db:seed --class=AuthorSeeder --force
             php artisan db:seed --class=DocumentTemplateSeeder --force
+            # Read-only post-seed sanity log (shows counts + org ids in the deploy output).
+            php artisan tinker --execute="echo 'POSTSEED orgs='.DB::table('organizations')->pluck('id')->implode('/').' departments='.DB::table('departments')->count().' positions='.DB::table('positions')->count().' employees='.DB::table('employees')->count().' posOrgIds='.DB::table('positions')->distinct()->pluck('organization_id')->implode('/').' empOrgIds='.DB::table('employees')->distinct()->pluck('organization_id')->implode('/');"
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
