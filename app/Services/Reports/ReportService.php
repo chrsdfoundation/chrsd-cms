@@ -9,7 +9,7 @@ use App\Models\Certificate;
 use App\Models\Department;
 use App\Models\Employee;
 use App\Models\OfficialLetter;
-use App\Services\Documents\BrowsershotPdfService;
+use App\Services\Documents\MpdfPdfService;
 use App\Services\Verification\QrCodeService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportService
 {
-    public function __construct(protected BrowsershotPdfService $pdf) {}
+    public function __construct(protected MpdfPdfService $pdf) {}
 
     // ---- Department roster --------------------------------------------
 

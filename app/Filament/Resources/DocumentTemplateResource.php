@@ -9,7 +9,7 @@ use App\Models\CertificateType;
 use App\Models\DocumentTemplate;
 use App\Models\IdCardType;
 use App\Models\LetterCategory;
-use App\Services\Documents\BrowsershotPdfService;
+use App\Services\Documents\MpdfPdfService;
 use App\Services\Documents\TemplateRenderer;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -197,7 +197,7 @@ class DocumentTemplateResource extends Resource
             $opts['margin'] = ['top' => '20mm', 'right' => '15mm', 'bottom' => '20mm', 'left' => '15mm'];
         }
 
-        $bytes = app(BrowsershotPdfService::class)->render($html, $opts);
+        $bytes = app(MpdfPdfService::class)->render($html, $opts);
         $filename = sprintf('preview-%s.pdf', Str::slug($template->name));
 
         return response()->streamDownload(fn () => print ($bytes), $filename, [

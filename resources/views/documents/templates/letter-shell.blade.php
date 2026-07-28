@@ -64,7 +64,9 @@ html, body {
 <body>
 
     <div class="lh-bg" aria-hidden="true">
-        <img src="{{ public_path('images/brand/Letterhead-dompdf.png') }}" alt="">
+        @if($letterhead_uri)
+            <img src="{{ $letterhead_uri }}" alt="">
+        @endif
     </div>
 
     <div class="body">{!! $bodyHtml !!}</div>

@@ -1,6 +1,6 @@
 {{--
   CHRSD ID — BACK · CR80 landscape (85.6 × 54 mm).
-  Puppeteer/Chromium render. All images arrive as data URIs from the service.
+  mPDF render (CSS 2.1 only). All images arrive as base64 data URIs from the service.
   Vars: $idCard, $qr_svg (raw SVG string), $verify_url,
         $signatureUrl (data URI|null), $roundLogoUrl (data URI).
 --}}
@@ -27,27 +27,27 @@
 
     /* ── Guilloche security background ── */
     .guilloche {
-        position: absolute; inset: 0;
+        position: absolute; top: 0; right: 0; bottom: 0; left: 0;
         opacity: 0.07; pointer-events: none; z-index: 0;
     }
     .guilloche svg { width: 100%; height: 100%; display: block; }
 
-    /* ── Centre watermark ── */
+    /* ── Centre watermark (using absolute positioning instead of transform) ── */
     .watermark {
         position: absolute;
         top: 50%; left: 50%;
         width: 28mm; height: 28mm;
-        transform: translate(-50%, -50%);
+        margin-top: -14mm;
+        margin-left: -14mm;
         opacity: 0.045; pointer-events: none; z-index: 1;
     }
     .watermark img { width: 100%; height: 100%; display: block; }
 
-    /* ── Left sidebar — CSS vertical text ── */
+    /* ── Left sidebar — absolute positioning for vertical text ── */
     .sidebar {
         position: absolute; top: 0; left: 0;
         width: 10mm; height: 54mm;
         background: #123420;
-        display: flex; align-items: center; justify-content: center;
         z-index: 2;
     }
     .sidebar .edge {
@@ -55,10 +55,17 @@
         width: 0.6mm; height: 54mm; background: #C09020;
     }
     .sidebar-text {
-        writing-mode: vertical-rl;
-        transform: rotate(180deg);
+        position: absolute;
+        top: 50%; left: 50%;
+        width: 8mm; height: 30mm;
+        margin-top: -15mm;
+        margin-left: -4mm;
         font-size: 10px; font-weight: 700;
-        letter-spacing: 5px; color: #C9A14A;
+        letter-spacing: 2px; color: #C9A14A;
+        text-align: center;
+        white-space: normal;
+        word-break: break-all;
+        line-height: 1.8;
         user-select: none;
     }
 
@@ -70,7 +77,7 @@
         position: absolute; top: 1.5mm; left: 32.5mm;
         width: 11mm; height: 11mm;
     }
-    .emblem img { width: 100%; height: 100%; display: block; object-fit: contain; }
+    .emblem img { width: 100%; height: 100%; display: block; }
 
     .org-name {
         position: absolute;

@@ -1,13 +1,12 @@
 {{--
   CHRSD ID — combined front + back on ONE A4 landscape sheet, side-by-side.
-  Every dependency comes in as a variable so the service can control
-  filesystem paths for DomPDF.
+  All assets arrive as base64 data URIs from the IdCardGeneratorService.
 
   Vars:
-    $idCard, $employee (nullable), $photoUrl (nullable)
+    $idCard, $employee (nullable), $photoUrl (nullable, data URI)
     $qr_svg (raw SVG string), $verify_url
-    $signatureUrl (nullable)  — authorised signatory PNG
-    $logoUrl, $roundLogoUrl   — brand asset paths (public_path() for DomPDF)
+    $signatureUrl (nullable, data URI)
+    $logoUrl, $roundLogoUrl (data URIs, not public_path strings)
 --}}
 @php
     $displayName  = $idCard->displayName();
@@ -18,10 +17,6 @@
     $nationality  = $idCard->nationality ?: optional($employee)->nationality ?: '—';
     $idTypeLabel  = $idCard->id_type_label
         ?: (optional($idCard->idCardType)->name ?: 'Identity Card');
-
-    $logoUrl      = $logoUrl      ?? public_path('images/brand/chrsd-full-logo.png');
-    $roundLogoUrl = $roundLogoUrl ?? public_path('images/brand/chrsd-round-logo.png');
-    $signatureUrl = $signatureUrl ?? $idCard->signatureUrl();
 @endphp
 <!doctype html>
 <html lang="en">
@@ -58,7 +53,7 @@
     .caption.back  { left: 165.4mm; }
 
     /* Each card is a CR80-landscape rectangle rendered as a mini-page.
-       Fixed dimensions so DomPDF can't reflow. */
+       Fixed dimensions (mPDF doesn't reflow in absolute positioning). */
     .card {
         position: absolute;
         top: 32mm;
@@ -66,20 +61,19 @@
         height: 54mm;
         background: #FFFFFF;
         overflow: hidden;
-        box-shadow: 0 4mm 8mm rgba(0, 0, 0, 0.08);   /* screen-only sheen */
     }
     .card.front { left: 46mm; }
     .card.back  { left: 165.4mm; }
 
     /* --- SHARED CHROME ------------------------------------------------- */
     .guilloche {
-        position: absolute; inset: 0; opacity: 0.09;
+        position: absolute; top: 0; right: 0; bottom: 0; left: 0; opacity: 0.09;
         pointer-events: none; z-index: 0;
     }
     .guilloche svg { width: 100%; height: 100%; display: block; }
 
     .sidebar { position: absolute; top: 0; left: 0; width: 10mm; height: 54mm;
-               background: #123420; z-index: 2; }
+               background: #123420; z-index: 2; overflow: hidden; }
     .sidebar .edge { position: absolute; top: 0; right: 0; width: 0.6mm; height: 54mm; background: #C09020; }
     .sidebar .stack { position: absolute; top: 8mm; left: 0; width: 10mm; text-align: center; }
     .sidebar .stack div { font-size: 15px; font-weight: 700; letter-spacing: 1px;
@@ -103,26 +97,18 @@
     .photo {
         position: absolute; top: 3mm; right: 3mm; width: 20mm; height: 24mm;
         border: 0.7mm solid #C09020;
-        border-radius: 1.5mm;
         background-color: #F1F1EC;
-        background-repeat: no-repeat;
-        background-position: center;
-        background-size: cover;
+        overflow: hidden;
     }
+    .photo img { width: 100%; height: 100%; display: block; }
     .photo .ph { text-align: center; line-height: 24mm; font-size: 7px; color: #8A8A82; }
-    /*
-     * Hologram seal — straddles the bottom-left corner of the photo (half on
-     * photo, half on the surrounding white area). Positioned in .body space
-     * (not inside .photo) so it can bleed onto white.
-     * Photo occupies body-left 52.6mm..72.6mm, top 3mm..27mm; centre a 12mm
-     * seal on (52.6, 27) → left 46.6mm, top 21mm.
-     */
+    /* Hologram seal: straddles photo bottom-left corner (half on photo, half on white) */
     .hologram-seal {
         position: absolute; top: 20mm; left: 46mm;
         width: 12mm; height: 12mm;
         opacity: 0.55; pointer-events: none; z-index: 4;
     }
-    .hologram-seal img { width: 100%; height: 100%; display: block; object-fit: contain; }
+    .hologram-seal img { width: 100%; height: 100%; display: block; }
 
     .name  { position: absolute; top: 19mm; left: 2mm; width: 46mm;
              font-size: 13px; font-weight: 700; color: #163E22;
@@ -166,8 +152,8 @@
     .contact { margin-top: 2mm; font-size: 6.3px; color: #163E22; line-height: 1.45; }
     .contact .row { margin-bottom: 0.5mm; }
     .contact .icon {
-        display: inline-block; width: 3mm; text-align: center;
-        color: #C09020; font-weight: 700; vertical-align: middle;
+        display: block; width: 3mm; text-align: center;
+        color: #C09020; font-weight: 700;
     }
 
     .sig-block {
@@ -184,7 +170,6 @@
         width: 17mm; height: 17mm;
         background: #ffffff;
         border: 0.25mm solid #C09020;
-        border-radius: 1mm;
         padding: 0.6mm;
         z-index: 5;
     }

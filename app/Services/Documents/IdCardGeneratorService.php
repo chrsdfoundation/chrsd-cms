@@ -13,7 +13,7 @@ class IdCardGeneratorService
         protected QrCodeService $qr,
         protected PdfSignatureService $signer,
         protected TemplateRenderer $templates,
-        protected BrowsershotPdfService $pdf,
+        protected MpdfPdfService $pdf,
     ) {}
 
     /**
@@ -44,9 +44,8 @@ class IdCardGeneratorService
             $qrSvg = $this->qr->svg($card, 4);
             $verifyUrl = $this->qr->verificationUrl($card);
 
-            // Puppeteer renders in headless Chromium — images must be base64
-            // data URIs; filesystem paths and file:// URLs are not reliable
-            // from setContent() context.
+            // mPDF needs images as base64 data URIs for reliable rendering without
+            // HTTP round-trips or filesystem path resolution issues.
             $logoUrl = $this->toDataUri(public_path('images/brand/chrsd-full-logo.png'));
             $roundLogoUrl = $this->toDataUri(public_path('images/brand/chrsd-round-logo.png'));
             $photoUrl = $this->toDataUri($card->photoUrl());

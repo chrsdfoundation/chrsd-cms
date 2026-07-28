@@ -85,6 +85,7 @@ class TemplateRenderer
                 'verification_url' => $context['verification_url'] ?? '',
                 'qr_raw' => (string) ($context['qr_code'] ?? ''),
                 'watermark_uri' => (string) ($context['watermark_uri'] ?? ''),
+                'letterhead_uri' => (string) ($context['letterhead_uri'] ?? ''),
             ])->render();
         }
 
