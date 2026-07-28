@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RolePermissionSeeder::class,
             DocumentLookupSeeder::class,
+            DepartmentSeeder::class,
+            PositionSeeder::class,
             AuthorSeeder::class,
             DocumentTemplateSeeder::class,
             CrmDemoSeeder::class,
