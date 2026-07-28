@@ -15,7 +15,7 @@ class OfficialLetterPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_official::letter');
+        return $user->can('view_any_official_letter');
     }
 
     /**
@@ -23,7 +23,7 @@ class OfficialLetterPolicy
      */
     public function view(User $user, OfficialLetter $officialLetter): bool
     {
-        return $user->can('view_official::letter');
+        return $user->can('view_official_letter');
     }
 
     /**
@@ -31,7 +31,7 @@ class OfficialLetterPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_official::letter');
+        return $user->can('create_official_letter');
     }
 
     /**
@@ -39,7 +39,7 @@ class OfficialLetterPolicy
      */
     public function update(User $user, OfficialLetter $officialLetter): bool
     {
-        return $user->can('update_official::letter');
+        return $user->can('update_official_letter');
     }
 
     /**
@@ -47,7 +47,7 @@ class OfficialLetterPolicy
      */
     public function delete(User $user, OfficialLetter $officialLetter): bool
     {
-        return $user->can('delete_official::letter');
+        return $user->can('delete_official_letter');
     }
 
     /**
@@ -55,7 +55,7 @@ class OfficialLetterPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_official::letter');
+        return $user->can('delete_any_official_letter');
     }
 
     /**
@@ -63,7 +63,7 @@ class OfficialLetterPolicy
      */
     public function forceDelete(User $user, OfficialLetter $officialLetter): bool
     {
-        return $user->can('force_delete_official::letter');
+        return $user->can('force_delete_official_letter');
     }
 
     /**
@@ -71,7 +71,7 @@ class OfficialLetterPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_official::letter');
+        return $user->can('force_delete_any_official_letter');
     }
 
     /**
@@ -79,7 +79,7 @@ class OfficialLetterPolicy
      */
     public function restore(User $user, OfficialLetter $officialLetter): bool
     {
-        return $user->can('restore_official::letter');
+        return $user->can('restore_official_letter');
     }
 
     /**
@@ -87,7 +87,7 @@ class OfficialLetterPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_official::letter');
+        return $user->can('restore_any_official_letter');
     }
 
     /**
@@ -95,7 +95,7 @@ class OfficialLetterPolicy
      */
     public function replicate(User $user, OfficialLetter $officialLetter): bool
     {
-        return $user->can('replicate_official::letter');
+        return $user->can('replicate_official_letter');
     }
 
     /**
@@ -103,6 +103,6 @@ class OfficialLetterPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_official::letter');
+        return $user->can('reorder_official_letter');
     }
 }
