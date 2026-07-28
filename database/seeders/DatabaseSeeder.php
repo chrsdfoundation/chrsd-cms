@@ -20,6 +20,8 @@ class DatabaseSeeder extends Seeder
             DocumentLookupSeeder::class,
             DepartmentSeeder::class,
             PositionSeeder::class,
+            EmployeeSeeder::class,
+            EmploymentEventSeeder::class,
             AuthorSeeder::class,
             DocumentTemplateSeeder::class,
             CrmDemoSeeder::class,
