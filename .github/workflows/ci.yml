@@ -188,8 +188,10 @@ jobs:
             tar -xzf release.tar.gz -C .
             rm -f release.tar.gz
             php artisan migrate --force
-            # Sync document lookups, authors, and templates (idempotent — updateOrCreate).
+            # Sync master/reference data (idempotent — updateOrCreate).
             php artisan db:seed --class=DocumentLookupSeeder --force
+            php artisan db:seed --class=DepartmentSeeder --force
+            php artisan db:seed --class=PositionSeeder --force
             php artisan db:seed --class=AuthorSeeder --force
             php artisan db:seed --class=DocumentTemplateSeeder --force
             php artisan config:cache
