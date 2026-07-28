@@ -23,8 +23,8 @@
   .frame { position:absolute; top:10mm; left:10mm; right:10mm; bottom:10mm; border:1.2mm solid #FFFFFF; }
 
   /* Emblem + wordmark lockup */
-  .logo { position:absolute; top:20mm; left:20mm; width:32mm; height:32mm;
-          background-repeat:no-repeat; background-position:center; background-size:contain; }
+  .logo { position:absolute; top:20mm; left:20mm; width:32mm; height:32mm; }
+  .logo img { display:block; width:100%; height:100%; object-fit:contain; }
   .lockup { position:absolute; top:24mm; left:56mm; }
   .lockup .wm { font-size:16px; font-weight:700; letter-spacing:.5px; color:#163E22; }
   .lockup .sub { font-size:8px; color:#186D3B; line-height:1.3; margin-top:1mm; }
@@ -49,8 +49,8 @@
           font-size:13px; line-height:1.6; color:#45474A; }
   .body strong { color:#163E22; }
 
-  .seal { position:absolute; bottom:26mm; left:133.5mm; width:30mm; height:30mm;
-          background-repeat:no-repeat; background-position:center; background-size:contain; }
+  .seal { position:absolute; bottom:26mm; left:133.5mm; width:30mm; height:30mm; }
+  .seal img { display:block; width:100%; height:100%; object-fit:contain; }
 
   .date { position:absolute; bottom:32mm; left:40mm; text-align:center; }
   .date .v { font-size:14px; font-weight:700; color:#1A1C1E; }
@@ -76,7 +76,11 @@
     <div class="corner-br"></div><div class="corner-br2"></div>
     <div class="frame"></div>
 
-    <div class="logo" style="background-image:url('{{ public_path('images/chrsd-emblem.png') }}');"></div>
+    <div class="logo">
+      @if($logoUrl)
+        <img src="{{ $logoUrl }}" alt="CHRSD Logo">
+      @endif
+    </div>
     <div class="lockup">
       <div class="wm">{{ strtoupper(config('app.name')) }}</div>
       <div class="sub">CENTRE FOR HUMANITARIAN RESEARCH AND<br>SOCIAL DEVELOPMENT FOUNDATION</div>
@@ -101,7 +105,11 @@
       @endif
     </div>
 
-    <div class="seal" style="background-image:url('{{ public_path('images/chrsd-seal.png') }}');"></div>
+    <div class="seal">
+      @if($sealUrl)
+        <img src="{{ $sealUrl }}" alt="CHRSD Seal">
+      @endif
+    </div>
 
     <div class="date">
       <div class="v">{{ now()->format('F j, Y') }}</div>

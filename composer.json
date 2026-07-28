@@ -14,6 +14,7 @@
         "laravel/sanctum": "^4.3",
         "laravel/tinker": "^2.9",
         "milon/barcode": "^13.0",
+        "mpdf/mpdf": "^8.3",
         "spatie/browsershot": "^5.4",
         "spatie/laravel-activitylog": "^4.8",
         "spatie/laravel-medialibrary": "^11.0",

@@ -14,7 +14,7 @@ class LetterGeneratorService
         protected QrCodeService $qr,
         protected PdfSignatureService $signer,
         protected TemplateRenderer $templates,
-        protected BrowsershotPdfService $pdf,
+        protected MpdfPdfService $pdf,
     ) {}
 
     public function generate(OfficialLetter $letter): OfficialLetter
@@ -22,7 +22,7 @@ class LetterGeneratorService
         return DB::transaction(function () use ($letter) {
             $letter->loadMissing(['category', 'letterAuthor', 'author.department', 'author.position', 'signedBy', 'documentTemplate']);
 
-            $pdfBytes = $this->renderViaBrowsershot($letter);
+            $pdfBytes = $this->renderPdf($letter);
 
             $signature = $this->signer->sign($pdfBytes);
 
@@ -42,107 +42,41 @@ class LetterGeneratorService
         });
     }
 
-    protected function renderViaBrowsershot(OfficialLetter $letter): string
+    /**
+     * Render the letter to PDF bytes via mPDF.
+     *
+     * The mPDF letterhead strategy: @page margins define the safe text zone.
+     * position:fixed elements with negative offsets anchor to the physical page
+     * edge (0,0), so they repeat on every page without header/footer stitching.
+     *
+     * All image assets (letterhead, watermark, signatures) are passed as base64
+     * data URIs so mPDF can render them directly without HTTP round-trips or
+     * filesystem path resolution issues.
+     */
+    protected function renderPdf(OfficialLetter $letter): string
     {
         if ($letter->documentTemplate) {
             $html = $this->templates->render(
                 $letter->documentTemplate,
                 $this->buildContext($letter),
-                'documents.templates.letter-shell-browsershot'
+                'documents.templates.letter-shell'
             );
         } else {
-            // Resolve the effective author: prefer new Author model, fall back to Employee.
-            $resolvedAuthor = $letter->letterAuthor ?? $letter->author;
-            $signatory = $letter->signedBy;
-
-            $html = View::make('documents.letters.default-browsershot', [
+            $html = View::make('documents.letters.default', [
                 'letter' => $letter,
-                'letterAuthor' => $letter->letterAuthor,
                 'author' => $letter->author,
-                'resolvedAuthor' => $resolvedAuthor,
-                'signatory' => $signatory,
+                'signatory' => $letter->signedBy,
                 'category' => $letter->category,
-                'qr_svg' => $this->qr->svg($letter),
+                'qr_svg' => $this->qr->svg($letter, 4),
                 'verify_url' => $this->qr->verificationUrl($letter),
-                'watermark_uri' => $this->dataUriFor(public_path('images/brand/letterhead-watermark.png')),
-                'signature_image_uri' => $this->resolveSignatureDataUri($letter),
                 'body_html' => $this->transformBodyMarkup($letter->body ?? ''),
+                'letterhead_uri' => $this->dataUriFor(public_path('images/brand/Letterhead-dompdf.png')),
             ])->render();
         }
 
-        // Letter module keeps its dedicated Puppeteer script (pdf-letter.cjs)
-        // because the header/footer templates carry base64-embedded letterhead
-        // PNGs — well over Windows' 32 KB env-block limit that
-        // spatie/browsershot's Process wrapper would hit. The script reads
-        // options from a temp JSON file, sidestepping that limit entirely.
-        //
-        // Non-letter modules go through BrowsershotPdfService (spatie/browsershot)
-        // because they don't need the per-page letterhead stitching.
-        $optFile = tempnam(sys_get_temp_dir(), 'ltr_opts_') . '.json';
-        $pdfFile = tempnam(sys_get_temp_dir(), 'ltr_') . '.pdf';
-
-        try {
-            $letterheadImages = $this->cropLetterheadImages();
-
-            $opts = [
-                'html' => $html,
-                'headerImage' => $letterheadImages['header'],
-                'footerImage' => $letterheadImages['footer'],
-                // 220px top / 190px bottom: extra 30px past the letterhead
-                // strip prevents body text from butting up against the header
-                // logo / footer address bar (LTR-2026-000022 fix).
-                'margin' => ['top' => '220px', 'right' => '60px', 'bottom' => '190px', 'left' => '60px'],
-                'output' => $pdfFile,
-                'chromePath' => (string) config('chrsd.puppeteer.chromium', ''),
-            ];
-            file_put_contents($optFile, json_encode($opts));
-
-            $node = (string) config('chrsd.puppeteer.node', 'node');
-            $script = base_path('node_scripts/pdf-letter.cjs');
-            $cmd = escapeshellarg($node) . ' ' . escapeshellarg($script) . ' ' . escapeshellarg($optFile);
-
-            exec($cmd . ' 2>&1', $output, $exitCode);
-
-            if ($exitCode !== 0) {
-                throw new \RuntimeException('Puppeteer PDF failed: ' . implode("\n", $output));
-            }
-
-            return (string) file_get_contents($pdfFile);
-        } finally {
-            @unlink($optFile);
-            @unlink($pdfFile);
-        }
-    }
-
-    /**
-     * Return base64 data URIs for the letterhead header and footer strips.
-     *
-     * The strips are precomputed static PNGs in public/images/brand/, generated
-     * once from Letterhead.png. Doing the crop at request time required the GD
-     * extension, which is disabled in this deployment's php.ini — and the
-     * fallback (send the whole letterhead as both header and footer) squashed
-     * the entire image into a tiny strip, which is what the bug report caught.
-     *
-     * To regenerate: run scratchpad/crop_letterhead.php with `php -d extension=gd`.
-     *
-     * @return array{header: string|null, footer: string|null}
-     */
-    protected function cropLetterheadImages(): array
-    {
-        $header = $this->dataUriFor(public_path('images/brand/letterhead-header.png'));
-        $footer = $this->dataUriFor(public_path('images/brand/letterhead-footer.png'));
-
-        // Legacy fallback: if the precomputed strips are missing (fresh clone
-        // that hasn't run the crop script yet), fall back to the whole
-        // Letterhead.png so the letter still has SOMETHING at the top/bottom.
-        // Better than a blank page while a dev sorts out image assets.
-        if (! $header || ! $footer) {
-            $whole = $this->dataUriFor(public_path('images/brand/Letterhead.png'));
-
-            return ['header' => $whole, 'footer' => $whole];
-        }
-
-        return ['header' => $header, 'footer' => $footer];
+        return $this->pdf->render($html, [
+            'margin' => ['top' => '103mm', 'right' => '18mm', 'bottom' => '26mm', 'left' => '22mm'],
+        ]);
     }
 
     /** Read a file and return its base64 data URI, or null if it doesn't exist. */
@@ -151,7 +85,7 @@ class LetterGeneratorService
         if (! is_file($path)) {
             return null;
         }
-        $mime = 'image/png';
+        $mime = mime_content_type($path) ?: 'image/png';
 
         return 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($path));
     }
@@ -205,6 +139,7 @@ class LetterGeneratorService
             'qr_code' => $qrImg,
             'signature_image' => $signatureImg,
             'watermark_uri' => (string) $this->dataUriFor(public_path('images/brand/letterhead-watermark.png')),
+            'letterhead_uri' => (string) $this->dataUriFor(public_path('images/brand/Letterhead-dompdf.png')),
         ];
     }
 

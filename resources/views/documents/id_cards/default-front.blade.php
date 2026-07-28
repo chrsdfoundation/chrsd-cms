@@ -1,6 +1,6 @@
 {{--
   CHRSD ID — FRONT · CR80 landscape (85.6 × 54 mm).
-  Puppeteer/Chromium render. All images must arrive as data URIs from the service.
+  mPDF render (CSS 2.1 only). All images must arrive as base64 data URIs from the service.
   Vars: $idCard, $employee (nullable), $photoUrl (data URI|null), $logoUrl (data URI),
         $roundLogoUrl (data URI).
 --}}
@@ -36,7 +36,7 @@
     /* ── Security background: guilloche wave pattern ── */
     .guilloche {
         position: absolute;
-        inset: 0;
+        top: 0; right: 0; bottom: 0; left: 0;
         opacity: 0.07;
         pointer-events: none;
         z-index: 0;
@@ -60,7 +60,6 @@
         position: absolute; top: 0; left: 0;
         width: 10mm; height: 54mm;
         background: #123420;
-        display: flex; align-items: center; justify-content: center;
         z-index: 2;
     }
     .sidebar .edge {
@@ -68,14 +67,21 @@
         width: 0.6mm; height: 54mm;
         background: #C09020;
     }
-    /* Single string, rotated — no manual letter-stacking */
+    /* Vertical text — absolute positioning in sidebar center */
     .sidebar-text {
-        writing-mode: vertical-rl;
-        transform: rotate(180deg);
+        position: absolute;
+        top: 50%; left: 50%;
+        width: 8mm; height: 30mm;
+        margin-top: -15mm;
+        margin-left: -4mm;
         font-size: 10px;
         font-weight: 700;
-        letter-spacing: 5px;
+        letter-spacing: 2px;
         color: #C9A14A;
+        text-align: center;
+        white-space: normal;
+        word-break: break-all;
+        line-height: 1.8;
         user-select: none;
     }
 
@@ -99,24 +105,23 @@
     .hdr-rule { position: absolute; top: 17mm; left: 2mm; width: 47mm; height: 0;
                 border-top: 0.4mm solid #C09020; }
 
-    /* Photo — uses <img> not background-image for Puppeteer reliability */
+    /* Photo — fixed dimensions, no rounded corners for mPDF compatibility */
     .photo {
         position: absolute; top: 3mm; right: 3mm; width: 20mm; height: 24mm;
         border: 0.7mm solid #C09020;
-        border-radius: 1.5mm;
         background-color: #EEEEE8;
         overflow: hidden;
     }
     .photo img.ph-img {
         width: 100%; height: 100%;
-        object-fit: cover; object-position: center top;
         display: block;
     }
     .photo .ph-placeholder {
         width: 100%; height: 100%;
-        display: flex; align-items: center; justify-content: center;
         font-size: 6.5px; color: #999990; text-align: center;
         line-height: 1.3;
+        padding: 2mm;
+        vertical-align: middle;
     }
 
     /*
@@ -135,7 +140,7 @@
         z-index: 4; /* above .photo (z-index inherited from .body = 3) */
     }
     .hologram-seal img {
-        width: 100%; height: 100%; display: block; object-fit: contain;
+        width: 100%; height: 100%; display: block;
     }
 
     /* Name + designation */

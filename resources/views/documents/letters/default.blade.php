@@ -82,9 +82,9 @@ html, body {
 .signature .name {
     font-weight: bold; color: #0f3b1c;
     border-top: 1px solid #0f3b1c; padding-top: 1.5mm;
-    display: inline-block; min-width: 60mm;
+    display: block; width: 60mm;
 }
-.signature .title { font-size: 10pt; color: #186d3b; margin-top: 1mm; }
+.signature .title { font-size: 10pt; color: #186d3b; margin-top: 1mm; display: block; }
 
 .meta { margin-top: 8mm; border-top: 0.5pt solid #c8962a; padding-top: 2mm; page-break-inside: avoid; }
 .meta table { width: 100%; border-collapse: collapse; }
@@ -99,7 +99,9 @@ html, body {
 <body>
 
     <div class="lh-bg" aria-hidden="true">
-        <img src="{{ public_path('images/brand/Letterhead-dompdf.png') }}" alt="">
+        @if($letterhead_uri)
+            <img src="{{ $letterhead_uri }}" alt="">
+        @endif
     </div>
 
     <div class="letter-content">
@@ -123,7 +125,7 @@ html, body {
             <div class="subject-line">Subject: <span>{{ $letter->subject }}</span></div>
         @endif
 
-        <div class="body">{!! $letter->body !!}</div>
+        <div class="body">{!! $body_html ?? $letter->body !!}</div>
 
         @php $signer = $signatory ?? $author; @endphp
         @if ($signer)

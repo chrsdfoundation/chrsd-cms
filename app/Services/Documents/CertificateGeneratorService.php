@@ -14,7 +14,7 @@ class CertificateGeneratorService
         protected QrCodeService $qr,
         protected PdfSignatureService $signer,
         protected TemplateRenderer $templates,
-        protected BrowsershotPdfService $pdf,
+        protected MpdfPdfService $pdf,
     ) {}
 
     /**
@@ -43,12 +43,14 @@ class CertificateGeneratorService
                 $sig2 = $certificate->getFirstMedia('signature_2');
 
                 // Resolve signature image path. Prefer the per-certificate upload
-                // (Spatie MediaLibrary → filesystem path). Fallback: the two
-                // canonical brand-kit signature PNGs shipped in public/. Both
-                // are filesystem paths so DomPDF reads them directly — no
-                // HTTP round-trip, no dev-server dependency at generate time.
-                $defaultSig1 = public_path('images/brand/signatures/razib-mustafiz.png');
-                $defaultSig2 = public_path('images/brand/signatures/ma-ramim.png');
+                // (Spatie MediaLibrary). Fallback: brand-kit signature PNGs.
+                // All images are converted to data URIs so mPDF can render them
+                // directly without HTTP round-trips or filesystem path resolution.
+                $sig1Uri = $sig1 ? $this->fileToDataUri($sig1->getPath()) : null;
+                $sig2Uri = $sig2 ? $this->fileToDataUri($sig2->getPath()) : null;
+                $sig1Uri = $sig1Uri ?: $this->brandSignatureDataUri($certificate->signatory_1_name ?? 'razib-mustafiz');
+                $sig2Uri = $sig2Uri ?: $this->brandSignatureDataUri($certificate->signatory_2_name ?? 'ma-ramim');
+
                 $signatoryName = $certificate->signatory_1_name ?: 'Razib Mustafiz';
                 $signatoryTitle = $certificate->signatory_1_title ?: 'Project Coordinator';
                 $countersignName = $certificate->signatory_2_name ?: 'M.A. Ramim';
@@ -74,22 +76,17 @@ class CertificateGeneratorService
 
                     'signatory_name' => $signatoryName,
                     'signatory_title' => $signatoryTitle,
-                    'signatory_sig_url' => $sig1 ? $sig1->getPath() : $defaultSig1,
+                    'signatory_sig_url' => $sig1Uri,
                     'countersign_name' => $countersignName,
                     'countersign_title' => $countersignTitle,
-                    'countersign_sig_url' => $sig2 ? $sig2->getPath() : $defaultSig2,
+                    'countersign_sig_url' => $sig2Uri,
 
-                    // Force filesystem paths for the shared brand assets too,
-                    // so a certificate can be generated even when the app
-                    // isn't reachable over HTTP (workers, jobs, tinker).
-                    'logoUrl' => public_path('images/brand/chrsd-full-logo.png'),
-                    'sealUrl' => public_path('images/brand/chrsd-rosette-seal.png'),
-                    'watermarkUrl' => public_path('images/brand/chrsd-watermark.svg'),
+                    // All brand assets as data URIs for mPDF direct rendering.
+                    'logoUrl' => $this->fileToDataUri(public_path('images/brand/chrsd-full-logo.png')),
+                    'sealUrl' => $this->fileToDataUri(public_path('images/brand/chrsd-rosette-seal.png')),
+                    'watermarkUrl' => $this->fileToDataUri(public_path('images/brand/chrsd-watermark.svg')),
 
-                    // Vector QR — Chromium rasterises it at print resolution,
-                    // so modules stay crisp at the 28mm certificate QR box.
-                    // The old 1-bit palette PNG from Milon\Barcode washed out
-                    // over the certificate's cream background.
+                    // Vector QR — stays as SVG for print resolution crispness.
                     'qr_svg' => $this->qr->svg($certificate, 4),
                     'qr_data_uri' => $this->qr->pngDataUri($certificate), // kept for legacy templates
                     'qr_uri' => $this->qr->pngDataUri($certificate),
@@ -98,9 +95,7 @@ class CertificateGeneratorService
                 ])->render();
             }
 
-            // Chromium via spatie/browsershot — same pipeline as letters and
-            // ID cards, so certificate PDFs no longer depend on the PHP GD
-            // extension (which DomPDF needed for embedded PNGs).
+            // mPDF (pure PHP, no Chromium required).
             $paperOrientation = $certificate->documentTemplate?->orientation === 'landscape' ? 'landscape' : 'portrait';
             $filename = sprintf('%s.pdf', $certificate->serial_number);
             $pdfBytes = $this->pdf->render($html, [
