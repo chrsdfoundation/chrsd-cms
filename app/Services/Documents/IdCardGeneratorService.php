@@ -110,15 +110,15 @@ class IdCardGeneratorService
 
     /**
      * Two page sizes: CR80 landscape (85.6×54mm) for the individual card
-     * faces, A4 for the combined print-shop sheet. Zero margins because the
-     * card artwork bleeds edge-to-edge.
+     * faces, A4 landscape for the combined print-shop sheet. Zero margins
+     * because the card artwork bleeds edge-to-edge.
      */
     private function renderCardPdf(string $html, bool $cr80 = true): string
     {
         return $this->pdf->render($html, [
             'pageSize' => $cr80
                 ? ['width' => '85.6mm', 'height' => '54mm']
-                : ['width' => '210mm', 'height' => '297mm'],
+                : ['width' => '297mm', 'height' => '210mm'],  // A4 landscape: 297×210mm
             'margin' => ['top' => '0mm', 'right' => '0mm', 'bottom' => '0mm', 'left' => '0mm'],
         ]);
     }

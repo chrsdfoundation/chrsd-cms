@@ -24,6 +24,7 @@
 <meta charset="utf-8">
 <style>
     @page { size: A4 landscape; margin: 0; }
+    html, body { width: 100%; height: 100%; margin: 0; padding: 0; }
     * { margin: 0; padding: 0; box-sizing: border-box;
         -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     body { background: #f6f5ee; font-family: 'Helvetica', 'Arial', 'DejaVu Sans', sans-serif; color: #163E22; }
@@ -32,8 +33,10 @@
         position: relative;
         width: 297mm;
         height: 210mm;
-        margin: 0 auto;
+        margin: 0;
+        padding: 0;
         background: #f6f5ee;
+        overflow: hidden;
     }
 
     /* Header caption — small label above each card so the print shop knows
@@ -220,8 +223,12 @@
             </div>
             <div class="hdr-rule"></div>
 
-            <div class="photo" @if($photoUrl) style="background-image:url('{{ $photoUrl }}');" @endif>
-                @unless($photoUrl)<div class="ph">PHOTO</div>@endunless
+            <div class="photo">
+                @if($photoUrl)
+                    <img src="{{ $photoUrl }}" alt="Photo" style="width: 100%; height: 100%; display: block;">
+                @else
+                    <div class="ph">PHOTO</div>
+                @endif
             </div>
 
             {{-- Hologram seal — outside .photo so it can bleed onto white --}}

@@ -63,12 +63,14 @@ class MpdfPdfService
         // --- Page size / format --------------------------------------------
         if (! empty($opts['pageSize'])) {
             // Explicit width/height (CR80 ID cards, bespoke stationery). mPDF's
-            // "format" takes [width, height] in millimetres.
+            // "format" takes [width, height] in millimetres. Orientation is auto-
+            // detected: landscape if width > height, portrait otherwise.
             [$w, $h] = $this->parseSizeMm($opts['pageSize']);
-            // For an explicit page box the orientation is implied by w/h; keep
-            // it portrait so mPDF doesn't rotate the given dimensions.
-            $config['orientation'] = 'P';
             $config['format'] = [$w, $h];
+            // Only override orientation if not already set (don't override explicit opts['orientation'])
+            if (empty($opts['orientation']) && $w > $h) {
+                $config['orientation'] = 'L';
+            }
         } else {
             $config['format'] = $opts['format'] ?? 'A4';
         }
