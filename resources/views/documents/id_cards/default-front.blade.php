@@ -46,9 +46,8 @@
     /* ── Centre watermark: faint CHRSD emblem behind all content ── */
     .watermark {
         position: absolute;
-        top: 50%; left: 50%;
+        top: 13mm; left: 28.8mm;
         width: 28mm; height: 28mm;
-        transform: translate(-50%, -50%);
         opacity: 0.045;
         pointer-events: none;
         z-index: 1;
@@ -90,7 +89,7 @@
 
     /* Logo */
     .logo { position: absolute; top: 2mm; left: 2mm; width: 13mm; height: 13mm; }
-    .logo img { width: 100%; height: 100%; display: block; object-fit: contain; }
+    .logo img { width: 100%; height: 100%; display: block; }
 
     /* Wordmark + org name + ID type */
     .brand { position: absolute; top: 2.5mm; left: 16mm; width: 34mm; }

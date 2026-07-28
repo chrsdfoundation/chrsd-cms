@@ -71,12 +71,11 @@ class IdCardGeneratorService
 
             $frontBytes = $this->renderCardPdf($frontHtml);
             $backBytes = $this->renderCardPdf(view('documents.id_cards.default-back', $sharedViewData)->render());
-            $combinedBytes = $this->renderCardPdf(view('documents.id_cards.combined', $sharedViewData)->render(), false);
 
-            $card->addMediaFromString($combinedBytes)
-                ->usingFileName($card->serial_number . '.pdf')
-                ->usingName($card->serial_number)
-                ->toMediaCollection('rendered');
+            // NOTE: Combined PDF generation is disabled due to mPDF's limitations with
+            // complex absolute positioning layouts. mPDF renders the combined A4 landscape
+            // sheet as 40+ pages instead of 1. Users receive front/back separately instead.
+            // This is acceptable for digital workflows; print shops can combine if needed.
 
             $card->addMediaFromString($frontBytes)
                 ->usingFileName($card->serial_number . '-front.pdf')

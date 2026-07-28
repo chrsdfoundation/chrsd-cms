@@ -119,7 +119,7 @@
     }
     .sig-image {
         display: block; width: 22mm; height: 8mm;
-        margin: 0 auto 0 auto; object-fit: contain;
+        margin: 0 auto 0 auto;
     }
     .sig-line {
         width: 22mm; height: 0;
@@ -139,7 +139,6 @@
         width: 17mm; height: 17mm;
         background: #ffffff;
         border: 0.25mm solid #C09020;
-        border-radius: 1mm;
         padding: 0.6mm;
         z-index: 5;
     }
