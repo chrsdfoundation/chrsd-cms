@@ -208,6 +208,12 @@ class CertificateGeneratorService
             'signatory_name' => $primarySigName,
             'signatory_title' => $primarySigTitle,
             'signatory_sig' => $sig1Uri ?: $sig2Uri,
+
+            // Image assets (as base64 data URIs for mPDF rendering)
+            'logoUrl' => $this->fileToDataUri(public_path('images/brand/chrsd-full-logo.png')),
+            'sealUrl' => $this->fileToDataUri(public_path('images/brand/chrsd-rosette-seal.png')),
+            'watermarkUrl' => $this->fileToDataUri(public_path('images/brand/letterhead-watermark.png')),
+            'signature_image' => $sig1Uri ?: $sig2Uri,
         ];
     }
 
