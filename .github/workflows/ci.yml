@@ -188,6 +188,8 @@ jobs:
             tar -xzf release.tar.gz -C .
             rm -f release.tar.gz
             php artisan migrate --force
+            # Generate Shield permissions (for Certificate and OfficialLetter resources)
+            php artisan shield:generate --force
             # Sync master/reference data (idempotent — updateOrCreate).
             php artisan db:seed --class=DocumentLookupSeeder --force
             php artisan db:seed --class=DepartmentSeeder --force
