@@ -189,7 +189,8 @@ jobs:
             rm -f release.tar.gz
             php artisan migrate --force
             # Generate Shield permissions (for Certificate and OfficialLetter resources)
-            php artisan shield:generate --force
+            php artisan shield:generate --all --panel=admin --no-interaction
+            php artisan shield:generate --all --panel=portal --no-interaction
             # Sync master/reference data (idempotent — updateOrCreate).
             php artisan db:seed --class=DocumentLookupSeeder --force
             php artisan db:seed --class=DepartmentSeeder --force
