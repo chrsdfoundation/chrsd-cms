@@ -14,11 +14,11 @@ class CertificateGeneratorService
         protected QrCodeService $qr,
         protected PdfSignatureService $signer,
         protected TemplateRenderer $templates,
-        protected MpdfPdfService $pdf,
+        protected BrowsershotPdfService $pdf,
     ) {}
 
     /**
-     * Render a certificate to PDF via DomPDF, attach to the model's `rendered`
+     * Render a certificate to PDF via Browsershot (Chromium), attach to the model's `rendered`
      * media collection, and flip issuance_status to Generated.
      *
      * Wrapped in a transaction so a mid-write failure doesn't leave the model
@@ -95,7 +95,7 @@ class CertificateGeneratorService
                 ])->render();
             }
 
-            // mPDF (pure PHP, no Chromium required).
+            // Render via Chromium for proper HTML/CSS table support.
             $paperOrientation = $certificate->documentTemplate?->orientation === 'landscape' ? 'landscape' : 'portrait';
             $filename = sprintf('%s.pdf', $certificate->serial_number);
             $pdfBytes = $this->pdf->render($html, [
