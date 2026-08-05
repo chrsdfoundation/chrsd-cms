@@ -28,6 +28,7 @@ class DompdfPdfService
         $options->set('isHtml5ParserEnabled', true);
         $options->set('isFontSubsettingEnabled', true);
         $options->set('chroot', base_path());
+        $options->set('enable_php', false);
 
         $dompdf = new Dompdf($options);
 
@@ -38,10 +39,35 @@ class DompdfPdfService
         // Handle custom page sizes (CR80 ID cards, etc.)
         if (!empty($opts['pageSize'])) {
             [$widthMm, $heightMm] = $this->parseSizeMm($opts['pageSize']);
-            // dompdf expects paper size as: [left, top, right, bottom] in points
-            // For a full page with no margins: [0, 0, width, height]
             $widthPt = $widthMm * 2.834645669;
             $heightPt = $heightMm * 2.834645669;
+
+            // Inject CSS to force single-page rendering with no page breaks
+            $pageOrient = $orientation === 'L' ? 'landscape' : 'portrait';
+            $css = "<style>
+                @page {
+                    size: {$widthMm}mm {$heightMm}mm {$pageOrient};
+                    margin: 0;
+                    padding: 0;
+                }
+                * {
+                    margin: 0;
+                    padding: 0;
+                    page-break-inside: avoid !important;
+                    page-break-before: avoid !important;
+                    page-break-after: avoid !important;
+                }
+                html, body {
+                    margin: 0;
+                    padding: 0;
+                    overflow: hidden;
+                    width: {$widthMm}mm;
+                    height: {$heightMm}mm;
+                    background: white;
+                }
+            </style>";
+            $html = $css . $html;
+
             $dompdf->setPaper([0, 0, $widthPt, $heightPt], $orientation);
         } else {
             $dompdf->setPaper($format, $orientation);
