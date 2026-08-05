@@ -48,6 +48,12 @@ class EmployeeResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
+            // Auto-assign organization to ensure multi-tenant scoping works
+            // even if session('current_organization_id') isn't set
+            Forms\Components\Hidden::make('organization_id')
+                ->default(fn () => config('chrsd.org_id') ?? 1)
+                ->dehydrated(true),
+
             Forms\Components\Tabs::make('Employee')
                 ->columnSpanFull()
                 ->tabs([

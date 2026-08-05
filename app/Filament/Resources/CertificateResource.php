@@ -49,6 +49,12 @@ class CertificateResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
+            // Auto-assign organization to ensure multi-tenant scoping works
+            // even if session('current_organization_id') isn't set
+            Forms\Components\Hidden::make('organization_id')
+                ->default(fn () => config('chrsd.org_id') ?? 1)
+                ->dehydrated(true),
+
             Forms\Components\Section::make('Recipient')
                 ->description('Certificate can be issued to any recipient — an existing employee OR a free-text name (partner-org staff, board members, community volunteers). If both are set the free-text name wins on the printed certificate.')
                 ->columns(2)

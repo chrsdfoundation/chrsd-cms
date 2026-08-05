@@ -61,6 +61,12 @@ class IdCardResource extends Resource
         ];
 
         return $form->schema([
+            // Auto-assign organization to ensure multi-tenant scoping works
+            // even if session('current_organization_id') isn't set
+            Forms\Components\Hidden::make('organization_id')
+                ->default(fn () => config('chrsd.org_id') ?? 1)
+                ->dehydrated(true),
+
             Forms\Components\Section::make('Holder')
                 ->description('The ID can be issued to any recipient. If the holder is a CHRSD employee, pick them from the dropdown and their name/photo pull in automatically. Otherwise leave the employee blank and type the recipient\'s full name.')
                 ->columns(2)
