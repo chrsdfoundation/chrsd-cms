@@ -6,6 +6,7 @@ use App\Enums\IdCardIssuance;
 use App\Models\IdCard;
 use App\Services\Verification\QrCodeService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Config;
 
 class IdCardGeneratorService
 {
@@ -13,7 +14,8 @@ class IdCardGeneratorService
         protected QrCodeService $qr,
         protected PdfSignatureService $signer,
         protected TemplateRenderer $templates,
-        protected MpdfPdfService $pdf,
+        protected MpdfPdfService $mpdf,
+        protected BrowsershotPdfService $browsershot,
     ) {}
 
     /**
@@ -108,17 +110,34 @@ class IdCardGeneratorService
     }
 
     /**
+     * Render PDF using Browsershot (Chromium) when available for superior layout
+     * rendering, otherwise fall back to mPDF. Browsershot handles complex CSS
+     * and absolute positioning much better than mPDF's CSS 2.1-only support.
+     *
      * Two page sizes: CR80 landscape (85.6×54mm) for the individual card
      * faces, A4 landscape for the combined print-shop sheet. Zero margins
      * because the card artwork bleeds edge-to-edge.
      */
     private function renderCardPdf(string $html, bool $cr80 = true): string
     {
-        return $this->pdf->render($html, [
-            'pageSize' => $cr80
-                ? ['width' => '85.6mm', 'height' => '54mm']
-                : ['width' => '297mm', 'height' => '210mm'],  // A4 landscape: 297×210mm
-            'margin' => ['top' => '0mm', 'right' => '0mm', 'bottom' => '0mm', 'left' => '0mm'],
+        $pageSize = $cr80
+            ? ['width' => '85.6mm', 'height' => '54mm']
+            : ['width' => '297mm', 'height' => '210mm'];  // A4 landscape
+
+        $margins = ['top' => '0mm', 'right' => '0mm', 'bottom' => '0mm', 'left' => '0mm'];
+
+        // Use Browsershot (Chromium) when enabled — it renders complex CSS
+        // and absolute positioning correctly. Fall back to mPDF on shared hosting.
+        if (Config::get('browsershot.enabled')) {
+            return $this->browsershot->render($html, [
+                'pageSize' => $pageSize,
+                'margin' => $margins,
+            ]);
+        }
+
+        return $this->mpdf->render($html, [
+            'pageSize' => $pageSize,
+            'margin' => $margins,
         ]);
     }
 

@@ -7,6 +7,7 @@ use App\Models\OfficialLetter;
 use App\Services\Verification\QrCodeService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Config;
 
 class LetterGeneratorService
 {
@@ -14,7 +15,8 @@ class LetterGeneratorService
         protected QrCodeService $qr,
         protected PdfSignatureService $signer,
         protected TemplateRenderer $templates,
-        protected MpdfPdfService $pdf,
+        protected MpdfPdfService $mpdf,
+        protected BrowsershotPdfService $browsershot,
     ) {}
 
     public function generate(OfficialLetter $letter): OfficialLetter
@@ -74,9 +76,11 @@ class LetterGeneratorService
             ])->render();
         }
 
-        return $this->pdf->render($html, [
-            'margin' => ['top' => '103mm', 'right' => '18mm', 'bottom' => '26mm', 'left' => '22mm'],
-        ]);
+        $opts = ['margin' => ['top' => '103mm', 'right' => '18mm', 'bottom' => '26mm', 'left' => '22mm']];
+
+        return Config::get('browsershot.enabled')
+            ? $this->browsershot->render($html, $opts)
+            : $this->mpdf->render($html, $opts);
     }
 
     /** Read a file and return its base64 data URI, or null if it doesn't exist. */

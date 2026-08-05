@@ -7,6 +7,7 @@ use App\Models\Certificate;
 use App\Notifications\CertificateDelivered;
 use App\Services\Verification\QrCodeService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Config;
 
 class CertificateGeneratorService
 {
@@ -14,7 +15,8 @@ class CertificateGeneratorService
         protected QrCodeService $qr,
         protected PdfSignatureService $signer,
         protected TemplateRenderer $templates,
-        protected MpdfPdfService $pdf,
+        protected MpdfPdfService $mpdf,
+        protected BrowsershotPdfService $browsershot,
     ) {}
 
     /**
@@ -95,17 +97,22 @@ class CertificateGeneratorService
                 ])->render();
             }
 
-            // mPDF (pure PHP, no Chromium required).
+            // Use Browsershot when available (better CSS rendering),
+            // fall back to mPDF on shared hosting.
             $paperOrientation = $certificate->documentTemplate?->orientation === 'landscape' ? 'landscape' : 'portrait';
             $filename = sprintf('%s.pdf', $certificate->serial_number);
-            $pdfBytes = $this->pdf->render($html, [
+            $opts = [
                 'format' => 'A4',
                 'orientation' => $paperOrientation,
                 // Certificates come with their own visual chrome (borders,
                 // seals, ribbons), so give the page all of it — the Blade
                 // template controls its own padding.
                 'margin' => ['top' => '0mm', 'right' => '0mm', 'bottom' => '0mm', 'left' => '0mm'],
-            ]);
+            ];
+
+            $pdfBytes = Config::get('browsershot.enabled')
+                ? $this->browsershot->render($html, $opts)
+                : $this->mpdf->render($html, $opts);
             $signature = $this->signer->sign($pdfBytes);
 
             $certificate
