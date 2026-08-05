@@ -149,10 +149,10 @@ class TemplateRenderer
             'issuer_name' => $context['issuer_name'] ?? 'CHRSD LEARNING',
             'issuer_tagline' => $context['issuer_tagline'] ?? 'Centre for Humanitarian Research',
             // Image assets (mPDF requires data URIs or can handle empty)
-            'logoUrl' => !empty($context['logoUrl']) ? $context['logoUrl'] : null,
-            'sealUrl' => !empty($context['sealUrl']) ? $context['sealUrl'] : null,
-            'watermarkUrl' => !empty($context['watermarkUrl']) ? $context['watermarkUrl'] : null,
-            'signatureUrl' => !empty($context['signature_image']) ? $context['signature_image'] : null,
+            'logoUrl' => ! empty($context['logoUrl']) ? $context['logoUrl'] : null,
+            'sealUrl' => ! empty($context['sealUrl']) ? $context['sealUrl'] : null,
+            'watermarkUrl' => ! empty($context['watermarkUrl']) ? $context['watermarkUrl'] : null,
+            'signatureUrl' => ! empty($context['signature_image']) ? $context['signature_image'] : null,
         ])->render();
     }
 
