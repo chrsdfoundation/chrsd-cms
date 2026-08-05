@@ -6,7 +6,6 @@ use App\Enums\IdCardIssuance;
 use App\Models\IdCard;
 use App\Services\Verification\QrCodeService;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Config;
 
 class IdCardGeneratorService
 {
@@ -128,11 +127,19 @@ class IdCardGeneratorService
 
         // Use Browsershot (Chromium) when enabled — it renders complex CSS
         // and absolute positioning correctly. Fall back to mPDF on shared hosting.
-        if (Config::get('browsershot.enabled')) {
-            return $this->browsershot->render($html, [
-                'pageSize' => $pageSize,
-                'margin' => $margins,
-            ]);
+        if (env('BROWSERSHOT_ENABLED', false)) {
+            try {
+                return $this->browsershot->render($html, [
+                    'pageSize' => $pageSize,
+                    'margin' => $margins,
+                ]);
+            } catch (\Exception $e) {
+                // If Browsershot fails (e.g., Chromium not installed),
+                // fall back to mPDF gracefully
+                \Log::warning('Browsershot PDF generation failed, falling back to mPDF', [
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
 
         return $this->mpdf->render($html, [

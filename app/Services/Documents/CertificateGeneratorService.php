@@ -7,7 +7,6 @@ use App\Models\Certificate;
 use App\Notifications\CertificateDelivered;
 use App\Services\Verification\QrCodeService;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Config;
 
 class CertificateGeneratorService
 {
@@ -110,9 +109,18 @@ class CertificateGeneratorService
                 'margin' => ['top' => '0mm', 'right' => '0mm', 'bottom' => '0mm', 'left' => '0mm'],
             ];
 
-            $pdfBytes = Config::get('browsershot.enabled')
-                ? $this->browsershot->render($html, $opts)
-                : $this->mpdf->render($html, $opts);
+            if (env('BROWSERSHOT_ENABLED', false)) {
+                try {
+                    $pdfBytes = $this->browsershot->render($html, $opts);
+                } catch (\Exception $e) {
+                    \Log::warning('Browsershot PDF generation failed, falling back to mPDF', [
+                        'error' => $e->getMessage(),
+                    ]);
+                    $pdfBytes = $this->mpdf->render($html, $opts);
+                }
+            } else {
+                $pdfBytes = $this->mpdf->render($html, $opts);
+            }
             $signature = $this->signer->sign($pdfBytes);
 
             $certificate

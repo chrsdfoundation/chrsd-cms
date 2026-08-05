@@ -7,7 +7,6 @@ use App\Models\OfficialLetter;
 use App\Services\Verification\QrCodeService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Config;
 
 class LetterGeneratorService
 {
@@ -78,9 +77,17 @@ class LetterGeneratorService
 
         $opts = ['margin' => ['top' => '103mm', 'right' => '18mm', 'bottom' => '26mm', 'left' => '22mm']];
 
-        return Config::get('browsershot.enabled')
-            ? $this->browsershot->render($html, $opts)
-            : $this->mpdf->render($html, $opts);
+        if (env('BROWSERSHOT_ENABLED', false)) {
+            try {
+                return $this->browsershot->render($html, $opts);
+            } catch (\Exception $e) {
+                \Log::warning('Browsershot PDF generation failed, falling back to mPDF', [
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        return $this->mpdf->render($html, $opts);
     }
 
     /** Read a file and return its base64 data URI, or null if it doesn't exist. */
