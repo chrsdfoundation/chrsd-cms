@@ -20,10 +20,9 @@
 <meta charset="utf-8">
 <style>
     @page { margin: 0; size: 85.6mm 54mm; }
-    * { margin: 0; padding: 0; box-sizing: border-box;
-        -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { width: 85.6mm; height: 54mm; overflow: hidden; }
-    body { font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif; color: #163E22; }
+    body { font-family: 'DejaVu Sans', 'Helvetica', 'Arial', sans-serif; color: #163E22; }
 
     .card {
         position: relative;
@@ -38,7 +37,6 @@
         position: absolute;
         top: 0; right: 0; bottom: 0; left: 0;
         opacity: 0.07;
-        pointer-events: none;
         z-index: 0;
     }
     .guilloche svg { width: 100%; height: 100%; display: block; }
@@ -49,7 +47,6 @@
         top: 13mm; left: 28.8mm;
         width: 28mm; height: 28mm;
         opacity: 0.045;
-        pointer-events: none;
         z-index: 1;
     }
     .watermark img { width: 100%; height: 100%; display: block; }
@@ -135,7 +132,6 @@
         top: 20mm; left: 46mm;
         width: 12mm; height: 12mm;
         opacity: 0.55;
-        pointer-events: none;
         z-index: 4; /* above .photo (z-index inherited from .body = 3) */
     }
     .hologram-seal img {
