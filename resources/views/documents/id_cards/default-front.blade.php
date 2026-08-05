@@ -22,39 +22,40 @@
 <meta charset="UTF-8">
 <style>
     @page { size: 85.6mm 54mm; margin: 0; }
-    body { margin: 0; padding: 2mm; font-family: 'DejaVu Sans', Arial, sans-serif; color: #163E22; font-size: 4.5pt; line-height: 1.2; }
-    table { width: 100%; height: 50mm; border-collapse: collapse; }
+    * { line-height: 1.0; }
+    body { margin: 0; padding: 1mm; font-family: 'DejaVu Sans', Arial, sans-serif; color: #163E22; font-size: 4pt; }
+    table { width: 100%; border-collapse: collapse; }
 
     /* Left sidebar */
-    .sidebar { background: #123420; width: 8mm; color: #C9A14A; font-weight: 700; text-align: center; padding: 2mm 0; }
+    .sidebar { background: #123420; width: 8mm; color: #C9A14A; font-weight: 700; text-align: center; padding: 0; }
 
     /* Main content */
-    .content { padding: 1.5mm 2mm; position: relative; }
-    .header { display: flex; gap: 2mm; margin-bottom: 1mm; }
+    .content { padding: 0.5mm 1mm; position: relative; }
+    .header { display: flex; gap: 0.5mm; margin-bottom: 0.3mm; }
     .logo { width: 10mm; height: 10mm; flex-shrink: 0; }
     .logo img { width: 100%; height: 100%; }
 
     .org-info { flex: 1; }
-    .org-name { font-size: 5.5pt; font-weight: 700; margin: 0; line-height: 1.1; }
-    .org-sub { font-size: 3pt; color: #186D3B; margin: 0.1mm 0 0 0; line-height: 1.0; }
-    .id-type { font-size: 3.5pt; font-weight: 700; color: #C09020; margin-top: 0.3mm; text-transform: uppercase; }
+    .org-name { font-size: 5pt; font-weight: 700; margin: 0; }
+    .org-sub { font-size: 2.5pt; color: #186D3B; margin: 0; }
+    .id-type { font-size: 3pt; font-weight: 700; color: #C09020; margin-top: 0; text-transform: uppercase; }
 
-    .divider { border-top: 0.2mm solid #C09020; margin: 0.2mm 0; }
+    .divider { border-top: 0.15mm solid #C09020; margin: 0.1mm 0; }
 
-    .photo-section { float: right; width: 20mm; height: 24mm; border: 0.6mm solid #C09020; margin-left: 2mm; text-align: center; }
+    .photo-section { float: right; width: 18mm; height: 22mm; border: 0.5mm solid #C09020; margin-left: 1mm; text-align: center; }
     .photo-section img { width: 100%; height: 100%; }
-    .photo-section .placeholder { padding-top: 8mm; color: #999; font-size: 5.5pt; }
+    .photo-section .placeholder { padding-top: 8mm; color: #999; font-size: 3pt; }
 
-    .info { margin-top: 0.3mm; }
-    .name { font-size: 5.5pt; font-weight: 700; margin: 0.2mm 0; line-height: 1.2; }
-    .desig { font-size: 4pt; font-style: italic; color: #186D3B; margin: 0; line-height: 1.1; }
+    .info { margin-top: 0.1mm; }
+    .name { font-size: 5pt; font-weight: 700; margin: 0; }
+    .desig { font-size: 3.5pt; font-style: italic; color: #186D3B; margin: 0; }
 
-    .details { width: 100%; font-size: 3.5pt; margin-top: 0.3mm; border-collapse: collapse; }
-    .details td { padding: 0.1mm 0; }
+    .details { width: 100%; font-size: 3pt; margin-top: 0.2mm; border-collapse: collapse; }
+    .details td { padding: 0; }
     .details .label { color: #186D3B; width: 16mm; font-weight: bold; }
     .details .value { color: #163E22; font-weight: 700; }
 
-    .footer { font-size: 3pt; color: #186D3B; margin-top: 0.2mm; border-top: 0.2mm solid #C09020; padding-top: 0.1mm; }
+    .footer { font-size: 2.5pt; color: #186D3B; margin-top: 0.1mm; border-top: 0.15mm solid #C09020; padding-top: 0; }
 </style>
 </head>
 <body>
