@@ -372,6 +372,32 @@
             white-space: nowrap;
         }
 
+        .print-button-container {
+            display: flex;
+            justify-content: center;
+            padding: 20px 0;
+            gap: 10px;
+        }
+
+        .print-button {
+            padding: 10px 20px;
+            background-color: #123420;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .print-button:hover {
+            background-color: #186D3B;
+        }
+
         @media print {
             body {
                 margin: 0;
@@ -379,6 +405,9 @@
             }
             .card, .back-card {
                 page-break-after: avoid;
+            }
+            .print-button-container {
+                display: none;
             }
         }
 
@@ -388,6 +417,13 @@
     </style>
 </head>
 <body>
+    {{-- PRINT BUTTON (hidden when printing) --}}
+    <div class="print-button-container">
+        <button class="print-button" onclick="window.print()" title="Print ID Card to PDF">
+            🖨️ Print to PDF
+        </button>
+    </div>
+
     {{-- FRONT PAGE --}}
     <div class="card">
         <div class="watermark"></div>
