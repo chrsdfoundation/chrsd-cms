@@ -29,12 +29,15 @@ class VerificationService
 
     /**
      * Resolve a document by its verification_hash across all registered types.
+     * Uses acrossOrganizations() to bypass tenant scoping — verification must work
+     * across all organizations (a user from Org A should be able to verify documents
+     * from Org B via the public verify endpoint or inter-org integration).
      * Returns null when not found; never leaks which table matched on failure.
      */
     public function resolve(string $hash): ?Model
     {
         foreach ($this->verifiables as $class) {
-            $model = $class::query()->byHash($hash)->first();
+            $model = $class::query()->acrossOrganizations()->byHash($hash)->first();
             if ($model) {
                 return $model;
             }

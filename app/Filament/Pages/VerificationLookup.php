@@ -74,9 +74,11 @@ class VerificationLookup extends Page implements HasForms
         if (strlen($query) === 64 && ctype_xdigit($query)) {
             $this->resolved = $verifier->resolve($query);
         } else {
-            // Serial path — scan each registered verifiable
+            // Serial path — scan each registered verifiable, across all organizations
+            // so lookups work even when the user is in a different tenant.
             foreach ((new VerificationService)->registry() as $prefix => $class) {
-                $this->resolved = $class::query()->where('serial_number', $query)->first();
+                $this->resolved = $class::query()->acrossOrganizations()
+                    ->where('serial_number', $query)->first();
                 if ($this->resolved) {
                     break;
                 }

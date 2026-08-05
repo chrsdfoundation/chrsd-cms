@@ -8,6 +8,7 @@ use App\Http\Controllers\MoneyReceiptVerificationController;
 use App\Http\Controllers\OpenApiController;
 use App\Http\Controllers\PdfVerificationController;
 use App\Http\Controllers\VerificationController;
+use App\Http\Middleware\AllowVerificationApiCors;
 use App\Http\Middleware\ResolveSanctumToken;
 use App\Http\Middleware\TrackApiTokenUsage;
 use Illuminate\Support\Facades\Route;
@@ -68,8 +69,12 @@ Route::middleware(['web', 'auth'])->group(function () {
  * valid bearer token → caller gets a much higher rate limit (keyed on token
  * id) and their usage is stamped onto the personal_access_tokens row.
  * Anonymous callers still work, they just get the IP-based limit.
+ *
+ * CORS is enabled on these endpoints so they can be called from browsers
+ * (integration dashboards, kiosks, verification portals) and external systems.
  */
 Route::middleware([
+    AllowVerificationApiCors::class,
     ResolveSanctumToken::class,
     'throttle:verify_authed',
     TrackApiTokenUsage::class,
@@ -84,6 +89,15 @@ Route::middleware([
 
     Route::post('/api/verify/pdf', PdfVerificationController::class)
         ->name('verify.pdf');
+
+    // Handle CORS preflight requests
+    Route::options('/api/verify/{hash}', fn () => response()->noContent())
+        ->where('hash', '[a-f0-9]{64}');
+
+    Route::options('/api/verify/ref/{serial}', fn () => response()->noContent())
+        ->where('serial', '[A-Z]{2,5}-\d{4}-\d{4,10}');
+
+    Route::options('/api/verify/pdf', fn () => response()->noContent());
 });
 
 Route::middleware('throttle:verify_kiosk')->group(function () {
