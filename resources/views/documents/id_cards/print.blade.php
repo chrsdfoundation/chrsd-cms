@@ -417,14 +417,11 @@
     </style>
 </head>
 <body>
-    {{-- PRINT BUTTON (hidden when printing) --}}
     <div class="print-button-container">
         <button class="print-button" onclick="window.print()" title="Print ID Card to PDF">
             🖨️ Print to PDF
         </button>
     </div>
-
-    {{-- FRONT PAGE --}}
     <div class="card">
         <div class="watermark"></div>
         <div class="sidebar">CHRSD</div>
@@ -488,7 +485,6 @@
         </div>
     </div>
 
-    {{-- BACK PAGE --}}
     <div class="page-break back-card">
         <div class="back-sidebar">CHRSD</div>
         <div class="back-content">
