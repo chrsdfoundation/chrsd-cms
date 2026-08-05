@@ -22,7 +22,7 @@
 <meta charset="UTF-8">
 <style>
     @page { size: 85.6mm 54mm; margin: 0; }
-    body { margin: 0; padding: 2mm; font-family: 'DejaVu Sans', Arial, sans-serif; color: #163E22; font-size: 7pt; }
+    body { margin: 0; padding: 2mm; font-family: 'DejaVu Sans', Arial, sans-serif; color: #163E22; font-size: 5.5pt; }
     table { width: 100%; height: 50mm; border-collapse: collapse; }
 
     /* Left sidebar */
@@ -35,26 +35,26 @@
     .logo img { width: 100%; height: 100%; }
 
     .org-info { flex: 1; }
-    .org-name { font-size: 10pt; font-weight: 700; margin: 0; }
-    .org-sub { font-size: 4pt; color: #186D3B; margin: 0.2mm 0 0 0; line-height: 1.2; }
-    .id-type { font-size: 5.5pt; font-weight: 700; color: #C09020; margin-top: 0.5mm; text-transform: uppercase; }
+    .org-name { font-size: 7pt; font-weight: 700; margin: 0; }
+    .org-sub { font-size: 3.5pt; color: #186D3B; margin: 0.2mm 0 0 0; line-height: 1.2; }
+    .id-type { font-size: 4.5pt; font-weight: 700; color: #C09020; margin-top: 0.5mm; text-transform: uppercase; }
 
     .divider { border-top: 0.3mm solid #C09020; margin: 0.5mm 0; }
 
     .photo-section { float: right; width: 20mm; height: 24mm; border: 0.6mm solid #C09020; margin-left: 2mm; text-align: center; }
     .photo-section img { width: 100%; height: 100%; }
-    .photo-section .placeholder { padding-top: 8mm; color: #999; font-size: 6pt; }
+    .photo-section .placeholder { padding-top: 8mm; color: #999; font-size: 5.5pt; }
 
     .info { margin-top: 0.5mm; }
-    .name { font-size: 11pt; font-weight: 700; margin: 0.3mm 0; }
-    .desig { font-size: 7.5pt; font-style: italic; color: #186D3B; margin: 0; }
+    .name { font-size: 7pt; font-weight: 700; margin: 0.3mm 0; }
+    .desig { font-size: 5pt; font-style: italic; color: #186D3B; margin: 0; }
 
-    .details { width: 100%; font-size: 6.5pt; margin-top: 0.5mm; border-collapse: collapse; }
+    .details { width: 100%; font-size: 4.5pt; margin-top: 0.5mm; border-collapse: collapse; }
     .details td { padding: 0.2mm 0; }
     .details .label { color: #186D3B; width: 16mm; font-weight: bold; }
     .details .value { color: #163E22; font-weight: 700; }
 
-    .footer { font-size: 5pt; color: #186D3B; margin-top: 0.5mm; border-top: 0.2mm solid #C09020; padding-top: 0.3mm; }
+    .footer { font-size: 4pt; color: #186D3B; margin-top: 0.5mm; border-top: 0.2mm solid #C09020; padding-top: 0.3mm; }
 </style>
 </head>
 <body>
