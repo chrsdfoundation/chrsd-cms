@@ -29,6 +29,7 @@ class DompdfPdfService
         $options->set('isFontSubsettingEnabled', true);
         $options->set('chroot', base_path());
         $options->set('enable_php', false);
+        $options->set('pageHeightRatio', 1.0);  // Critical: prevent auto page breaking
 
         $dompdf = new Dompdf($options);
 
@@ -42,28 +43,38 @@ class DompdfPdfService
             $widthPt = $widthMm * 2.834645669;
             $heightPt = $heightMm * 2.834645669;
 
-            // Inject CSS to force single-page rendering with no page breaks
+            // CRITICAL: Inject CSS to FORCE single-page rendering
+            // dompdf still breaks pages by default; must use multiple strategies
             $pageOrient = $orientation === 'L' ? 'landscape' : 'portrait';
             $css = "<style>
+                html {
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    width: {$widthMm}mm !important;
+                    height: {$heightMm}mm !important;
+                    overflow: hidden !important;
+                    background: white !important;
+                }
+                body {
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    width: {$widthMm}mm !important;
+                    height: {$heightMm}mm !important;
+                    overflow: hidden !important;
+                    background: white !important;
+                }
                 @page {
-                    size: {$widthMm}mm {$heightMm}mm {$pageOrient};
-                    margin: 0;
-                    padding: 0;
+                    size: {$widthMm}mm {$heightMm}mm {$pageOrient} !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
                 }
                 * {
-                    margin: 0;
-                    padding: 0;
+                    page-break: avoid !important;
                     page-break-inside: avoid !important;
                     page-break-before: avoid !important;
                     page-break-after: avoid !important;
-                }
-                html, body {
-                    margin: 0;
-                    padding: 0;
-                    overflow: hidden;
-                    width: {$widthMm}mm;
-                    height: {$heightMm}mm;
-                    background: white;
+                    orphans: 1 !important;
+                    widows: 1 !important;
                 }
             </style>";
             $html = $css . $html;
