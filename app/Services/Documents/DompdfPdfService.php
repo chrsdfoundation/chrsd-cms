@@ -35,10 +35,16 @@ class DompdfPdfService
         $format = $opts['format'] ?? 'A4';
         $orientation = ($opts['orientation'] ?? 'portrait') === 'landscape' ? 'L' : 'P';
 
-        // Handle custom page sizes (CR80 ID cards, etc.)
+        // Handle custom page sizes (CR80 ID cards, etc.) via CSS @page rule
         if (!empty($opts['pageSize'])) {
             [$w, $h] = $this->parseSizeMm($opts['pageSize']);
-            $dompdf->setPaper([$w * 2.834645669, $h * 2.834645669], $orientation);
+            // Use CSS @page rule for custom page size; dompdf respects this better
+            // Note: size must use valid CSS units (mm preferred)
+            $widthMm = $w;
+            $heightMm = $h;
+            $pageOrient = $orientation === 'L' ? 'landscape' : 'portrait';
+            $css = "<style>@page { size: {$widthMm}mm {$heightMm}mm {$pageOrient}; margin: 0; }</style>";
+            $html = $css . $html;
         } else {
             $dompdf->setPaper($format, $orientation);
         }
