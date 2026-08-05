@@ -62,6 +62,11 @@ Route::middleware('throttle:verify')->group(function () {
 Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/money-receipts/{receipt}/print', [MoneyReceiptController::class, 'print'])
         ->name('money-receipts.print');
+
+    // ID card print — HTML optimized for browser print-to-PDF (CR80 card format)
+    Route::get('/id-cards/{idCard}/print', function (App\Models\IdCard $idCard) {
+        return view('documents.id_cards.print', compact('idCard'));
+    })->name('id-cards.print');
 });
 
 /*

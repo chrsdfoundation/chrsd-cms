@@ -42,7 +42,7 @@
 
     .divider { border-top: 0.15mm solid #C09020; margin: 0.1mm 0; }
 
-    .photo-section { float: right; width: 18mm; height: 22mm; border: 0.5mm solid #C09020; margin-left: 1mm; text-align: center; }
+    .photo-section { float: right; width: 20mm; height: 24mm; border: 0.6mm solid #C09020; margin-left: 2mm; text-align: center; }
     .photo-section img { width: 100%; height: 100%; }
     .photo-section .placeholder { padding-top: 8mm; color: #999; font-size: 3pt; }
 
