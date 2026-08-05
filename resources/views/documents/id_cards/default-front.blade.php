@@ -1,254 +1,114 @@
 {{--
-  CHRSD ID — FRONT · CR80 landscape (85.6 × 54 mm).
-  mPDF render (CSS 2.1 only). All images must arrive as base64 data URIs from the service.
-  Vars: $idCard, $employee (nullable), $photoUrl (data URI|null), $logoUrl (data URI),
-        $roundLogoUrl (data URI).
+  CHRSD ID — FRONT (Simplified for mPDF compatibility)
+
+  Pure mPDF render with table-based layout. No SVG, no absolute positioning complexity.
+  All images as base64 data URIs.
+
+  Vars: $idCard, $employee, $photoUrl, $logoUrl, $roundLogoUrl
 --}}
 @php
-    $displayName  = $idCard->displayName();
-    $designation  = $idCard->designation
+    $displayName = $idCard->displayName();
+    $designation = $idCard->designation
         ?: $idCard->program_name
         ?: (optional(optional($employee)->position)->title ?? '');
-    $bloodGroup   = $idCard->blood_group ?: 'N/A';
-    $nationality  = $idCard->nationality ?: optional($employee)->nationality ?: '—';
-    $idTypeLabel  = $idCard->id_type_label
+    $bloodGroup = $idCard->blood_group ?: 'N/A';
+    $nationality = $idCard->nationality ?: optional($employee)->nationality ?: '—';
+    $idTypeLabel = $idCard->id_type_label
         ?: (optional($idCard->idCardType)->name ?: 'Identity Card');
 @endphp
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <style>
-    @page { margin: 0; size: 85.6mm 54mm; }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { width: 85.6mm; height: 54mm; overflow: hidden; }
-    body { font-family: 'DejaVu Sans', 'Helvetica', 'Arial', sans-serif; color: #163E22; }
+    @page { size: 85.6mm 54mm; margin: 0; }
+    body { margin: 0; padding: 2mm; font-family: 'DejaVu Sans', Arial, sans-serif; color: #163E22; font-size: 7pt; }
+    table { width: 100%; height: 50mm; border-collapse: collapse; }
 
-    .card {
-        position: relative;
-        width: 85.6mm;
-        height: 54mm;
-        background: #FFFFFF;
-        overflow: hidden;
-    }
+    /* Left sidebar */
+    .sidebar { background: #123420; width: 8mm; color: #C9A14A; font-weight: 700; text-align: center; padding: 2mm 0; }
 
-    /* ── Security background: guilloche wave pattern ── */
-    .guilloche {
-        position: absolute;
-        top: 0; right: 0; bottom: 0; left: 0;
-        opacity: 0.07;
-        z-index: 0;
-    }
-    .guilloche svg { width: 100%; height: 100%; display: block; }
+    /* Main content */
+    .content { padding: 1.5mm 2mm; position: relative; }
+    .header { display: flex; gap: 2mm; margin-bottom: 1mm; }
+    .logo { width: 10mm; height: 10mm; flex-shrink: 0; }
+    .logo img { width: 100%; height: 100%; }
 
-    /* ── Centre watermark: faint CHRSD emblem behind all content ── */
-    .watermark {
-        position: absolute;
-        top: 13mm; left: 28.8mm;
-        width: 28mm; height: 28mm;
-        opacity: 0.045;
-        z-index: 1;
-    }
-    .watermark img { width: 100%; height: 100%; display: block; }
+    .org-info { flex: 1; }
+    .org-name { font-size: 10pt; font-weight: 700; margin: 0; }
+    .org-sub { font-size: 4pt; color: #186D3B; margin: 0.2mm 0 0 0; line-height: 1.2; }
+    .id-type { font-size: 5.5pt; font-weight: 700; color: #C09020; margin-top: 0.5mm; text-transform: uppercase; }
 
-    /* ── Left vertical sidebar ── */
-    .sidebar {
-        position: absolute; top: 0; left: 0;
-        width: 10mm; height: 54mm;
-        background: #123420;
-        z-index: 2;
-    }
-    .sidebar .edge {
-        position: absolute; top: 0; right: 0;
-        width: 0.6mm; height: 54mm;
-        background: #C09020;
-    }
-    /* Vertical text — absolute positioning in sidebar center */
-    .sidebar-text {
-        position: absolute;
-        top: 50%; left: 50%;
-        width: 8mm; height: 30mm;
-        margin-top: -15mm;
-        margin-left: -4mm;
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: 2px;
-        color: #C9A14A;
-        text-align: center;
-        white-space: normal;
-        word-break: break-all;
-        line-height: 1.8;
-        user-select: none;
-    }
+    .divider { border-top: 0.3mm solid #C09020; margin: 0.5mm 0; }
 
-    /* ── Card body (right of sidebar) ── */
-    .body { position: absolute; top: 0; left: 10mm; width: 75.6mm; height: 54mm; z-index: 3; }
+    .photo-section { float: right; width: 20mm; height: 24mm; border: 0.6mm solid #C09020; margin-left: 2mm; text-align: center; }
+    .photo-section img { width: 100%; height: 100%; }
+    .photo-section .placeholder { padding-top: 8mm; color: #999; font-size: 6pt; }
 
-    /* Logo */
-    .logo { position: absolute; top: 2mm; left: 2mm; width: 13mm; height: 13mm; }
-    .logo img { width: 100%; height: 100%; display: block; }
+    .info { margin-top: 0.5mm; }
+    .name { font-size: 11pt; font-weight: 700; margin: 0.3mm 0; }
+    .desig { font-size: 7.5pt; font-style: italic; color: #186D3B; margin: 0; }
 
-    /* Wordmark + org name + ID type */
-    .brand { position: absolute; top: 2.5mm; left: 16mm; width: 34mm; }
-    .brand .wm  { font-size: 12px; font-weight: 700; letter-spacing: 0.5px; color: #163E22; line-height: 1.1; }
-    .brand .sub { font-size: 4.8px; color: #186D3B; line-height: 1.35; margin-top: 0.3mm; text-transform: uppercase; }
-    .brand .type {
-        font-size: 6px; font-weight: 700; letter-spacing: 1.5px;
-        color: #C09020; text-transform: uppercase; margin-top: 1mm;
-        border-top: 0.3mm solid #C09020; padding-top: 0.5mm;
-    }
+    .details { width: 100%; font-size: 6.5pt; margin-top: 0.5mm; border-collapse: collapse; }
+    .details td { padding: 0.2mm 0; }
+    .details .label { color: #186D3B; width: 16mm; font-weight: bold; }
+    .details .value { color: #163E22; font-weight: 700; }
 
-    .hdr-rule { position: absolute; top: 17mm; left: 2mm; width: 47mm; height: 0;
-                border-top: 0.4mm solid #C09020; }
-
-    /* Photo — fixed dimensions, no rounded corners for mPDF compatibility */
-    .photo {
-        position: absolute; top: 3mm; right: 3mm; width: 20mm; height: 24mm;
-        border: 0.7mm solid #C09020;
-        background-color: #EEEEE8;
-        overflow: hidden;
-    }
-    .photo img.ph-img {
-        width: 100%; height: 100%;
-        display: block;
-    }
-    .photo .ph-placeholder {
-        width: 100%; height: 100%;
-        font-size: 6.5px; color: #999990; text-align: center;
-        line-height: 1.3;
-        padding: 2mm;
-        vertical-align: middle;
-    }
-
-    /*
-     * Hologram seal — offset to the bottom-left corner of the photo so it
-     * straddles the photo/white-area boundary. Sits in .body coordinate
-     * space so it can extend beyond the photo (which has overflow:hidden).
-     * Photo occupies body-left 52.6mm..72.6mm, top 3mm..27mm; centre the
-     * 12mm seal on the bottom-left corner (52.6, 27) → left 46.6mm, top 21mm.
-     */
-    .hologram-seal {
-        position: absolute;
-        top: 20mm; left: 46mm;
-        width: 12mm; height: 12mm;
-        opacity: 0.55;
-        z-index: 4; /* above .photo (z-index inherited from .body = 3) */
-    }
-    .hologram-seal img {
-        width: 100%; height: 100%; display: block;
-    }
-
-    /* Name + designation */
-    .name  { position: absolute; top: 19mm; left: 2mm; width: 46mm;
-             font-size: 12.5px; font-weight: 700; color: #163E22;
-             line-height: 1.15; word-break: break-word; }
-    .desig { position: absolute; top: 24mm; left: 2mm; width: 46mm;
-             font-size: 8px; font-style: italic; color: #186D3B; line-height: 1.2; }
-    .name-rule { position: absolute; top: 28mm; left: 2mm; width: 47mm; height: 0;
-                 border-top: 0.4mm solid #C09020; }
-
-    /* Data fields */
-    .fields { position: absolute; top: 29.5mm; left: 2mm; width: 50mm;
-              border-collapse: collapse; }
-    .fields td { padding: 0.3mm 0; font-size: 7.5px; vertical-align: top; line-height: 1.2; }
-    .fields .lbl { color: #186D3B; width: 18mm; }
-    .fields .sep { width: 2mm; color: #186D3B; }
-    .fields .val { color: #163E22; font-weight: 700; }
-
-    /* Bottom disclaimer strip */
-    .foot-rule { position: absolute; bottom: 8.5mm; left: 2mm; right: 2mm; height: 0;
-                 border-top: 0.3mm solid #C09020; }
-    .certify {
-        position: absolute;
-        bottom: 1.5mm; left: 2mm; right: 2mm;
-        font-size: 5.5px; font-style: italic; color: #186D3B;
-        line-height: 1.4; text-align: center;
-    }
+    .footer { font-size: 5pt; color: #186D3B; margin-top: 0.5mm; border-top: 0.2mm solid #C09020; padding-top: 0.3mm; }
 </style>
 </head>
 <body>
-<div class="card">
 
-    {{-- Guilloche wave security background --}}
-    <div class="guilloche" aria-hidden="true">
-        <svg viewBox="0 0 856 540" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-            <defs>
-                <pattern id="gu" x="0" y="0" width="34" height="34" patternUnits="userSpaceOnUse">
-                    <path d="M0,17 Q8.5,0 17,17 T34,17" fill="none" stroke="#C09020" stroke-width="0.6"/>
-                    <path d="M0,17 Q8.5,34 17,17 T34,17" fill="none" stroke="#123420" stroke-width="0.6"/>
-                    <path d="M17,0 Q34,8.5 17,17 T17,34" fill="none" stroke="#C09020" stroke-width="0.3"/>
-                </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#gu)"/>
-        </svg>
-    </div>
-
-    {{-- Centre watermark emblem --}}
-    @if($roundLogoUrl)
-    <div class="watermark" aria-hidden="true">
-        <img src="{{ $roundLogoUrl }}" alt="">
-    </div>
+<div class="header">
+    @if($logoUrl)
+        <div class="logo"><img src="{{ $logoUrl }}" alt=""></div>
     @endif
-
-    {{-- Left sidebar — single string, CSS vertical text --}}
-    <div class="sidebar">
-        <div class="edge"></div>
-        <span class="sidebar-text">CHRSD</span>
-    </div>
-
-    {{-- Card body --}}
-    <div class="body">
-
-        <div class="logo">
-            @if($logoUrl)<img src="{{ $logoUrl }}" alt="CHRSD">@endif
-        </div>
-
-        <div class="brand">
-            <div class="wm">CHRSD</div>
-            <div class="sub">Centre for Humanitarian Research &amp;<br>Social Development Foundation</div>
-            <div class="type">{{ $idTypeLabel }}</div>
-        </div>
-
-        <div class="hdr-rule"></div>
-
-        {{-- Portrait photo — <img> for Puppeteer (no seal overlay inside;
-             the hologram lives outside so it can bleed onto white space). --}}
-        <div class="photo">
-            @if($photoUrl)
-                <img class="ph-img" src="{{ $photoUrl }}" alt="Photo">
-            @else
-                <div class="ph-placeholder">PHOTO</div>
-            @endif
-        </div>
-
-        {{-- Hologram seal — bottom-left corner of the photo, half on photo /
-             half on card white area. Sits in .body coords, not inside .photo,
-             because .photo has overflow:hidden. --}}
-        @if($roundLogoUrl)
-        <div class="hologram-seal" aria-hidden="true">
-            <img src="{{ $roundLogoUrl }}" alt="">
-        </div>
-        @endif
-
-        <div class="name">{{ $displayName }}</div>
-        <div class="desig">{{ $designation }}</div>
-        <div class="name-rule"></div>
-
-        <table class="fields">
-            <tr><td class="lbl">ID No</td><td class="sep">:</td><td class="val">{{ $idCard->serial_number }}</td></tr>
-            <tr><td class="lbl">Blood Group</td><td class="sep">:</td><td class="val">{{ $bloodGroup }}</td></tr>
-            <tr><td class="lbl">Nationality</td><td class="sep">:</td><td class="val">{{ $nationality }}</td></tr>
-            <tr><td class="lbl">Valid From</td><td class="sep">:</td><td class="val">{{ optional($idCard->valid_from)->format('d M Y') }}</td></tr>
-            <tr><td class="lbl">Expires</td><td class="sep">:</td><td class="val">{{ optional($idCard->valid_until)->format('d M Y') }}</td></tr>
-        </table>
-
-        <div class="foot-rule"></div>
-        <div class="certify">
-            This card certifies that the bearer is an authorized representative of CHRSD.
-            All concerned are requested to extend necessary cooperation.
-        </div>
-
+    <div class="org-info">
+        <div class="org-name">CHRSD</div>
+        <div class="org-sub">Centre for Humanitarian Research &amp;<br>Social Development Foundation</div>
+        <div class="id-type">{{ $idTypeLabel }}</div>
     </div>
 </div>
+
+<div class="divider"></div>
+
+@if($photoUrl)
+    <div class="photo-section"><img src="{{ $photoUrl }}" alt=""></div>
+@else
+    <div class="photo-section"><div class="placeholder">PHOTO</div></div>
+@endif
+
+<div class="info">
+    <div class="name">{{ $displayName }}</div>
+    <div class="desig">{{ $designation }}</div>
+</div>
+
+<table class="details">
+    <tr>
+        <td class="label">ID No</td>
+        <td class="value">{{ $idCard->serial_number }}</td>
+    </tr>
+    <tr>
+        <td class="label">Blood Group</td>
+        <td class="value">{{ $bloodGroup }}</td>
+    </tr>
+    <tr>
+        <td class="label">Nationality</td>
+        <td class="value">{{ $nationality }}</td>
+    </tr>
+    <tr>
+        <td class="label">Valid From</td>
+        <td class="value">{{ optional($idCard->valid_from)->format('d M Y') }}</td>
+    </tr>
+    <tr>
+        <td class="label">Expires</td>
+        <td class="value">{{ optional($idCard->valid_until)->format('d M Y') }}</td>
+    </tr>
+</table>
+
+<div class="footer">
+    This card certifies that the bearer is an authorized representative of CHRSD.
+</div>
+
 </body>
 </html>
