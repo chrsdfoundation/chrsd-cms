@@ -13,8 +13,7 @@ class IdCardGeneratorService
         protected QrCodeService $qr,
         protected PdfSignatureService $signer,
         protected TemplateRenderer $templates,
-        protected MpdfPdfService $mpdf,
-        protected BrowsershotPdfService $browsershot,
+        protected DompdfPdfService $pdf,
     ) {}
 
     /**
@@ -109,42 +108,18 @@ class IdCardGeneratorService
     }
 
     /**
-     * Render PDF using Browsershot (Chromium) when available for superior layout
-     * rendering, otherwise fall back to mPDF. Browsershot handles complex CSS
-     * and absolute positioning much better than mPDF's CSS 2.1-only support.
+     * Render PDF using dompdf (pure PHP, works on shared hosting).
+     * dompdf handles CSS much better than mPDF and respects page sizes.
      *
      * Two page sizes: CR80 landscape (85.6×54mm) for the individual card
-     * faces, A4 landscape for the combined print-shop sheet. Zero margins
-     * because the card artwork bleeds edge-to-edge.
+     * faces, A4 landscape for the combined print-shop sheet.
      */
     private function renderCardPdf(string $html, bool $cr80 = true): string
     {
-        $pageSize = $cr80
-            ? ['width' => '85.6mm', 'height' => '54mm']
-            : ['width' => '297mm', 'height' => '210mm'];  // A4 landscape
-
-        $margins = ['top' => '0mm', 'right' => '0mm', 'bottom' => '0mm', 'left' => '0mm'];
-
-        // Use Browsershot (Chromium) when enabled — it renders complex CSS
-        // and absolute positioning correctly. Fall back to mPDF on shared hosting.
-        if (env('BROWSERSHOT_ENABLED', false)) {
-            try {
-                return $this->browsershot->render($html, [
-                    'pageSize' => $pageSize,
-                    'margin' => $margins,
-                ]);
-            } catch (\Exception $e) {
-                // If Browsershot fails (e.g., Chromium not installed),
-                // fall back to mPDF gracefully
-                \Log::warning('Browsershot PDF generation failed, falling back to mPDF', [
-                    'error' => $e->getMessage(),
-                ]);
-            }
-        }
-
-        return $this->mpdf->render($html, [
-            'pageSize' => $pageSize,
-            'margin' => $margins,
+        return $this->pdf->render($html, [
+            'pageSize' => $cr80
+                ? ['width' => '85.6mm', 'height' => '54mm']
+                : ['width' => '297mm', 'height' => '210mm'],
         ]);
     }
 

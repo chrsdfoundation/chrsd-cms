@@ -14,8 +14,7 @@ class CertificateGeneratorService
         protected QrCodeService $qr,
         protected PdfSignatureService $signer,
         protected TemplateRenderer $templates,
-        protected MpdfPdfService $mpdf,
-        protected BrowsershotPdfService $browsershot,
+        protected DompdfPdfService $pdf,
     ) {}
 
     /**
@@ -96,31 +95,14 @@ class CertificateGeneratorService
                 ])->render();
             }
 
-            // Use Browsershot when available (better CSS rendering),
-            // fall back to mPDF on shared hosting.
+            // Use dompdf (pure PHP, works on shared hosting)
             $paperOrientation = $certificate->documentTemplate?->orientation === 'landscape' ? 'landscape' : 'portrait';
             $filename = sprintf('%s.pdf', $certificate->serial_number);
-            $opts = [
+            $pdfBytes = $this->pdf->render($html, [
                 'format' => 'A4',
                 'orientation' => $paperOrientation,
-                // Certificates come with their own visual chrome (borders,
-                // seals, ribbons), so give the page all of it — the Blade
-                // template controls its own padding.
                 'margin' => ['top' => '0mm', 'right' => '0mm', 'bottom' => '0mm', 'left' => '0mm'],
-            ];
-
-            if (env('BROWSERSHOT_ENABLED', false)) {
-                try {
-                    $pdfBytes = $this->browsershot->render($html, $opts);
-                } catch (\Exception $e) {
-                    \Log::warning('Browsershot PDF generation failed, falling back to mPDF', [
-                        'error' => $e->getMessage(),
-                    ]);
-                    $pdfBytes = $this->mpdf->render($html, $opts);
-                }
-            } else {
-                $pdfBytes = $this->mpdf->render($html, $opts);
-            }
+            ]);
             $signature = $this->signer->sign($pdfBytes);
 
             $certificate
