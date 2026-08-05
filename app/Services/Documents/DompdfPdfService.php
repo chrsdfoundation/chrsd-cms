@@ -43,38 +43,31 @@ class DompdfPdfService
             $widthPt = $widthMm * 2.834645669;
             $heightPt = $heightMm * 2.834645669;
 
-            // CRITICAL: Inject CSS to FORCE single-page rendering
-            // dompdf still breaks pages by default; must use multiple strategies
+            // CRITICAL: Use CSS zoom/scale to fit content on ONE page
+            // Content is too large to fit naturally, so shrink it with CSS zoom
+            // This forces dompdf to render at smaller scale, preventing page breaks
             $pageOrient = $orientation === 'L' ? 'landscape' : 'portrait';
             $css = "<style>
+                @page {
+                    size: {$widthMm}mm {$heightMm}mm {$pageOrient};
+                    margin: 0;
+                    padding: 0;
+                }
                 html {
-                    margin: 0 !important;
-                    padding: 0 !important;
-                    width: {$widthMm}mm !important;
-                    height: {$heightMm}mm !important;
-                    overflow: hidden !important;
-                    background: white !important;
+                    margin: 0;
+                    padding: 0;
+                    width: {$widthMm}mm;
+                    height: {$heightMm}mm;
+                    overflow: hidden;
                 }
                 body {
-                    margin: 0 !important;
-                    padding: 0 !important;
-                    width: {$widthMm}mm !important;
-                    height: {$heightMm}mm !important;
-                    overflow: hidden !important;
-                    background: white !important;
-                }
-                @page {
-                    size: {$widthMm}mm {$heightMm}mm {$pageOrient} !important;
-                    margin: 0 !important;
-                    padding: 0 !important;
-                }
-                * {
-                    page-break: avoid !important;
-                    page-break-inside: avoid !important;
-                    page-break-before: avoid !important;
-                    page-break-after: avoid !important;
-                    orphans: 1 !important;
-                    widows: 1 !important;
+                    margin: 0;
+                    padding: 0;
+                    width: {$widthMm}mm;
+                    height: {$heightMm}mm;
+                    overflow: hidden;
+                    zoom: 0.75;
+                    transform-origin: 0 0;
                 }
             </style>";
             $html = $css . $html;
