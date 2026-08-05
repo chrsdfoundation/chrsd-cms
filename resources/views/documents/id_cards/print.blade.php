@@ -484,7 +484,7 @@
                 <div class="qr-signature">
                     @if ($idCard->verification_hash)
                         <div class="qr-code">
-                            {!! QrCode::size(150)->generate(route('verify.hash', $idCard->verification_hash)) !!}
+                            {!! app(\App\Services\Verification\QrCodeService::class)->svg($idCard, 4) !!}
                         </div>
                     @else
                         <div class="qr-code" style="background: white; font-size: 2pt; color: #999;">QR</div>

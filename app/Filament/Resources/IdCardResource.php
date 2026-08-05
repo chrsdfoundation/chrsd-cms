@@ -197,6 +197,7 @@ class IdCardResource extends Resource
                 Tables\Actions\EditAction::make()->icon('heroicon-o-pencil-square')->color('warning'),
                 self::updatePhotoAction(),
                 self::generateAction(),
+                self::printCardAction(),
                 self::downloadFrontAction(),
                 self::downloadBackAction(),
                 self::markDeliveredAction(),
@@ -308,6 +309,16 @@ class IdCardResource extends Resource
     public static function revokeHeaderAction(): Action
     {
         return self::applyRevokeShape(Action::make('revoke'));
+    }
+
+    public static function printCardAction(): Tables\Actions\Action
+    {
+        return self::applyPrintCardShape(Tables\Actions\Action::make('print_card'));
+    }
+
+    public static function printCardHeaderAction(): Action
+    {
+        return self::applyPrintCardShape(Action::make('print_card'));
     }
 
     private static function applyGenerateShape($action)
@@ -425,5 +436,16 @@ class IdCardResource extends Resource
                 Notification::make()->danger()->title('ID card revoked')->send();
             })
             ->visible(fn (IdCard $r) => $r->status === VerificationStatus::Valid);
+    }
+
+    private static function applyPrintCardShape($action)
+    {
+        return $action
+            ->label('Print Card (HTML)')->icon('heroicon-o-document')->color('info')
+            ->url(function (IdCard $r) {
+                return route('id-cards.print', $r);
+            })
+            ->openUrlInNewTab()
+            ->tooltip('Print the ID card to PDF from browser');
     }
 }
