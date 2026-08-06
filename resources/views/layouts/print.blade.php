@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>{{ $title ?? 'Print' }}</title>
 
+<<<<<<< HEAD
     <style>
         * {
             margin: 0;
@@ -120,6 +121,33 @@
 
     <div class="print-action-bar">
         <button onclick="window.print()">🖨️ Print / Save as PDF</button>
+=======
+    {{-- Print-specific meta tags --}}
+    <meta name="color-scheme" content="light">
+
+    {{-- Base print CSS --}}
+    <link rel="stylesheet" href="{{ asset('css/print/common.css') }}">
+
+    {{-- Type-specific CSS (certificate.css, letter.css, etc.) --}}
+    @isset($printCss)
+        <link rel="stylesheet" href="{{ asset($printCss) }}">
+    @endisset
+
+    {{-- Inline print styles for overrides --}}
+    <style>
+        {!! $inlineStyles ?? '' !!}
+    </style>
+</head>
+<body>
+    {{-- Print content --}}
+    {{ $slot }}
+
+    {{-- Print button (shown on screen, hidden in print) --}}
+    <div class="print-action-bar">
+        <button onclick="window.print()" class="btn btn-primary">
+            🖨️ Print / Save as PDF
+        </button>
+>>>>>>> feat/migrate-pdf-to-mpdf
     </div>
 </body>
 </html>

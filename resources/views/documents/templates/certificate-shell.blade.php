@@ -17,7 +17,7 @@
 
   /* Double gold frame — clean, no corner rectangles overlapping the seal. */
   .frame-outer { position: absolute; top: 8mm; left: 8mm; right: 8mm; bottom: 8mm;
-                 border: 1.2mm solid #C09020; border-radius: 2mm; z-index: 1; }
+                 border: 1.2mm solid #C09020;  z-index: 1; }
   .frame-inner { position: absolute; top: 12mm; left: 12mm; right: 12mm; bottom: 12mm;
                  border: 0.25mm solid #A67718; border-radius: 1mm; z-index: 1; }
 
@@ -33,7 +33,7 @@
     pointer-events: none;
     z-index: 1;
   }
-  .watermark img { width: 100%; height: 100%; display: block; object-fit: contain; }
+  .watermark img { width: 100%; height: 100%; display: block; }
 
   /* Header — full logo centred at the top. Compacted vertically to give
      the body more room for long copies like the Certificate of Service. */
@@ -140,7 +140,7 @@
   .signature-strip .sig-r { text-align: right; }
   .signature-strip .sig-img {
     display: block; max-height: 12mm; max-width: 46mm;
-    width: auto; height: auto; object-fit: contain;
+    width: auto; height: auto;
     margin-bottom: 0.5mm;
   }
   .signature-strip .sig-l .sig-img { margin-left: 0;    margin-right: auto; }
@@ -200,18 +200,18 @@
     <div class="frame-outer"></div>
     <div class="frame-inner"></div>
 
-    @php
-        $watermarkPath = public_path('images/brand/chrsd-round-logo.png');
-        if (! file_exists($watermarkPath)) {
-            $watermarkPath = public_path('images/chrsd-round-seal.png');
-        }
-    @endphp
     <div class="watermark" aria-hidden="true">
-      <img src="{{ $watermarkPath }}" alt="">
+      @if(!empty($watermarkUrl))
+        <img src="{{ $watermarkUrl }}" alt="">
+      @endif
     </div>
 
     <div class="header">
-      <div class="logo"><img src="{{ public_path('images/chrsd-full-logo.png') }}" alt="CHRSD"></div>
+      <div class="logo">
+        @if(!empty($logoUrl))
+          <img src="{{ $logoUrl }}" alt="CHRSD">
+        @endif
+      </div>
       <div class="org-name">{{ strtoupper($org_full_name ?? 'CENTRE FOR HUMANITARIAN RESEARCH AND SOCIAL DEVELOPMENT FOUNDATION') }}</div>
     </div>
 

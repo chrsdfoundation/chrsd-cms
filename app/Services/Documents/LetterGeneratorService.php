@@ -13,71 +13,48 @@ class LetterGeneratorService
 {
     public function __construct(
         protected QrCodeService $qr,
-        protected PdfSignatureService $signer,
+        protected HtmlSignatureService $signer,
         protected TemplateRenderer $templates,
+<<<<<<< HEAD
         protected DompdfPdfService $pdf,
+=======
+        protected PrintHtmlService $print,
+>>>>>>> feat/migrate-pdf-to-mpdf
     ) {}
 
-    public function generate(OfficialLetter $letter): OfficialLetter
-    {
-        return DB::transaction(function () use ($letter) {
-            $letter->loadMissing(['category', 'letterAuthor', 'author.department', 'author.position', 'signedBy', 'documentTemplate']);
-
-            $pdfBytes = $this->renderPdf($letter);
-
-            $signature = $this->signer->sign($pdfBytes);
-
-            $letter
-                ->addMediaFromString($pdfBytes)
-                ->usingFileName(sprintf('%s.pdf', $letter->serial_number))
-                ->usingName($letter->serial_number)
-                ->toMediaCollection('rendered');
-
-            $letter->forceFill([
-                'letter_status' => OfficialLetterStatus::Released,
-                'released_on' => $letter->released_on ?? now()->toDateString(),
-                'pdf_content_hash' => $signature,
-            ])->save();
-
-            return $letter->refresh();
-        });
-    }
-
     /**
-     * Render the letter to PDF bytes via mPDF.
-     *
-     * The mPDF letterhead strategy: @page margins define the safe text zone.
-     * position:fixed elements with negative offsets anchor to the physical page
-     * edge (0,0), so they repeat on every page without header/footer stitching.
-     *
-     * All image assets (letterhead, watermark, signatures) are passed as base64
-     * data URIs so mPDF can render them directly without HTTP round-trips or
-     * filesystem path resolution issues.
+     * Render a letter to HTML string (on-the-fly, no storage).
      */
-    protected function renderPdf(OfficialLetter $letter): string
+    public function renderHtml(OfficialLetter $letter): string
     {
+        $letter->loadMissing(['category', 'letterAuthor', 'author.department', 'author.position', 'signedBy', 'documentTemplate']);
+
         if ($letter->documentTemplate) {
-            $html = $this->templates->render(
+            return $this->templates->render(
                 $letter->documentTemplate,
                 $this->buildContext($letter),
                 'documents.templates.letter-shell'
             );
-        } else {
-            $html = View::make('documents.letters.default', [
-                'letter' => $letter,
-                'author' => $letter->author,
-                'signatory' => $letter->signedBy,
-                'category' => $letter->category,
-                'qr_svg' => $this->qr->svg($letter, 4),
-                'verify_url' => $this->qr->verificationUrl($letter),
-                'body_html' => $this->transformBodyMarkup($letter->body ?? ''),
-                'letterhead_uri' => $this->dataUriFor(public_path('images/brand/Letterhead-dompdf.png')),
-            ])->render();
         }
 
-        return $this->pdf->render($html, [
-            'margin' => ['top' => '103mm', 'right' => '18mm', 'bottom' => '26mm', 'left' => '22mm'],
-        ]);
+        return View::make('documents.letters.default', [
+            'letter' => $letter,
+            'author' => $letter->author,
+            'signatory' => $letter->signedBy,
+            'category' => $letter->category,
+            'qr_svg' => $this->qr->svg($letter, 4),
+            'verify_url' => $this->qr->verificationUrl($letter),
+            'body_html' => $this->transformBodyMarkup($letter->body ?? ''),
+            'letterhead_uri' => asset('images/brand/Letterhead-dompdf.png'),
+        ])->render();
+    }
+
+    /**
+     * Compute HMAC-SHA256 hash of rendered HTML.
+     */
+    public function computeHtmlHash(string $html): string
+    {
+        return $this->signer->sign($html);
     }
 
     /** Read a file and return its base64 data URI, or null if it doesn't exist. */
