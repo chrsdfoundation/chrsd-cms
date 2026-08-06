@@ -9,7 +9,7 @@ use App\Models\Certificate;
 use App\Models\Department;
 use App\Models\Employee;
 use App\Models\OfficialLetter;
-use App\Services\Documents\MpdfPdfService;
+use App\Services\Documents\PrintHtmlService;
 use App\Services\Verification\QrCodeService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportService
 {
-    public function __construct(protected MpdfPdfService $pdf) {}
+    public function __construct(protected PrintHtmlService $print) {}
 
     // ---- Department roster --------------------------------------------
 
@@ -320,5 +320,37 @@ class ReportService
             $filename,
             ['Content-Type' => 'application/pdf'],
         );
+    }
+
+    // ---- HTML Rendering (for browser print-to-PDF) ----------------------
+
+    /**
+     * Render monthly issuance report to HTML string.
+     */
+    public function renderMonthlyIssuanceHtml(Carbon $month): string
+    {
+        $data = $this->monthlyIssuance($month);
+
+        return $this->print->render('print.reports.monthly-issuance', $data);
+    }
+
+    /**
+     * Render department roster report to HTML string.
+     */
+    public function renderDepartmentRosterHtml(?int $departmentId): string
+    {
+        $data = $this->departmentRoster($departmentId);
+
+        return $this->print->render('print.reports.department-roster', $data);
+    }
+
+    /**
+     * Render compliance bundle report to HTML string.
+     */
+    public function renderComplianceBundleHtml(Carbon $from, Carbon $to): string
+    {
+        $data = $this->complianceBundle($from, $to);
+
+        return $this->print->render('print.reports.compliance-bundle', $data);
     }
 }
