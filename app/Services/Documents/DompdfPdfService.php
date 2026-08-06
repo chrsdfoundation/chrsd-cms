@@ -38,7 +38,7 @@ class DompdfPdfService
         $orientation = ($opts['orientation'] ?? 'portrait') === 'landscape' ? 'L' : 'P';
 
         // Handle custom page sizes (CR80 ID cards, etc.)
-        if (!empty($opts['pageSize'])) {
+        if ( !empty($opts['pageSize'])) {
             [$widthMm, $heightMm] = $this->parseSizeMm($opts['pageSize']);
             $widthPt = $widthMm * 2.834645669;
             $heightPt = $heightMm * 2.834645669;
