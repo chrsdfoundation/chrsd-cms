@@ -11,91 +11,93 @@ class IdCardGeneratorService
 {
     public function __construct(
         protected QrCodeService $qr,
-        protected PdfSignatureService $signer,
+        protected HtmlSignatureService $signer,
         protected TemplateRenderer $templates,
-        protected MpdfPdfService $pdf,
+        protected PrintHtmlService $print,
     ) {}
 
     /**
-     * Render both sides of the ID card to CR80-landscape PDFs, attach them to
-     * the model's `rendered` media collection, HMAC-sign the bytes of each
-     * side, and flip issuance_status → Printed.
-     *
-     * If the card is linked to a DocumentTemplate (document_template_id set),
-     * the FRONT side is rendered from that template's Markdown body. The BACK
-     * side always uses the code-driven Blade (instructions, return address,
-     * signatory line) — those are boilerplate that shouldn't be reinvented per
-     * design.
-     *
-     * We wrap the whole thing in a transaction so a mid-write failure leaves
-     * no half-issued card on disk.
+     * Render combined A4 sheet with both front and back sides to HTML.
      */
-    public function generate(IdCard $card): IdCard
+    public function renderCombined(IdCard $card): string
     {
-        return DB::transaction(function () use ($card) {
-            $card->loadMissing(['employee.department', 'employee.position', 'documentTemplate']);
+        $card->loadMissing(['employee.department', 'employee.position', 'documentTemplate']);
 
-            $photoUrl = $card->photoUrl();
-            $signatureUrl = $card->signatureUrl();
-            // Vector QR — Chromium rasterises it at print resolution, so the
-            // modules stay crisp at 17mm even when scanned from paper. The
-            // Milon\Barcode PNG we used before was 1-bit indexed and washed
-            // out over the ID-card guilloche background.
-            $qrSvg = $this->qr->svg($card, 4);
-            $verifyUrl = $this->qr->verificationUrl($card);
+        $qrSvg = $this->qr->svg($card, 4);
+        $verifyUrl = $this->qr->verificationUrl($card);
 
-            // mPDF needs images as base64 data URIs for reliable rendering without
-            // HTTP round-trips or filesystem path resolution issues.
-            $logoUrl = $this->toDataUri(public_path('images/brand/chrsd-full-logo.png'));
-            $roundLogoUrl = $this->toDataUri(public_path('images/brand/chrsd-round-logo.png'));
-            $photoUrl = $this->toDataUri($card->photoUrl());
-            $signatureUrl = $this->toDataUri($card->signatureUrl());
+        $sharedViewData = [
+            'idCard' => $card,
+            'employee' => $card->employee,
+            'photoUrl' => $card->photoUrl(),
+            'signatureUrl' => $card->signatureUrl(),
+            'qr_svg' => $qrSvg,
+            'verify_url' => $verifyUrl,
+            'logoUrl' => asset('images/brand/chrsd-full-logo.png'),
+            'roundLogoUrl' => asset('images/brand/chrsd-round-logo.png'),
+        ];
 
-            $sharedViewData = [
-                'idCard' => $card,
-                'employee' => $card->employee,
-                'photoUrl' => $photoUrl,
-                'signatureUrl' => $signatureUrl,
-                'qr_svg' => $qrSvg,
-                'verify_url' => $verifyUrl,
-                'logoUrl' => $logoUrl,
-                'roundLogoUrl' => $roundLogoUrl,
-            ];
+        return view('documents.id_cards.combined', $sharedViewData)->render();
+    }
 
-            // --- Individual CR80 pages (kept for print-shop workflows) --------
-            if ($card->document_template_id) {
-                $frontHtml = $this->templates->render($card->documentTemplate, $this->buildContext($card));
-            } else {
-                $frontHtml = view('documents.id_cards.default-front', $sharedViewData)->render();
-            }
+    /**
+     * Render front side to HTML.
+     */
+    public function renderFront(IdCard $card): string
+    {
+        $card->loadMissing(['employee.department', 'employee.position', 'documentTemplate']);
 
-            $frontBytes = $this->renderCardPdf($frontHtml);
-            $backBytes = $this->renderCardPdf(view('documents.id_cards.default-back', $sharedViewData)->render());
-            $combinedBytes = $this->renderCardPdf(view('documents.id_cards.combined', $sharedViewData)->render(), false);
+        $qrSvg = $this->qr->svg($card, 4);
+        $verifyUrl = $this->qr->verificationUrl($card);
 
-            $card->addMediaFromString($combinedBytes)
-                ->usingFileName($card->serial_number . '.pdf')
-                ->usingName($card->serial_number)
-                ->toMediaCollection('rendered');
+        $sharedViewData = [
+            'idCard' => $card,
+            'employee' => $card->employee,
+            'photoUrl' => $card->photoUrl(),
+            'signatureUrl' => $card->signatureUrl(),
+            'qr_svg' => $qrSvg,
+            'verify_url' => $verifyUrl,
+            'logoUrl' => asset('images/brand/chrsd-full-logo.png'),
+            'roundLogoUrl' => asset('images/brand/chrsd-round-logo.png'),
+        ];
 
-            $card->addMediaFromString($frontBytes)
-                ->usingFileName($card->serial_number . '-front.pdf')
-                ->usingName($card->serial_number . ' (front)')
-                ->toMediaCollection('rendered');
+        if ($card->document_template_id) {
+            return $this->templates->render($card->documentTemplate, $this->buildContext($card));
+        }
 
-            $card->addMediaFromString($backBytes)
-                ->usingFileName($card->serial_number . '-back.pdf')
-                ->usingName($card->serial_number . ' (back)')
-                ->toMediaCollection('rendered');
+        return view('documents.id_cards.default-front', $sharedViewData)->render();
+    }
 
-            $card->forceFill([
-                'issuance_status' => IdCardIssuance::Printed,
-                'pdf_content_hash_front' => $this->signer->sign($frontBytes),
-                'pdf_content_hash_back' => $this->signer->sign($backBytes),
-            ])->save();
+    /**
+     * Render back side to HTML.
+     */
+    public function renderBack(IdCard $card): string
+    {
+        $card->loadMissing(['employee.department', 'employee.position', 'documentTemplate']);
 
-            return $card->refresh();
-        });
+        $qrSvg = $this->qr->svg($card, 4);
+        $verifyUrl = $this->qr->verificationUrl($card);
+
+        $sharedViewData = [
+            'idCard' => $card,
+            'employee' => $card->employee,
+            'photoUrl' => $card->photoUrl(),
+            'signatureUrl' => $card->signatureUrl(),
+            'qr_svg' => $qrSvg,
+            'verify_url' => $verifyUrl,
+            'logoUrl' => asset('images/brand/chrsd-full-logo.png'),
+            'roundLogoUrl' => asset('images/brand/chrsd-round-logo.png'),
+        ];
+
+        return view('documents.id_cards.default-back', $sharedViewData)->render();
+    }
+
+    /**
+     * Compute HMAC-SHA256 hash of rendered HTML.
+     */
+    public function computeHtmlHash(string $html): string
+    {
+        return $this->signer->sign($html);
     }
 
     private function toDataUri(?string $path): ?string

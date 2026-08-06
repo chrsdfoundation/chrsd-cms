@@ -35,14 +35,5 @@ return [
      */
     'verify_base_url' => env('VERIFY_BASE_URL'),
 
-    /*
-     * Puppeteer / Browsershot binary paths. These MUST live in config (not
-     * env() at runtime) because production runs with `php artisan config:cache`
-     * — env() then returns null and Chromium fails to launch.
-     */
-    'puppeteer' => [
-        'chromium' => env('CHROMIUM_PATH'),
-        'node' => env('NODE_PATH', 'node'),
-    ],
 
 ];

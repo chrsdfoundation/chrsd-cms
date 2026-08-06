@@ -12,116 +12,39 @@ class CertificateGeneratorService
 {
     public function __construct(
         protected QrCodeService $qr,
-        protected PdfSignatureService $signer,
+        protected HtmlSignatureService $signer,
         protected TemplateRenderer $templates,
-        protected MpdfPdfService $pdf,
+        protected PrintHtmlService $print,
     ) {}
 
     /**
-     * Render a certificate to PDF via DomPDF, attach to the model's `rendered`
-     * media collection, and flip issuance_status to Generated.
-     *
-     * Wrapped in a transaction so a mid-write failure doesn't leave the model
-     * flagged Generated with no PDF attached.
+     * Render a certificate to HTML string (on-the-fly, no storage).
      */
-    public function generate(Certificate $certificate): Certificate
+    public function renderHtml(Certificate $certificate): string
     {
-        return DB::transaction(function () use ($certificate) {
-            $certificate->loadMissing([
-                'employee.department', 'employee.position',
-                'type', 'signedBy', 'documentTemplate',
-            ]);
+        $certificate->loadMissing([
+            'employee.department', 'employee.position',
+            'type', 'signedBy', 'documentTemplate',
+        ]);
 
-            if ($certificate->document_template_id) {
-                $html = $this->templates->render(
-                    $certificate->documentTemplate,
-                    $this->buildContext($certificate),
-                );
-            } else {
-                $view = $certificate->type->template_view ?: 'documents.certificates.default';
-                $sig1 = $certificate->getFirstMedia('signature_1');
-                $sig2 = $certificate->getFirstMedia('signature_2');
+        if ($certificate->document_template_id) {
+            return $this->templates->render(
+                $certificate->documentTemplate,
+                $this->buildContext($certificate),
+            );
+        }
 
-                // Resolve signature image path. Prefer the per-certificate upload
-                // (Spatie MediaLibrary). Fallback: brand-kit signature PNGs.
-                // All images are converted to data URIs so mPDF can render them
-                // directly without HTTP round-trips or filesystem path resolution.
-                $sig1Uri = $sig1 ? $this->fileToDataUri($sig1->getPath()) : null;
-                $sig2Uri = $sig2 ? $this->fileToDataUri($sig2->getPath()) : null;
-                $sig1Uri = $sig1Uri ?: $this->brandSignatureDataUri($certificate->signatory_1_name ?? 'razib-mustafiz');
-                $sig2Uri = $sig2Uri ?: $this->brandSignatureDataUri($certificate->signatory_2_name ?? 'ma-ramim');
+        $view = $certificate->type->template_view ?: 'documents.certificates.default';
 
-                $signatoryName = $certificate->signatory_1_name ?: 'Razib Mustafiz';
-                $signatoryTitle = $certificate->signatory_1_title ?: 'Project Coordinator';
-                $countersignName = $certificate->signatory_2_name ?: 'M.A. Ramim';
-                $countersignTitle = $certificate->signatory_2_title ?: 'Executive Director';
+        return view($view, $this->buildContext($certificate))->render();
+    }
 
-                $html = view($view, [
-                    'certificate' => $certificate,
-                    'employee' => $certificate->employee,
-                    'type' => $certificate->type,
-                    'signatory' => $certificate->signedBy,
-
-                    // Feed the CHRSD certificate Blade's variable names too.
-                    // Recipient — prefer the free-text recipient_name (used for
-                    // non-employee awards) over the linked Employee's full name.
-                    'name' => $certificate->recipient_name
-                                              ?: (optional($certificate->employee)->full_name ?? ''),
-                    // Course/achievement — payload.event_name → purpose → type label.
-                    'course_name' => data_get($certificate->payload, 'event_name')
-                                              ?: ($certificate->purpose
-                                                  ?: (optional($certificate->type)->name ?? '')),
-                    'issue_date' => $certificate->issued_on ?? $certificate->created_at,
-                    'certificate_no' => $certificate->serial_number,
-
-                    'signatory_name' => $signatoryName,
-                    'signatory_title' => $signatoryTitle,
-                    'signatory_sig_url' => $sig1Uri,
-                    'countersign_name' => $countersignName,
-                    'countersign_title' => $countersignTitle,
-                    'countersign_sig_url' => $sig2Uri,
-
-                    // All brand assets as data URIs for mPDF direct rendering.
-                    'logoUrl' => $this->fileToDataUri(public_path('images/brand/chrsd-full-logo.png')),
-                    'sealUrl' => $this->fileToDataUri(public_path('images/brand/chrsd-rosette-seal.png')),
-                    'watermarkUrl' => $this->fileToDataUri(public_path('images/brand/chrsd-watermark.svg')),
-
-                    // Vector QR — stays as SVG for print resolution crispness.
-                    'qr_svg' => $this->qr->svg($certificate, 4),
-                    'qr_data_uri' => $this->qr->pngDataUri($certificate), // kept for legacy templates
-                    'qr_uri' => $this->qr->pngDataUri($certificate),
-                    'verify_url' => $this->qr->verificationUrl($certificate),
-                    'verification_url' => $this->qr->verificationUrl($certificate),
-                ])->render();
-            }
-
-            // mPDF (pure PHP, no Chromium required).
-            $paperOrientation = $certificate->documentTemplate?->orientation === 'landscape' ? 'landscape' : 'portrait';
-            $filename = sprintf('%s.pdf', $certificate->serial_number);
-            $pdfBytes = $this->pdf->render($html, [
-                'format' => 'A4',
-                'orientation' => $paperOrientation,
-                // Certificates come with their own visual chrome (borders,
-                // seals, ribbons), so give the page all of it — the Blade
-                // template controls its own padding.
-                'margin' => ['top' => '0mm', 'right' => '0mm', 'bottom' => '0mm', 'left' => '0mm'],
-            ]);
-            $signature = $this->signer->sign($pdfBytes);
-
-            $certificate
-                ->addMediaFromString($pdfBytes)
-                ->usingFileName($filename)
-                ->usingName($certificate->serial_number)
-                ->toMediaCollection('rendered');
-
-            $certificate->forceFill([
-                'issuance_status' => CertificateIssuance::Generated,
-                'issued_on' => $certificate->issued_on ?? now()->toDateString(),
-                'pdf_content_hash' => $signature,
-            ])->save();
-
-            return $certificate->refresh();
-        });
+    /**
+     * Compute HMAC-SHA256 hash of rendered HTML.
+     */
+    public function computeHtmlHash(string $html): string
+    {
+        return $this->signer->sign($html);
     }
 
     /** Standard placeholder context for a certificate. */
@@ -209,10 +132,10 @@ class CertificateGeneratorService
             'signatory_title' => $primarySigTitle,
             'signatory_sig' => $sig1Uri ?: $sig2Uri,
 
-            // Image assets (as base64 data URIs for mPDF rendering)
-            'logoUrl' => $this->fileToDataUri(public_path('images/brand/chrsd-full-logo.png')),
-            'sealUrl' => $this->fileToDataUri(public_path('images/brand/chrsd-rosette-seal.png')),
-            'watermarkUrl' => $this->fileToDataUri(public_path('images/brand/letterhead-watermark.png')),
+            // Image assets (as public URLs for browser rendering)
+            'logoUrl' => asset('images/brand/chrsd-full-logo.png'),
+            'sealUrl' => asset('images/brand/chrsd-rosette-seal.png'),
+            'watermarkUrl' => asset('images/brand/letterhead-watermark.png'),
             'signature_image' => $sig1Uri ?: $sig2Uri,
         ];
     }

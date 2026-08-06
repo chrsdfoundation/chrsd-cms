@@ -1,0 +1,79 @@
+/**
+ * Print CSS for reports (A4 portrait, multi-page).
+ */
+
+@page {
+    size: A4 portrait;
+    margin: 20mm;
+}
+
+.report {
+    width: 210mm;
+}
+
+.report-header {
+    text-align: center;
+    margin-bottom: 1cm;
+    padding-bottom: 0.5cm;
+    border-bottom: 2px solid #000;
+}
+
+.report-header h1 {
+    font-size: 1.5cm;
+    margin: 0.2cm 0;
+}
+
+.report-header p {
+    font-size: 9pt;
+    margin: 0.1cm 0;
+}
+
+.report-section {
+    margin-top: 1cm;
+    margin-bottom: 1cm;
+}
+
+.report-section h2 {
+    font-size: 1cm;
+    margin: 0.3cm 0;
+    page-break-after: avoid;
+}
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.5cm 0;
+    font-size: 9pt;
+}
+
+.report-table th {
+    background: #e0e0e0;
+    padding: 3mm;
+    border: 1px solid #999;
+    font-weight: bold;
+    text-align: left;
+}
+
+.report-table td {
+    padding: 3mm;
+    border: 1px solid #ddd;
+}
+
+.report-footer {
+    margin-top: 1cm;
+    padding-top: 0.5cm;
+    border-top: 1px solid #ccc;
+    font-size: 8pt;
+    color: #666;
+    text-align: center;
+}
+
+@media print {
+    .report-section {
+        page-break-inside: avoid;
+    }
+
+    .report-table {
+        page-break-inside: avoid;
+    }
+}

@@ -6,7 +6,10 @@ use App\Http\Controllers\LetterheadController;
 use App\Http\Controllers\MoneyReceiptController;
 use App\Http\Controllers\MoneyReceiptVerificationController;
 use App\Http\Controllers\OpenApiController;
-use App\Http\Controllers\PdfVerificationController;
+use App\Http\Controllers\PrintCertificateController;
+use App\Http\Controllers\PrintIdCardController;
+use App\Http\Controllers\PrintLetterController;
+use App\Http\Controllers\PrintReportController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Middleware\ResolveSanctumToken;
 use App\Http\Middleware\TrackApiTokenUsage;
@@ -32,6 +35,28 @@ Route::middleware(['web', 'auth', 'role:super_admin'])->group(function () {
 
     Route::get('/letterhead-preview', [LetterheadController::class, 'show'])
         ->name('letterhead.preview');
+});
+
+// Print-preview routes (authenticated, returns HTML)
+Route::middleware(['web', 'auth'])->group(function () {
+    Route::get('/print/certificate/{certificate}', [PrintCertificateController::class, 'show'])
+        ->name('print.certificate');
+
+    Route::get('/print/letter/{letter}', [PrintLetterController::class, 'show'])
+        ->name('print.letter');
+
+    Route::get('/print/id-card/{card}', [PrintIdCardController::class, 'show'])
+        ->name('print.id-card')
+        ->withTrashed();
+
+    Route::get('/print/report/monthly-issuance', [PrintReportController::class, 'monthlyIssuance'])
+        ->name('print.report.monthly');
+
+    Route::get('/print/report/compliance-export', [PrintReportController::class, 'complianceExport'])
+        ->name('print.report.compliance');
+
+    Route::get('/print/report/department-roster', [PrintReportController::class, 'departmentRoster'])
+        ->name('print.report.roster');
 });
 
 /*
@@ -82,8 +107,6 @@ Route::middleware([
         ->where('serial', '[A-Z]{2,5}-\d{4}-\d{4,10}')
         ->name('verify.api.ref');
 
-    Route::post('/api/verify/pdf', PdfVerificationController::class)
-        ->name('verify.pdf');
 });
 
 Route::middleware('throttle:verify_kiosk')->group(function () {

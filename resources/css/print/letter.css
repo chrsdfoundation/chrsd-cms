@@ -1,0 +1,89 @@
+/**
+ * Print CSS for letters (A4 portrait).
+ */
+
+@page {
+    size: A4 portrait;
+    margin: 20mm 15mm;
+}
+
+.letter {
+    width: 210mm;
+    height: 297mm;
+}
+
+.letter-letterhead {
+    position: relative;
+    min-height: 40mm;
+    margin-bottom: 1cm;
+}
+
+.letter-body {
+    min-height: 15cm;
+    font-size: 11pt;
+    line-height: 1.5;
+}
+
+.letter-body p {
+    margin: 0.5cm 0;
+    text-align: justify;
+}
+
+.letter-signature {
+    margin-top: 1.5cm;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.signature-image {
+    width: 30mm;
+    height: 20mm;
+    margin-bottom: 0.2cm;
+}
+
+.signature-line {
+    border-top: 1px solid #000;
+    width: 40mm;
+    height: 0.1cm;
+    margin-top: 0.3cm;
+}
+
+.signature-name {
+    font-size: 10pt;
+    font-weight: bold;
+}
+
+.signature-title {
+    font-size: 9pt;
+    font-style: italic;
+}
+
+.letter-footer {
+    position: fixed;
+    bottom: 20mm;
+    width: 180mm;
+    font-size: 8pt;
+    color: #666;
+    text-align: center;
+    border-top: 1px solid #ccc;
+    padding-top: 0.3cm;
+}
+
+@media print {
+    .letter {
+        page-break-after: always;
+    }
+
+    .letter-body {
+        margin-bottom: 40mm;
+    }
+}
+
+@media screen {
+    .letter {
+        background: #fff;
+        margin: 1rem auto;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+}
