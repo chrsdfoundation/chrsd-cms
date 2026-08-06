@@ -333,43 +333,21 @@ class OfficialLetterResource extends Resource
     public static function generatePdfAction(): Tables\Actions\Action
     {
         return Tables\Actions\Action::make('generate_pdf')
-            ->label('Generate & Release')->icon('heroicon-o-paper-airplane')->color('primary')
-            ->requiresConfirmation()
-            ->modalDescription('Renders the letter via Browsershot (Chromium) and marks it Released.')
-            ->action(function (OfficialLetter $record) {
-                app(LetterGeneratorService::class)->generate($record);
-                Notification::make()->success()->title('Letter generated and released')->send();
-            })
-            ->visible(fn (OfficialLetter $record) => $record->isValid()
-                && in_array($record->letter_status, [OfficialLetterStatus::Draft, OfficialLetterStatus::ForReview, OfficialLetterStatus::Approved])
-            );
+            ->label('🖨️ Print / Save as PDF')->icon('heroicon-o-printer')->color('primary')
+            ->url(fn (OfficialLetter $record) => route('print.letter', $record))
+            ->openUrlInNewTab();
     }
 
     /**
-     * Rebuild the PDF for an already-Released letter after an edit.
-     *
-     * Idempotent-ish: LetterGeneratorService::generate() replaces the
-     * single-file 'rendered' media, re-signs pdf_content_hash, and preserves
-     * released_on. Kept separate from generatePdfAction() so the initial
-     * "Generate & Release" button (which reads as a first-time issuance)
-     * doesn't also handle post-edit re-renders.
+     * Deprecated: On-the-fly HTML rendering means no regeneration step needed.
+     * Print preview is always fresh from current data.
      */
     public static function regeneratePdfAction(): Tables\Actions\Action
     {
         return Tables\Actions\Action::make('regenerate_pdf')
-            ->label('Regenerate PDF')->icon('heroicon-o-arrow-path')->color('warning')
-            ->requiresConfirmation()
-            ->modalHeading('Regenerate letter PDF?')
-            ->modalDescription('This will replace the existing PDF with a fresh render based on the current subject, recipient, body, and signature. The verification hash will be updated.')
-            ->modalSubmitActionLabel('Regenerate')
-            ->action(function (OfficialLetter $record) {
-                app(LetterGeneratorService::class)->generate($record);
-                Notification::make()->success()->title('PDF regenerated')
-                    ->body('The old PDF has been replaced.')->send();
-            })
-            ->visible(fn (OfficialLetter $record) => $record->isValid()
-                && $record->letter_status === OfficialLetterStatus::Released
-            );
+            ->label('🖨️ Print / Save as PDF')->icon('heroicon-o-printer')->color('info')
+            ->url(fn (OfficialLetter $record) => route('print.letter', $record))
+            ->openUrlInNewTab();
     }
 
     public static function downloadPdfAction(): Tables\Actions\Action

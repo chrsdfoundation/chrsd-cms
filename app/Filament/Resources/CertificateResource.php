@@ -327,15 +327,10 @@ class CertificateResource extends Resource
 
     public static function generatePdfAction(): Tables\Actions\Action
     {
-        return Tables\Actions\Action::make('generate_pdf')
-            ->label('Generate PDF')->icon('heroicon-o-document-arrow-down')->color('primary')
-            ->requiresConfirmation()
-            ->modalDescription('This will render the certificate to PDF via DomPDF and attach it to the record.')
-            ->action(function (Certificate $record) {
-                app(CertificateGeneratorService::class)->generate($record);
-                Notification::make()->success()->title('Certificate PDF generated')->send();
-            })
-            ->visible(fn (Certificate $record) => $record->isValid());
+        return Tables\Actions\Action::make('print_certificate')
+            ->label('🖨️ Print / Save as PDF')->icon('heroicon-o-printer')->color('primary')
+            ->url(fn (Certificate $record) => route('print.certificate', $record))
+            ->openUrlInNewTab();
     }
 
     public static function downloadPdfAction(): Tables\Actions\Action

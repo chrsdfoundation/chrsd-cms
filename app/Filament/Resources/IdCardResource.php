@@ -324,14 +324,9 @@ class IdCardResource extends Resource
     private static function applyGenerateShape($action)
     {
         return $action
-            ->label('Generate PDFs')->icon('heroicon-o-printer')->color('primary')
-            ->requiresConfirmation()
-            ->modalDescription('Renders both sides of the ID via DomPDF and attaches them to the card.')
-            ->action(function (IdCard $record) {
-                app(IdCardGeneratorService::class)->generate($record);
-                Notification::make()->success()->title('ID card PDFs generated')->send();
-            })
-            ->visible(fn (IdCard $r) => $r->isValid());
+            ->label('🖨️ Print / Save as PDF')->icon('heroicon-o-printer')->color('primary')
+            ->url(fn (IdCard $record) => route('print.id-card', $record))
+            ->openUrlInNewTab();
     }
 
     private static function applyDownloadFrontShape($action)
