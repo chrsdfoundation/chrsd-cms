@@ -56,6 +56,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Public Website URL
+    |--------------------------------------------------------------------------
+    |
+    | URL of the public CHRSD website for document verification QR codes.
+    | QR codes will link to this website's verify endpoint so anyone can
+    | verify documents without needing CMS access.
+    |
+    */
+
+    'website_url' => env('WEBSITE_URL', 'https://chrsd.org'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |

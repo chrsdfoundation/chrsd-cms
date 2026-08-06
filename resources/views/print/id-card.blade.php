@@ -1,60 +1,831 @@
-<x-layouts.print :title="`ID Card: {$idCard->serial_number}`">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ID Card: {{ $card->serial_number }}</title>
     <style>
-        {{ file_get_contents(resource_path('css/print/id-card.css')) }}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            padding: 24px;
+            min-height: 100vh;
+        }
+
+        @media print {
+            html, body {
+                background: #faf9f7;
+                padding: 0;
+                margin: 0;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+
+            @page {
+                size: 85.6mm 53.98mm landscape;
+                margin: 0;
+                padding: 0;
+            }
+
+            .print-button {
+                display: none !important;
+            }
+        }
+
+        /* ========== REFINED COLOR PALETTE ========== */
+        :root {
+            --navy-primary: #0d1b2a;
+            --navy-secondary: #1a237e;
+            --gold-soft: #c9a227;
+            --gold-bright: #d4af37;
+            --cream-bg: #faf9f7;
+            --text-dark: #1a1a1a;
+            --text-muted: #6b7280;
+            --text-light: #9ca3af;
+        }
+
+        /* ========== CARD SHEET CONTAINER ========== */
+        .card-sheet {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12mm;
+            width: 100%;
+            max-width: 200mm;
+            margin: 0 auto;
+            padding: 12mm;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        @media print {
+            .card-sheet {
+                gap: 0;
+                padding: 0;
+                background: var(--cream-bg);
+                box-shadow: none;
+                border-radius: 0;
+                max-width: 100%;
+            }
+        }
+
+        /* ========== CARD BASE ========== */
+        .card {
+            width: 85.6mm;
+            height: 53.98mm;
+            position: relative;
+            display: flex;
+            overflow: hidden;
+            page-break-inside: avoid;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        @media print {
+            .card {
+                box-shadow: none;
+                border-radius: 0;
+                background: var(--cream-bg);
+            }
+        }
+
+        /* ========== FRONT SIDE ========== */
+        .card-front {
+            display: flex;
+            background: white;
+        }
+
+        /* REFINED LEFT SIDEBAR - SUBTLE ACCENT ========== */
+        .sidebar {
+            width: 2.5mm;
+            height: 100%;
+            background: linear-gradient(180deg, var(--navy-primary) 0%, var(--navy-secondary) 100%);
+            border-right: 2px solid var(--gold-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .sidebar-text {
+            display: none;
+        }
+
+        /* MAIN CONTENT AREA */
+        .card-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 2.5mm 3mm;
+            position: relative;
+            background: linear-gradient(135deg, white 0%, var(--cream-bg) 100%);
+        }
+
+        /* WATERMARK SEAL */
+        .watermark {
+            position: absolute;
+            bottom: 2mm;
+            left: 2mm;
+            width: 18mm;
+            height: 18mm;
+            opacity: 0.04;
+            z-index: 0;
+        }
+
+        .watermark img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* HEADER SECTION */
+        .card-header {
+            display: flex;
+            gap: 1.6mm;
+            margin-bottom: 1.4mm;
+            align-items: flex-start;
+            z-index: 1;
+        }
+
+        .logo-block {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .logo {
+            width: 6mm;
+            height: 6mm;
+            margin-bottom: 0.3mm;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.08));
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .org-short {
+            font-size: 6.5pt;
+            font-weight: 800;
+            color: var(--navy-primary);
+            line-height: 1;
+            margin-bottom: 0.2mm;
+            letter-spacing: 0.3px;
+        }
+
+        .org-full {
+            font-size: 3.6pt;
+            color: var(--text-muted);
+            line-height: 1.2;
+            margin-bottom: 0.3mm;
+            font-weight: 500;
+        }
+
+        .card-type-label {
+            font-size: 5.5pt;
+            font-weight: 700;
+            background: rgba(201, 162, 39, 0.1);
+            color: var(--gold-soft);
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            padding: 0.3mm 0.7mm;
+            border-radius: 3px;
+            display: inline-block;
+            border: 0.5px solid rgba(201, 162, 39, 0.3);
+        }
+
+        /* REFINED PHOTO BOX ========== */
+        .photo-box {
+            width: 16mm;
+            height: 19.5mm;
+            border: 1.5px solid var(--gold-soft);
+            border-radius: 4px;
+            background: white;
+            flex-shrink: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08), inset 0 0 0 0.5px rgba(201, 162, 39, 0.2);
+            position: relative;
+        }
+
+        .photo-box::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .photo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: relative;
+            z-index: 1;
+        }
+
+        .photo-placeholder {
+            font-size: 2pt;
+            color: #e5e7eb;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* PHOTO WATERMARK */
+        .photo-box::after {
+            content: '';
+            position: absolute;
+            top: 1.5mm;
+            right: 0.5mm;
+            font-size: 1.8pt;
+            color: rgba(255, 255, 255, 0.4);
+            z-index: 3;
+            font-weight: bold;
+        }
+
+        /* DIVIDER */
+        .divider-gold {
+            height: 0.6px;
+            background: linear-gradient(90deg, transparent, var(--gold-soft), transparent);
+            margin: 0.8mm 0;
+            opacity: 0.5;
+        }
+
+        /* EMPLOYEE SECTION ========== */
+        .employee-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            z-index: 1;
+            min-width: 0;
+        }
+
+        .employee-name {
+            font-size: 11pt;
+            font-weight: 900;
+            color: var(--text-dark);
+            line-height: 1;
+            margin-bottom: 0.4mm;
+            word-break: break-word;
+            letter-spacing: -0.3px;
+        }
+
+        .employee-designation {
+            font-size: 5pt;
+            color: var(--text-muted);
+            font-style: italic;
+            line-height: 1.2;
+            margin-bottom: 0.6mm;
+            font-weight: 400;
+        }
+
+        /* DETAILS GRID */
+        .details-grid {
+            font-size: 4.6pt;
+            line-height: 1.4;
+            color: var(--text-dark);
+            flex: 1;
+        }
+
+        .detail-row {
+            display: grid;
+            grid-template-columns: 28mm 1fr;
+            gap: 0.5mm;
+            margin: 0.3mm 0;
+            align-items: center;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 4.4pt;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .detail-value {
+            font-weight: 700;
+            color: var(--text-dark);
+            font-size: 4.7pt;
+            letter-spacing: 0.05px;
+        }
+
+        /* QR CODE BOX */
+        .qr-box {
+            position: absolute;
+            bottom: 1.8mm;
+            right: 1.8mm;
+            width: 10.5mm;
+            height: 10.5mm;
+            border: 1.5px solid var(--gold-soft);
+            border-radius: 4px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            padding: 0.35mm;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        .qr-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* DISCLAIMER */
+        .disclaimer {
+            position: absolute;
+            bottom: 1mm;
+            left: 3mm;
+            right: 12mm;
+            font-size: 2.6pt;
+            line-height: 1.25;
+            color: var(--text-light);
+            text-align: left;
+            z-index: 1;
+            font-weight: 500;
+        }
+
+        /* ========== BACK SIDE - REFINED ========== */
+        .card-back {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: linear-gradient(135deg, white 0%, var(--cream-bg) 100%);
+        }
+
+        /* BACK WATERMARK */
+        .back-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 36mm;
+            height: 36mm;
+            opacity: 0.04;
+            z-index: 0;
+        }
+
+        .back-watermark img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* BACK CONTENT */
+        .back-content {
+            display: flex;
+            flex-direction: column;
+            padding: 2mm 2.4mm;
+            position: relative;
+            z-index: 1;
+            height: 100%;
+            justify-content: space-between;
+        }
+
+        /* BACK TOP SECTION */
+        .back-top-section {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8mm;
+        }
+
+        /* HEADER */
+        .back-header-main {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5mm;
+        }
+
+        .back-org-title {
+            font-size: 5.5pt;
+            font-weight: 700;
+            color: var(--navy-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            line-height: 1.2;
+        }
+
+        .back-badge {
+            display: inline-block;
+            background: rgba(201, 162, 39, 0.1);
+            color: var(--gold-soft);
+            border: 0.8px solid rgba(201, 162, 39, 0.4);
+            padding: 0.4mm 0.9mm;
+            border-radius: 10px;
+            font-size: 4.6pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            width: fit-content;
+        }
+
+        /* INSTRUCTIONS AREA - REFINED */
+        .instructions-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        .instructions-header {
+            font-size: 5.2pt;
+            font-weight: 700;
+            color: var(--navy-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 0.4mm;
+        }
+
+        .instructions-list {
+            font-size: 4pt;
+            line-height: 1.45;
+            color: var(--text-muted);
+            list-style: decimal;
+            padding-left: 2.2mm;
+            background: rgba(201, 162, 39, 0.05);
+            padding: 0.6mm 0.8mm 0.6mm 2.2mm;
+            border-radius: 3px;
+            border-left: 2px solid rgba(201, 162, 39, 0.2);
+        }
+
+        .instructions-list li {
+            margin-bottom: 0.35mm;
+            text-align: justify;
+            font-weight: 500;
+        }
+
+        .instructions-list li::marker {
+            color: var(--gold-soft);
+            font-weight: 700;
+        }
+
+        /* BOTTOM SECTION */
+        .back-bottom-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.8mm;
+            align-items: flex-end;
+        }
+
+        /* QR CODE SECURITY BOX */
+        .qr-security-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25mm;
+        }
+
+        .qr-container {
+            width: 11mm;
+            height: 11mm;
+            border: 1.5px solid var(--gold-soft);
+            border-radius: 4px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+            padding: 0.3mm;
+        }
+
+        .qr-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .qr-label {
+            font-size: 2.8pt;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            text-align: center;
+        }
+
+        /* SIGNATURE SECTION */
+        .signature-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.35mm;
+            text-align: center;
+        }
+
+        .signature-image-box {
+            height: 2.8mm;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .signature-image-box img {
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.08));
+        }
+
+        .signature-divider {
+            width: 18mm;
+            height: 0.6px;
+            background: linear-gradient(90deg, transparent, var(--gold-soft), transparent);
+            opacity: 0.7;
+        }
+
+        .signature-name {
+            font-size: 4.8pt;
+            font-weight: 800;
+            color: var(--text-dark);
+            letter-spacing: 0.15px;
+            margin-top: 0.25mm;
+        }
+
+        .signature-title {
+            font-size: 3.6pt;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        /* FOOTER CONTACT GRID - REFINED */
+        .footer-contact {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.8mm;
+            font-size: 2.7pt;
+            line-height: 1.35;
+            color: var(--text-muted);
+            border-top: 0.8px solid;
+            border-image: linear-gradient(90deg, transparent, var(--gold-soft), transparent) 1;
+            padding-top: 0.8mm;
+            padding-bottom: 0.4mm;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 0.35mm;
+        }
+
+        .contact-icon {
+            width: 2.2mm;
+            height: 2.2mm;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.8pt;
+            color: var(--gold-soft);
+            font-weight: 700;
+        }
+
+        .contact-text {
+            font-weight: 500;
+            flex: 1;
+            word-break: break-word;
+        }
+
+        /* BOTTOM ACCENT BAR */
+        .back-accent-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 0.8px;
+            background: linear-gradient(90deg, transparent, var(--gold-soft), transparent);
+            z-index: 2;
+        }
+
+        /* PRINT BUTTON */
+        .print-section {
+            display: flex;
+            justify-content: center;
+            margin-top: 16mm;
+            gap: 1rem;
+        }
+
+        .print-btn {
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.025rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+            transition: all 0.2s ease;
+            letter-spacing: 0.3px;
+        }
+
+        .print-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(14, 165, 233, 0.4);
+        }
+
+        .print-btn:active {
+            transform: translateY(0);
+        }
+
+        @media print {
+            .print-btn {
+                display: none;
+            }
+        }
+
+        @media screen {
+            .card {
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            }
+        }
     </style>
-
-    {{-- Render combined A4 sheet with both sides --}}
-    <div class="sheet">
-        {{-- Front side --}}
-        <div class="id-card">
-            <div class="id-card-content">
-                <div class="id-card-header">
-                    <img src="{{ $logoUrl }}" alt="Logo" style="width: 15mm;">
-                </div>
-
-                @if($photoUrl ?? null)
-                    <img src="{{ $photoUrl }}" alt="Photo" class="id-card-photo">
-                @endif
-
-                <div class="id-card-name">{{ $idCard->displayName() }}</div>
-
-                <div class="id-card-fields">
-                    <div><strong>ID No:</strong> {{ $idCard->serial_number }}</div>
-                    <div><strong>Blood Group:</strong> {{ $idCard->blood_group ?? 'N/A' }}</div>
-                    @if($idCard->valid_from ?? null)
-                        <div><strong>Valid from:</strong> {{ $idCard->valid_from->format('d M Y') }}</div>
-                    @endif
-                    @if($idCard->valid_until ?? null)
-                        <div><strong>Valid until:</strong> {{ $idCard->valid_until->format('d M Y') }}</div>
-                    @endif
-                </div>
-
-                <div class="id-card-footer">
-                    {{ config('app.name') }}
-                </div>
+</head>
+<body>
+    <div class="card-sheet">
+        <!-- ========== FRONT SIDE ========== -->
+        <div class="card card-front">
+            <div class="sidebar">
+                <div class="sidebar-text">CHRSD</div>
             </div>
-        </div>
 
-        {{-- Back side --}}
-        <div class="id-card">
-            <div class="id-card-content">
-                <div style="text-align: center; font-size: 6pt;">
-                    <strong>EMERGENCY CONTACT</strong>
+            <div class="card-content">
+                <div class="watermark">
+                    <img src="{{ asset('images/chrsd-seal.png') }}" alt="Watermark">
                 </div>
 
-                <div style="font-size: 6pt; line-height: 1.4;">
-                    {{-- Back content --}}
-                    <p>Contact Information & Return Instructions</p>
+                <div class="card-header">
+                    <div class="logo-block">
+                        <div class="logo">
+                            <img src="{{ asset('images/chrsd-emblem.png') }}" alt="CHRSD Logo">
+                        </div>
+                        <div class="org-short">CHRSD</div>
+                        <div class="org-full">CENTRE FOR HUMANITARIAN RESEARCH & SOCIAL DEVELOPMENT FOUNDATION</div>
+                        <div class="card-type-label">Employee Identity</div>
+                    </div>
+                    <div class="photo-box">
+                        @if($photo)
+                            <img src="{{ $photo }}" alt="Employee Photo">
+                        @else
+                            <div class="photo-placeholder">—</div>
+                        @endif
+                    </div>
                 </div>
 
-                @if($qr_svg ?? null)
-                    <div style="text-align: center;">
-                        <div style="width: 15mm; height: 15mm; margin: 2mm auto;">
-                            {!! $qr_svg !!}
+                <div class="divider-gold"></div>
+
+                <div class="employee-section">
+                    <div class="employee-name">{{ $card->displayName() }}</div>
+                    <div class="employee-designation">{{ $card->designation ?? ($employee->position?->title ?? '') }}</div>
+
+                    <div class="details-grid">
+                        <div class="detail-row">
+                            <div class="detail-label">ID No</div>
+                            <div class="detail-value">{{ $card->serial_number ?? 'N/A' }}</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Blood Group</div>
+                            <div class="detail-value">{{ $card->blood_group ?? 'O+' }}</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Nationality</div>
+                            <div class="detail-value">{{ $card->nationality ?? 'Bangladeshi' }}</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Valid From</div>
+                            <div class="detail-value">{{ $card->valid_from?->format('d M Y') ?? 'N/A' }}</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Expires</div>
+                            <div class="detail-value">{{ $card->valid_until?->format('d M Y') ?? 'N/A' }}</div>
                         </div>
                     </div>
-                @endif
+                </div>
+
+                <div class="qr-box">
+                    @if($qrUrl)
+                        <img src="{{ $qrUrl }}" alt="Verification QR Code">
+                    @endif
+                </div>
+
+                <div class="disclaimer">
+                    This card certifies that the bearer is an authorized representative of CHRSD. All concerned are requested to extend necessary cooperation.
+                </div>
             </div>
         </div>
+
+        <!-- ========== BACK SIDE ========== -->
+        <div class="card card-back">
+            <div class="back-watermark">
+                <img src="{{ asset('images/chrsd-seal.png') }}" alt="Watermark">
+            </div>
+
+            <div class="back-content">
+                <!-- TOP SECTION -->
+                <div class="back-top-section">
+                    <div class="back-header-main">
+                        <div class="back-org-title">CENTRE FOR HUMANITARIAN RESEARCH & SOCIAL DEVELOPMENT FOUNDATION</div>
+                        <div class="back-badge">TERMS OF USE</div>
+                    </div>
+
+                    <div class="instructions-area">
+                        <div class="instructions-header">Cardholder Responsibilities</div>
+                        <ol class="instructions-list">
+                            <li>This card is the property of CHRSD and must be surrendered upon request.</li>
+                            <li>Must be worn/carried at all times while on duty.</li>
+                            <li>Must be returned upon resignation, termination, or upon request.</li>
+                            <li>If found, please return to the address below.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- BOTTOM SECTION -->
+                <div class="back-bottom-section">
+                    <div class="qr-security-box">
+                        <div class="qr-container">
+                            @if($qrUrl)
+                                <img src="{{ $qrUrl }}" alt="Verification QR Code">
+                            @endif
+                        </div>
+                        <div class="qr-label">VERIFY AT CHRSD.ORG</div>
+                    </div>
+
+                    <div class="signature-section">
+                        <div class="signature-image-box">
+                            @if($signature)
+                                <img src="{{ $signature }}" alt="Signature">
+                            @endif
+                        </div>
+                        <div class="signature-divider"></div>
+                        <div class="signature-name">{{ $signatory->full_name ?? 'Authorized Signatory' }}</div>
+                        <div class="signature-title">Signatory</div>
+                    </div>
+                </div>
+
+                <!-- FOOTER CONTACT -->
+                <div class="footer-contact">
+                    <div class="contact-item">
+                        <div class="contact-icon">☎</div>
+                        <div class="contact-text">+880 2-4712</div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">✓</div>
+                        <div class="contact-text">{{ $card->serial_number ?? 'N/A' }}</div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">✉</div>
+                        <div class="contact-text">info@chrsd.org</div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">🌐</div>
+                        <div class="contact-text">www.chrsd.org</div>
+                    </div>
+                    <div class="contact-item" style="grid-column: 1 / -1;">
+                        <div class="contact-icon">📍</div>
+                        <div class="contact-text">29 Toyenbee Cir. (5F), Motijheel C/A, Dhaka-1000</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="back-accent-bar"></div>
+        </div>
     </div>
-</x-layouts.print>
+
+    <!-- PRINT BUTTON -->
+    <div class="print-section">
+        <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+    </div>
+</body>
+</html>

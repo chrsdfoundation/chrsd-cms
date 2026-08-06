@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Concerns\BelongsToOrganization;
 use App\Concerns\HasVerification;
 use App\Enums\IdCardIssuance;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -120,5 +121,11 @@ class IdCard extends Model implements HasMedia
         }
 
         return null;
+    }
+
+    /** Override byHash scope to use pdf_content_hash_front instead of verification_hash */
+    public function scopeByHash(Builder $q, string $hash): Builder
+    {
+        return $q->where('pdf_content_hash_front', $hash);
     }
 }

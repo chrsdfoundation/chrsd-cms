@@ -7,6 +7,9 @@ use App\Http\Controllers\MoneyReceiptController;
 use App\Http\Controllers\MoneyReceiptVerificationController;
 use App\Http\Controllers\OpenApiController;
 use App\Http\Controllers\PdfVerificationController;
+use App\Http\Controllers\PrintCertificateController;
+use App\Http\Controllers\PrintIdCardController;
+use App\Http\Controllers\PrintLetterController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Middleware\AllowVerificationApiCors;
 use App\Http\Middleware\ResolveSanctumToken;
@@ -67,6 +70,16 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/id-cards/{idCard}/print', function (App\Models\IdCard $idCard) {
         return view('documents.id_cards.print', compact('idCard'));
     })->name('id-cards.print');
+
+    // Print preview routes (browser-native HTML printing)
+    Route::get('/print/certificate/{certificate}', [PrintCertificateController::class, 'show'])
+        ->name('print.certificate');
+
+    Route::get('/print/letter/{letter}', [PrintLetterController::class, 'show'])
+        ->name('print.letter');
+
+    Route::get('/print/id-card/{card}', [PrintIdCardController::class, 'show'])
+        ->name('print.id-card');
 });
 
 /*
