@@ -14,6 +14,7 @@ use App\Http\Controllers\VerificationController;
 use App\Http\Middleware\AllowVerificationApiCors;
 use App\Http\Middleware\ResolveSanctumToken;
 use App\Http\Middleware\TrackApiTokenUsage;
+use App\Models\IdCard;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -67,7 +68,7 @@ Route::middleware(['web', 'auth'])->group(function () {
         ->name('money-receipts.print');
 
     // ID card print — HTML optimized for browser print-to-PDF (CR80 card format)
-    Route::get('/id-cards/{idCard}/print', function (App\Models\IdCard $idCard) {
+            Route::get('/id-cards/{idCard}/print', function (IdCard $idCard) {
         return view('documents.id_cards.print', compact('idCard'));
     })->name('id-cards.print');
 
