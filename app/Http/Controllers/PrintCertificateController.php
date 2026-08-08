@@ -20,20 +20,24 @@ class PrintCertificateController extends Controller
             'type',
         ]);
 
-        $verifyUrl = config('app.website_url', 'https://chrsd.org') . '/verify/ref/' . $certificate->serial_number;
+        // Verification URL matching what QR code encodes (hash-based)
+        $websiteBase = rtrim(config('chrsd.verify_base_url') ?: config('app.website_url', 'https://chrsd.org'), '/');
+        $verifyUrl = $websiteBase . '/verify/' . $certificate->verification_hash;
         $qrSvg = $this->qrCode->svg($certificate, 6);
 
         // Get primary signatory (Project Coordinator)
         $signatory1Name = $certificate->signedBy?->full_name ?? 'Razib Mustafiz';
         $signatory1Title = $certificate->signedBy?->position?->title ?? 'Project Coordinator';
-        // Use static signature file
-        $signatory1Image = asset('images/brand/signatures/razib-mustafiz.png');
+        // Use static signature file - verify it exists
+        $sig1Path = public_path('images/brand/signatures/razib-mustafiz.png');
+        $signatory1Image = file_exists($sig1Path) ? asset('images/brand/signatures/razib-mustafiz.png') : null;
 
         // Get secondary signatory (Executive Director)
         $signatory2Name = 'M.A. Ramim';
         $signatory2Title = 'Executive Director';
-        // Use static signature file
-        $signatory2Image = asset('images/brand/signatures/ma-ramim.png');
+        // Use static signature file - verify it exists
+        $sig2Path = public_path('images/brand/signatures/ma-ramim.png');
+        $signatory2Image = file_exists($sig2Path) ? asset('images/brand/signatures/ma-ramim.png') : null;
 
         // Get course/certificate name (from certificate's program_name field, not type)
         $courseName = $certificate->program_name ?? $certificate->course_name ?? 'M&E Fundamentals';

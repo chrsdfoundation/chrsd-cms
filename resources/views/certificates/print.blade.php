@@ -8,7 +8,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
 
     <style>
         * {
@@ -43,7 +43,7 @@
             page-break-inside: avoid;
         }
 
-        /* Watermark - texture at .055 opacity */
+        /* Watermark - subtle but visible background security feature */
         .watermark {
             position: absolute;
             top: 50%;
@@ -51,7 +51,7 @@
             transform: translate(-50%, -50%);
             width: 620px;
             height: 620px;
-            opacity: 0.055;
+            opacity: 0.25;
             z-index: 0;
             pointer-events: none;
         }
@@ -73,18 +73,19 @@
             pointer-events: none;
         }
 
-        /* Content Container - inset 46px, padding 34px 62px 26px */
+        /* Content Container - inset 46px, padding 20px 62px 14px */
         .content {
             position: absolute;
             top: 46px;
             left: 46px;
             right: 46px;
             bottom: 46px;
-            padding: 34px 62px 26px;
+            padding: 20px 62px 14px;
             z-index: 2;
             display: flex;
             flex-direction: column;
             background: transparent;
+            box-sizing: border-box;
         }
 
         /* Header - asymmetric layout */
@@ -92,37 +93,39 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
             width: 100%;
         }
 
         .qr-block {
-            width: 132px;
+            width: auto;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
         }
 
         .qr-code {
-            width: 85px;
-            height: 85px;
+            width: 160px;
+            height: 160px;
             background: white;
-            border: 1px solid #D8C79A;
-            padding: 6px;
+            border: 3px solid #1E293B;
+            padding: 0;
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 0 0 1px #D8C79A inset;
         }
 
         .qr-code svg {
-            width: 100%;
-            height: 100%;
+            width: 154px;
+            height: 154px;
         }
 
         .qr-caption {
             font-family: 'Montserrat', sans-serif;
             font-size: 8.5px;
+            font-weight: 400;
             letter-spacing: 0.14em;
             text-transform: uppercase;
             color: #64748B;
@@ -130,7 +133,8 @@
         }
 
         .logo-block {
-            width: 132px;
+            width: 160px;
+            height: 160px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -138,14 +142,14 @@
 
         .logo-block img {
             max-width: 100%;
-            max-height: 80px;
+            max-height: 160px;
             object-fit: contain;
         }
 
         /* Title Stack - centred */
         .title-stack {
             text-align: center;
-            margin-bottom: 16px;
+            margin-bottom: 8px;
         }
 
         .org-line {
@@ -212,9 +216,10 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 9px;
+            gap: 4px;
             text-align: center;
             margin: 0 -8px; /* optical compensation */
+            min-height: 120px;
         }
 
         .body-line {
@@ -239,9 +244,22 @@
             text-transform: capitalize;
             margin: 8px 0;
             padding-bottom: 8px;
-            border-bottom: 1px solid #C9A961;
-            width: 380px;
+            width: 100%;
             max-width: 100%;
+            white-space: nowrap;
+            position: relative;
+            display: inline-block;
+        }
+
+        .recipient-name::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 380px;
+            height: 1px;
+            background-color: #C9A961;
         }
 
         .program-name {
@@ -257,6 +275,7 @@
         .issue-date {
             font-family: 'Montserrat', sans-serif;
             font-size: 12px;
+            font-weight: 400;
             letter-spacing: 0.06em;
             color: #64748B;
             margin-top: 4px;
@@ -268,7 +287,7 @@
             grid-template-columns: 1fr 150px 1fr;
             align-items: flex-end;
             gap: 20px;
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         .signature-block {
@@ -323,15 +342,33 @@
             filter: drop-shadow(0 6px 12px rgba(107, 78, 22, 0.28));
         }
 
-        /* Footer - 1fr auto 1fr, margin-top: 20px */
+        /* Footer - centered ornament with gold hairline */
         .footer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 10px;
+            gap: 6px;
+        }
+
+        .footer::before {
+            content: '';
+            width: 100%;
+            height: 1px;
+            background-color: #BF953F;
+        }
+
+        .footer-content {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            width: 100%;
             gap: 20px;
-            margin-top: 20px;
-            padding-top: 8px;
-            border-top: 1px solid #C9A961;
+        }
+
+        .cert-number-link {
+            text-decoration: none;
+            color: inherit;
         }
 
         .cert-number {
@@ -347,19 +384,20 @@
             flex: 0 0 auto;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
-            width: 260px;
         }
 
         .footer-rule {
-            flex: 1;
+            width: 60px;
             height: 1px;
-            background: #C9A961;
+            background: #BF953F;
         }
 
         .footer-info {
             font-family: 'Montserrat', sans-serif;
             font-size: 10.5px;
+            font-weight: 500;
             letter-spacing: 0.04em;
             color: #64748B;
             text-align: right;
@@ -494,7 +532,11 @@
             <!-- Body -->
             <div class="body">
                 <div class="body-line">This is to certify that</div>
-                <div class="recipient-name">{{ $recipientName }}</div>
+                @php
+                    $len = mb_strlen($recipientName);
+                    $nameSize = $len <= 26 ? 58 : ($len <= 36 ? 48 : ($len <= 48 ? 40 : 34));
+                @endphp
+                <div class="recipient-name" style="font-size: {{ $nameSize }}px;">{{ $recipientName }}</div>
                 <div class="body-line small">has successfully completed</div>
                 <div class="program-name">{{ $courseName }}</div>
                 <div class="issue-date">Issued on {{ $issuedDate }}</div>
@@ -525,14 +567,18 @@
 
             <!-- Footer -->
             <div class="footer">
-                <div class="cert-number">Certificate No. {{ $certificateNo }}</div>
-                <div class="footer-ornament">
-                    <div class="footer-rule"></div>
-                    <div class="diamond"></div>
-                    <div class="footer-rule"></div>
-                </div>
-                <div class="footer-info">
-                    <a href="https://{{ $websiteUrl }}">{{ $websiteUrl }}</a> | <a href="mailto:{{ $contactEmail }}">{{ $contactEmail }}</a>
+                <div class="footer-content">
+                    <a href="{{ $verifyUrl }}" class="cert-number-link">
+                        <div class="cert-number">Certificate No. {{ $certificateNo }}</div>
+                    </a>
+                    <div class="footer-ornament">
+                        <div class="footer-rule"></div>
+                        <div class="diamond"></div>
+                        <div class="footer-rule"></div>
+                    </div>
+                    <div class="footer-info">
+                        <a href="{{ $verifyUrl }}">www.chrsd.org/verify</a> | <a href="mailto:{{ $contactEmail }}">{{ $contactEmail }}</a>
+                    </div>
                 </div>
             </div>
         </div>
