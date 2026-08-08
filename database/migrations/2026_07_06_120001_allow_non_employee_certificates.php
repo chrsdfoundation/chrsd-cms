@@ -20,16 +20,14 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (! Schema::hasColumn('certificates', 'recipient_name')) {
+        // Add recipient_name column for non-employee certificates
+        if (!Schema::hasColumn('certificates', 'recipient_name')) {
             Schema::table('certificates', function (Blueprint $table) {
-                $table->string('recipient_name', 160)->nullable()->after('employee_id');
+                $table->string('recipient_name', 160)->nullable();
             });
         }
 
-        // The FK relaxation ran via a one-shot SQLite table-rebuild on the
-        // author's machine and is preserved in fresh installs via the schema
-        // dump. See git log for the historical rebuild if forensic detail is
-        // needed. Nothing more to do here on either driver.
+        // Note: employee_id is now nullable from the create migration (2026_07_03_100005)
     }
 
     public function down(): void

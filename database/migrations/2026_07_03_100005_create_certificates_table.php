@@ -11,7 +11,7 @@ return new class extends Migration
     {
         Schema::create('certificates', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('employee_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('employee_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('certificate_type_id')->constrained()->restrictOnDelete();
             $table->foreignId('issued_by_id')->nullable()
                 ->constrained('employees')->nullOnDelete();
