@@ -64,14 +64,14 @@ class CertificateRenderer
         $fullPath = "certificates/brand/{$path}";
 
         try {
-            if (!Storage::exists($fullPath)) {
+            if (! Storage::exists($fullPath)) {
                 return $this->placeholder($path);
             }
 
             $content = Storage::get($fullPath);
             $mime = str_ends_with($path, '.svg') ? 'image/svg+xml' : 'image/png';
 
-            return "data:{$mime};base64,".base64_encode($content);
+            return "data:{$mime};base64," . base64_encode($content);
         } catch (\Exception $e) {
             return $this->placeholder($path);
         }
@@ -90,6 +90,6 @@ class CertificateRenderer
             default => '<svg viewBox="0 0 100 100"><rect fill="#eee" width="100" height="100"/></svg>',
         };
 
-        return 'data:image/svg+xml;base64,'.base64_encode($svg);
+        return 'data:image/svg+xml;base64,' . base64_encode($svg);
     }
 }

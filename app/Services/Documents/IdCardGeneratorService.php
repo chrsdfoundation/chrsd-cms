@@ -5,9 +5,6 @@ namespace App\Services\Documents;
 use App\Enums\IdCardIssuance;
 use App\Models\IdCard;
 use App\Services\Verification\QrCodeService;
-use Illuminate\Support\Facades\DB;
-use App\Services\Documents\HtmlSignatureService;
-use App\Services\Documents\TemplateRenderer;
 
 class IdCardGeneratorService
 {

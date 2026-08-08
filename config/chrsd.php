@@ -35,5 +35,4 @@ return [
      */
     'verify_base_url' => env('VERIFY_BASE_URL'),
 
-
 ];

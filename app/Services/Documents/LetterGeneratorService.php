@@ -2,14 +2,10 @@
 
 namespace App\Services\Documents;
 
-use App\Enums\OfficialLetterStatus;
 use App\Models\OfficialLetter;
 use App\Services\Verification\QrCodeService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Log;
-use App\Services\Documents\HtmlSignatureService;
-use App\Services\Documents\TemplateRenderer;
 
 class LetterGeneratorService
 {

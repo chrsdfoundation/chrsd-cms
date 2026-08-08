@@ -23,7 +23,7 @@ class DompdfPdfService
      */
     public function render(string $html, array $opts = []): string
     {
-        $options = new Options();
+        $options = new Options;
         $options->set('isRemoteEnabled', false);
         $options->set('isHtml5ParserEnabled', true);
         $options->set('isFontSubsettingEnabled', true);
@@ -38,7 +38,7 @@ class DompdfPdfService
         $orientation = ($opts['orientation'] ?? 'portrait') === 'landscape' ? 'L' : 'P';
 
         // Handle custom page sizes (CR80 ID cards, etc.)
-        if ( !empty($opts['pageSize'])) {
+        if (! empty($opts['pageSize'])) {
             [$widthMm, $heightMm] = $this->parseSizeMm($opts['pageSize']);
             $widthPt = $widthMm * 2.834645669;
             $heightPt = $heightMm * 2.834645669;

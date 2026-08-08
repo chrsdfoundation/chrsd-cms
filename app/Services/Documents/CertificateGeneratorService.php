@@ -6,9 +6,6 @@ use App\Enums\CertificateIssuance;
 use App\Models\Certificate;
 use App\Notifications\CertificateDelivered;
 use App\Services\Verification\QrCodeService;
-use Illuminate\Support\Facades\DB;
-use App\Services\Documents\HtmlSignatureService;
-use App\Services\Documents\TemplateRenderer;
 
 class CertificateGeneratorService
 {

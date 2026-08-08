@@ -4,8 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\Certificate;
 use App\Models\CertificateType;
-use App\Models\Employee;
 use App\Models\Department;
+use App\Models\Employee;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -161,7 +161,7 @@ class CertificateGeneratorTest extends TestCase
     /** @test */
     public function certificate_verification_returns_404_for_unknown_hash()
     {
-        $unknownHash = 'a'.str_repeat('0', 63);
+        $unknownHash = 'a' . str_repeat('0', 63);
 
         $response = $this->get(route('certificates.verify', $unknownHash));
 
@@ -241,8 +241,8 @@ class CertificateGeneratorTest extends TestCase
             '--name' => 'Test User',
             '--program' => 'Test Program',
         ])
-        ->assertExitCode(0)
-        ->expectsOutput('Certificate issued successfully');
+            ->assertExitCode(0)
+            ->expectsOutput('Certificate issued successfully');
 
         $cert = Certificate::where('recipient_name', 'Test User')->first();
         $this->assertNotNull($cert);

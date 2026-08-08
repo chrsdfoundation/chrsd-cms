@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Certificate;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class CertificateIssueCommand extends Command
@@ -16,10 +17,11 @@ class CertificateIssueCommand extends Command
         $name = $this->option('name');
         $program = $this->option('program');
         $orgId = $this->option('org') ?? 1;
-        $issuedOn = $this->option('issued-on') ? \Carbon\Carbon::parse($this->option('issued-on')) : now();
+        $issuedOn = $this->option('issued-on') ? Carbon::parse($this->option('issued-on')) : now();
 
-        if (!$name || !$program) {
+        if (! $name || ! $program) {
             $this->error('--name and --program are required');
+
             return self::FAILURE;
         }
 
@@ -37,13 +39,14 @@ class CertificateIssueCommand extends Command
                 'signatory_2_title' => 'Executive Director',
             ]);
 
-            $this->info("Certificate issued successfully");
+            $this->info('Certificate issued successfully');
             $this->info("Certificate No: {$cert->certificate_no}");
             $this->info("Verify URL: {$cert->verify_url}");
 
             return self::SUCCESS;
         } catch (\Exception $e) {
             $this->error("Failed to issue certificate: {$e->getMessage()}");
+
             return self::FAILURE;
         }
     }

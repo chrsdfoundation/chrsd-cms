@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\CertificateGeneratorController;
+use App\Http\Controllers\CertificateVerificationController;
 use App\Http\Controllers\KioskVerifyController;
 use App\Http\Controllers\LetterheadController;
 use App\Http\Controllers\MoneyReceiptController;
@@ -66,7 +68,7 @@ Route::middleware(['web'])->group(function () {
  */
 Route::middleware(['web'])->group(function () {
     // Preview HTML
-    Route::get('/certificates/{certificate}/preview', [\App\Http\Controllers\CertificateGeneratorController::class, 'preview'])
+    Route::get('/certificates/{certificate}/preview', [CertificateGeneratorController::class, 'preview'])
         ->name('certificates.preview');
 });
 
@@ -74,7 +76,7 @@ Route::middleware(['web'])->group(function () {
  * Certificate verification — anonymous only. IP-based throttle keeps hash enumeration cheap.
  */
 Route::middleware('throttle:verify')->group(function () {
-    Route::get('/certificates/verify/{hash}', [\App\Http\Controllers\CertificateVerificationController::class, 'verify'])
+    Route::get('/certificates/verify/{hash}', [CertificateVerificationController::class, 'verify'])
         ->where('hash', '[a-f0-9]{64}')
         ->name('certificates.verify');
 });

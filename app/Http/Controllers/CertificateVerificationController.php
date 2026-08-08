@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Certificate;
-use Illuminate\Http\Request;
 
 class CertificateVerificationController extends Controller
 {
@@ -14,7 +13,7 @@ class CertificateVerificationController extends Controller
     {
         $certificate = Certificate::where('verification_hash', $hash)->first();
 
-        if (!$certificate) {
+        if (! $certificate) {
             return response()->view('certificates.verify-not-found', [], 404);
         }
 
