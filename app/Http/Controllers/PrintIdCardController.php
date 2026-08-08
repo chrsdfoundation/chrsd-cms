@@ -3,17 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\IdCard;
-<<<<<<< HEAD
 use App\Services\QrCodeService;
 use Illuminate\View\View;
-=======
-use App\Services\Documents\IdCardGeneratorService;
->>>>>>> feat/migrate-pdf-to-mpdf
 
 class PrintIdCardController extends Controller
 {
     public function __construct(
-<<<<<<< HEAD
         protected QrCodeService $qrCode,
     ) {}
 
@@ -48,21 +43,11 @@ class PrintIdCardController extends Controller
 
         // Compute and store HTML hash for verification (comparing serial number lookup)
         $htmlHash = hash('sha256', serialize($card->verificationPayload()));
-=======
-        protected IdCardGeneratorService $generator,
-    ) {}
 
-    public function show(IdCard $card)
-    {
-        $html = $this->generator->renderCombined($card);
-        $htmlHash = $this->generator->computeHtmlHash($html);
-
->>>>>>> feat/migrate-pdf-to-mpdf
         if ($card->pdf_content_hash_front !== $htmlHash) {
             $card->update(['pdf_content_hash_front' => $htmlHash]);
         }
 
-<<<<<<< HEAD
         return view('print.id-card', [
             'card' => $card,
             'employee' => $card->employee,
@@ -73,11 +58,5 @@ class PrintIdCardController extends Controller
             'verifyUrl' => $verifyUrl,
             'orgName' => config('app.name', 'CHRSD'),
         ]);
-=======
-        return response($html)
-            ->header('Content-Type', 'text/html; charset=UTF-8')
-            ->header('Content-Disposition', 'inline')
-            ->header('X-Content-Type-Options', 'nosniff');
->>>>>>> feat/migrate-pdf-to-mpdf
     }
 }

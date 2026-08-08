@@ -6,7 +6,6 @@ use App\Enums\OfficialLetterStatus;
 use App\Enums\VerificationStatus;
 use App\Filament\Resources\OfficialLetterResource;
 use App\Models\OfficialLetter;
-use App\Services\Documents\LetterGeneratorService;
 use App\Services\Verification\QrCodeService;
 use Filament\Actions;
 use Filament\Forms;
@@ -21,41 +20,21 @@ class ViewOfficialLetter extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\Action::make('generate_pdf')
-                ->label('Generate & Release')->icon('heroicon-o-paper-airplane')->color('primary')
+            Actions\EditAction::make(),
+
+            Actions\Action::make('print_pdf')
+                ->label('🖨️ Print / Save as PDF')->icon('heroicon-o-printer')->color('primary')
+                ->url(fn (OfficialLetter $r) => route('print.letter', $r))
+                ->openUrlInNewTab(),
+
+            Actions\Action::make('file_letter')
+                ->label('File')->icon('heroicon-o-archive-box')->color('gray')
                 ->requiresConfirmation()
                 ->action(function () {
-                    /** @var OfficialLetter $r */
-                    $r = $this->getRecord();
-                    app(LetterGeneratorService::class)->generate($r);
-                    Notification::make()->success()->title('Letter generated and released')->send();
+                    $this->getRecord()->forceFill(['letter_status' => OfficialLetterStatus::Filed])->save();
+                    Notification::make()->success()->title('Letter filed')->send();
                 })
-                ->visible(fn () => $this->getRecord()->isValid()
-                    && in_array($this->getRecord()->letter_status, [OfficialLetterStatus::Draft, OfficialLetterStatus::ForReview, OfficialLetterStatus::Approved])
-                ),
-
-            Actions\Action::make('regenerate_pdf')
-                ->label('Regenerate PDF')->icon('heroicon-o-arrow-path')->color('warning')
-                ->requiresConfirmation()
-                ->modalHeading('Regenerate letter PDF?')
-                ->modalDescription('This replaces the existing PDF with a fresh render based on the current record and updates the verification hash.')
-                ->modalSubmitActionLabel('Regenerate')
-                ->action(function () {
-                    /** @var OfficialLetter $r */
-                    $r = $this->getRecord();
-                    app(LetterGeneratorService::class)->generate($r);
-                    Notification::make()->success()->title('PDF regenerated')
-                        ->body('The old PDF has been replaced.')->send();
-                })
-                ->visible(fn () => $this->getRecord()->isValid()
-                    && $this->getRecord()->letter_status === OfficialLetterStatus::Released
-                ),
-
-            Actions\Action::make('download_pdf')
-                ->label('Download')->icon('heroicon-o-arrow-down-tray')->color('gray')
-                ->url(fn () => $this->getRecord()->getFirstMediaUrl('rendered'))
-                ->openUrlInNewTab()
-                ->visible(fn () => $this->getRecord()->hasMedia('rendered')),
+                ->visible(fn () => $this->getRecord()->letter_status === OfficialLetterStatus::Released),
 
             Actions\Action::make('qr_preview')
                 ->label('QR')->icon('heroicon-o-qr-code')->color('info')
@@ -79,8 +58,6 @@ class ViewOfficialLetter extends ViewRecord
                     Notification::make()->danger()->title('Letter revoked')->send();
                 })
                 ->visible(fn () => $this->getRecord()->status === VerificationStatus::Valid),
-
-            Actions\EditAction::make(),
         ];
     }
 }

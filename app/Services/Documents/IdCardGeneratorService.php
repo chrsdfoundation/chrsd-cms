@@ -6,6 +6,8 @@ use App\Enums\IdCardIssuance;
 use App\Models\IdCard;
 use App\Services\Verification\QrCodeService;
 use Illuminate\Support\Facades\DB;
+use App\Services\Documents\HtmlSignatureService;
+use App\Services\Documents\TemplateRenderer;
 
 class IdCardGeneratorService
 {
@@ -13,11 +15,6 @@ class IdCardGeneratorService
         protected QrCodeService $qr,
         protected HtmlSignatureService $signer,
         protected TemplateRenderer $templates,
-<<<<<<< HEAD
-        protected DompdfPdfService $pdf,
-=======
-        protected PrintHtmlService $print,
->>>>>>> feat/migrate-pdf-to-mpdf
     ) {}
 
     /**
@@ -51,15 +48,6 @@ class IdCardGeneratorService
     {
         $card->loadMissing(['employee.department', 'employee.position', 'documentTemplate']);
 
-<<<<<<< HEAD
-            $frontBytes = $this->renderCardPdf($frontHtml);
-            $backBytes = $this->renderCardPdf(view('documents.id_cards.default-back', $sharedViewData)->render());
-
-            // NOTE: Combined PDF generation is disabled due to mPDF's limitations with
-            // complex absolute positioning layouts. mPDF renders the combined A4 landscape
-            // sheet as 40+ pages instead of 1. Users receive front/back separately instead.
-            // This is acceptable for digital workflows; print shops can combine if needed.
-=======
         $qrSvg = $this->qr->svg($card, 4);
         $verifyUrl = $this->qr->verificationUrl($card);
 
@@ -73,7 +61,6 @@ class IdCardGeneratorService
             'logoUrl' => asset('images/brand/chrsd-full-logo.png'),
             'roundLogoUrl' => asset('images/brand/chrsd-round-logo.png'),
         ];
->>>>>>> feat/migrate-pdf-to-mpdf
 
         if ($card->document_template_id) {
             return $this->templates->render($card->documentTemplate, $this->buildContext($card));
@@ -122,22 +109,6 @@ class IdCardGeneratorService
         $mime = mime_content_type($path) ?: 'image/png';
 
         return 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($path));
-    }
-
-    /**
-     * Render PDF using dompdf (pure PHP, works on shared hosting).
-     * dompdf handles CSS much better than mPDF and respects page sizes.
-     *
-     * Two page sizes: CR80 landscape (85.6×54mm) for the individual card
-     * faces, A4 landscape for the combined print-shop sheet.
-     */
-    private function renderCardPdf(string $html, bool $cr80 = true): string
-    {
-        return $this->pdf->render($html, [
-            'pageSize' => $cr80
-                ? ['width' => '85.6mm', 'height' => '54mm']
-                : ['width' => '297mm', 'height' => '210mm'],
-        ]);
     }
 
     /** Standard placeholder context for an ID card. */

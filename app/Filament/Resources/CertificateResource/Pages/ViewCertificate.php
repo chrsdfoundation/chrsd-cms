@@ -5,7 +5,6 @@ namespace App\Filament\Resources\CertificateResource\Pages;
 use App\Enums\VerificationStatus;
 use App\Filament\Resources\CertificateResource;
 use App\Models\Certificate;
-use App\Services\Documents\CertificateGeneratorService;
 use App\Services\Verification\QrCodeService;
 use Filament\Actions;
 use Filament\Forms;
@@ -20,22 +19,12 @@ class ViewCertificate extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\Action::make('generate_pdf')
-                ->label('Generate PDF')->icon('heroicon-o-document-arrow-down')->color('primary')
-                ->requiresConfirmation()
-                ->action(function () {
-                    /** @var Certificate $r */
-                    $r = $this->getRecord();
-                    app(CertificateGeneratorService::class)->generate($r);
-                    Notification::make()->success()->title('Certificate PDF generated')->send();
-                })
-                ->visible(fn () => $this->getRecord()->isValid()),
+            Actions\EditAction::make(),
 
-            Actions\Action::make('download_pdf')
-                ->label('Download')->icon('heroicon-o-arrow-down-tray')->color('gray')
-                ->url(fn () => $this->getRecord()->getFirstMediaUrl('rendered'))
-                ->openUrlInNewTab()
-                ->visible(fn () => $this->getRecord()->hasMedia('rendered')),
+            Actions\Action::make('print_pdf')
+                ->label('🖨️ Print / Save as PDF')->icon('heroicon-o-printer')->color('primary')
+                ->url(fn (Certificate $r) => route('print.certificate', $r))
+                ->openUrlInNewTab(),
 
             Actions\Action::make('qr_preview')
                 ->label('QR')->icon('heroicon-o-qr-code')->color('info')
@@ -59,8 +48,6 @@ class ViewCertificate extends ViewRecord
                     Notification::make()->danger()->title('Certificate revoked')->send();
                 })
                 ->visible(fn () => $this->getRecord()->status === VerificationStatus::Valid),
-
-            Actions\EditAction::make(),
         ];
     }
 }

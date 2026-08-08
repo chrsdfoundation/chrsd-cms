@@ -8,6 +8,8 @@ use App\Services\Verification\QrCodeService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Log;
+use App\Services\Documents\HtmlSignatureService;
+use App\Services\Documents\TemplateRenderer;
 
 class LetterGeneratorService
 {
@@ -15,11 +17,6 @@ class LetterGeneratorService
         protected QrCodeService $qr,
         protected HtmlSignatureService $signer,
         protected TemplateRenderer $templates,
-<<<<<<< HEAD
-        protected DompdfPdfService $pdf,
-=======
-        protected PrintHtmlService $print,
->>>>>>> feat/migrate-pdf-to-mpdf
     ) {}
 
     /**

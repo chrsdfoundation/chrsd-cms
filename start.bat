@@ -1,91 +1,127 @@
 @echo off
 setlocal enabledelayedexpansion
-title CHRSD CMS - Dev Runner
 
-REM =====================================================================
-REM  CHRSD Management System — start.bat
-REM  Boots the Filament panel, queue worker, and Vite asset pipeline.
-REM  C:\php\php.ini has gd/curl/pdo_mysql/pdo_sqlite/sqlite3 disabled.
-REM  We enable them two ways:
-REM   * -d extension=... on this parent process (so artisan boots cleanly)
-REM   * PHP_INI_SCAN_DIR points at .claude\php-conf.d so worker php.exe
-REM     children spawned by `artisan serve` also load them.
-REM =====================================================================
-
-set "PROJECT=%~dp0"
-cd /d "%PROJECT%"
-
-set "PHPFLAGS=-d extension=gd -d extension=curl -d extension=pdo_mysql -d extension=pdo_sqlite -d extension=sqlite3 -d memory_limit=512M -d max_execution_time=300"
-set "PHP_INI_SCAN_DIR=%PROJECT%.claude\php-conf.d"
+color 0A
+title CHRSD Development Servers
 
 echo.
-echo ================================================================
-echo   CHRSD CMS — Dev Environment
-echo   Project: %PROJECT%
-echo ================================================================
+echo ============================================================================
+echo  CHRSD Development Server Launcher
+echo ============================================================================
+echo.
+echo This script will start both CMS and Website servers
 echo.
 
-REM ---- 0. Pre-flight ---------------------------------------------------
-where php >nul 2>&1 || (echo [FATAL] php not found in PATH & pause & exit /b 1)
-where composer >nul 2>&1 || (echo [FATAL] composer not found in PATH & pause & exit /b 1)
-where node >nul 2>&1 || (echo [WARN ] node not found — Vite/Puppeteer will not work)
-
-if not exist ".env" (echo [FATAL] .env missing & pause & exit /b 1)
-if not exist "vendor\autoload.php" (
-    echo [INFO ] vendor missing — running composer install ...
-    php %PHPFLAGS% C:\php\composer install --no-interaction || (echo [FATAL] composer install failed & pause & exit /b 1)
+REM Check PHP
+echo [1/5] Checking PHP installation...
+php --version >nul 2>&1
+if errorlevel 1 (
+    echo [ERROR] PHP not found in PATH
+    echo.
+    echo Please install PHP and add it to your system PATH
+    echo.
+    pause
+    exit /b 1
 )
-if not exist "node_modules" (
-    echo [INFO ] node_modules missing — running npm install ...
-    call npm install || (echo [WARN ] npm install failed, continuing without asset pipeline)
+echo [OK] PHP is installed
+echo.
+
+REM Check Composer
+echo [2/5] Checking Composer installation...
+where composer >nul 2>&1
+if errorlevel 1 (
+    echo [ERROR] Composer not found in PATH
+    echo.
+    echo Please install Composer and add it to your system PATH
+    echo.
+    pause
+    exit /b 1
+)
+echo [OK] Composer is installed
+echo.
+
+REM Setup CMS
+echo [3/5] Setting up CMS...
+cd /d C:\Projects\CMS
+if errorlevel 1 (
+    echo [ERROR] Failed to change to CMS directory
+    pause
+    exit /b 1
 )
 
-REM ---- 1. DB warm-up ---------------------------------------------------
-echo.
-echo [1/4] Warming up database ...
-findstr /B /C:"DB_CONNECTION=sqlite" .env >nul && (
-    if not exist "database\database.sqlite" (
-        echo   creating empty sqlite file ...
-        php -r "touch('database/database.sqlite');"
+if not exist vendor (
+    echo Installing CMS dependencies... (this may take a moment)
+    php -d extension=gd -d extension=curl -d extension=pdo_mysql -d extension=sqlite3 composer install --no-interaction --prefer-dist --no-progress --no-security-blocking
+    if errorlevel 1 (
+        echo [WARNING] Composer install had issues, continuing anyway...
     )
 )
-php %PHPFLAGS% artisan migrate --graceful --force
 
-REM Ensure the public/storage → storage/app/public symlink exists so Filament
-REM can serve media (Spatie MediaLibrary drops PDFs into storage/app/public).
-if not exist "public\storage" (
-    echo   creating storage symlink ...
-    php %PHPFLAGS% artisan storage:link
+php -d extension=gd -d extension=curl -d extension=pdo_mysql -d extension=sqlite3 artisan config:clear >nul 2>&1
+php -d extension=gd -d extension=curl -d extension=pdo_mysql -d extension=sqlite3 artisan route:clear >nul 2>&1
+php -d extension=gd -d extension=curl -d extension=pdo_mysql -d extension=sqlite3 artisan view:clear >nul 2>&1
+echo [OK] CMS ready
+echo.
+
+REM Setup Website
+echo [4/5] Checking Website setup...
+if exist C:\Projects\Website\composer.json (
+    echo Setting up Website...
+    cd /d C:\Projects\Website
+
+    if not exist vendor (
+        echo Installing Website dependencies... (this may take a moment)
+        php -d extension=gd -d extension=curl -d extension=pdo_mysql -d extension=sqlite3 composer install --no-interaction --prefer-dist --no-progress --no-security-blocking
+        if errorlevel 1 (
+            echo [WARNING] Website Composer install had issues, continuing anyway...
+        )
+    )
+
+    php -d extension=gd -d extension=curl -d extension=pdo_mysql -d extension=sqlite3 artisan config:clear >nul 2>&1
+    php -d extension=gd -d extension=curl -d extension=pdo_mysql -d extension=sqlite3 artisan route:clear >nul 2>&1
+    php -d extension=gd -d extension=curl -d extension=pdo_mysql -d extension=sqlite3 artisan view:clear >nul 2>&1
+    echo [OK] Website ready
+) else (
+    echo [INFO] Website not found at C:\Projects\Website (skipping)
+)
+echo.
+
+REM Start servers
+echo [5/5] Starting servers...
+echo.
+echo ============================================================================
+echo  LAUNCHING SERVERS
+echo ============================================================================
+echo.
+
+REM Start CMS
+echo Starting CMS on port 8000...
+start "CMS-8000" cmd /k "title CMS Server (Port 8000) && cd /d C:\Projects\CMS && php -d extension=gd -d extension=curl -d extension=pdo_mysql -d extension=sqlite3 artisan serve --host=127.0.0.1 --port=8000"
+
+REM Wait for CMS to start
+timeout /t 3 /nobreak
+
+REM Start Website if it exists
+if exist C:\Projects\Website\composer.json (
+    echo Starting Website on port 8001...
+    start "Website-8001" cmd /k "title Website Server (Port 8001) && cd /d C:\Projects\Website && php -d extension=gd -d extension=curl -d extension=pdo_mysql -d extension=sqlite3 artisan serve --host=127.0.0.1 --port=8001"
 )
 
-REM ---- 2. Seed roles, permissions, lookups, admin user -----------------
 echo.
-echo [2/4] Seeding roles, lookups, and admin user (idempotent) ...
-php %PHPFLAGS% artisan db:seed --force
-
-REM ---- 3. Optimize --------------------------------------------------
+echo ============================================================================
+echo  SUCCESS - SERVERS ARE STARTING
+echo ============================================================================
 echo.
-echo [3/4] Clearing stale caches ...
-php %PHPFLAGS% artisan optimize:clear >nul
-
-REM ---- 4. Launch three parallel workers -------------------------------
+echo URLs:
+echo   CMS:     http://127.0.0.1:8000/admin
+echo   Website: http://127.0.0.1:8001/
 echo.
-echo [4/4] Launching workers (three windows will open) ...
+echo Two new command windows should open for the servers.
+echo The servers will keep running in those windows.
 echo.
-echo   -- Admin panel:  http://127.0.0.1:8000/admin      (admin@chrsd.org / password)
-echo   -- Employee portal: http://127.0.0.1:8000/portal (employee@chrsd.org / password)
-echo   -- Public verify:   http://127.0.0.1:8000/verify/{64-hex-hash}
+echo To stop the servers: Close each server window or press Ctrl+C
+echo.
+echo You can close this launcher window now.
 echo.
 
-start "CHRSD :: HTTP" cmd /k "cd /d %PROJECT% & php %PHPFLAGS% artisan serve --host=127.0.0.1 --port=8000"
-start "CHRSD :: Queue" cmd /k "cd /d %PROJECT% & php %PHPFLAGS% artisan queue:listen --tries=1 --timeout=120"
-if exist "node_modules" start "CHRSD :: Vite" cmd /k "cd /d %PROJECT% & npm run dev"
-
-timeout /t 4 >nul
-start "" "http://127.0.0.1:8000/admin"
-
-echo.
-echo Dev environment launched. Close the three worker windows to stop.
-echo Press any key to close this launcher window.
-pause >nul
-endlocal
+pause

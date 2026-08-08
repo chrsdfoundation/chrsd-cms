@@ -12,6 +12,7 @@ use App\Models\DocumentTemplate;
 use App\Models\OfficialLetter;
 use App\Services\Documents\LetterGeneratorService;
 use App\Services\Verification\QrCodeService;
+use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -289,9 +290,7 @@ class OfficialLetterResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                self::generatePdfAction(),
-                self::regeneratePdfAction(),
-                self::downloadPdfAction(),
+                self::generateAction(),
                 self::fileAction(),
                 self::qrPreviewAction(),
                 self::revokeAction(),
@@ -330,33 +329,22 @@ class OfficialLetterResource extends Resource
 
     // ---- Step 4 actions ------------------------------------------------
 
-    public static function generatePdfAction(): Tables\Actions\Action
+    public static function generateAction(): Tables\Actions\Action
     {
-        return Tables\Actions\Action::make('generate_pdf')
+        return self::applyGenerateShape(Tables\Actions\Action::make('generate'));
+    }
+
+    public static function generateHeaderAction(): Action
+    {
+        return self::applyGenerateShape(Action::make('generate'));
+    }
+
+    private static function applyGenerateShape($action)
+    {
+        return $action
             ->label('🖨️ Print / Save as PDF')->icon('heroicon-o-printer')->color('primary')
             ->url(fn (OfficialLetter $record) => route('print.letter', $record))
             ->openUrlInNewTab();
-    }
-
-    /**
-     * Deprecated: On-the-fly HTML rendering means no regeneration step needed.
-     * Print preview is always fresh from current data.
-     */
-    public static function regeneratePdfAction(): Tables\Actions\Action
-    {
-        return Tables\Actions\Action::make('regenerate_pdf')
-            ->label('🖨️ Print / Save as PDF')->icon('heroicon-o-printer')->color('info')
-            ->url(fn (OfficialLetter $record) => route('print.letter', $record))
-            ->openUrlInNewTab();
-    }
-
-    public static function downloadPdfAction(): Tables\Actions\Action
-    {
-        return Tables\Actions\Action::make('download_pdf')
-            ->label('Download')->icon('heroicon-o-arrow-down-tray')->color('gray')
-            ->url(fn (OfficialLetter $record) => $record->getFirstMediaUrl('rendered'))
-            ->openUrlInNewTab()
-            ->visible(fn (OfficialLetter $record) => $record->hasMedia('rendered'));
     }
 
     public static function fileAction(): Tables\Actions\Action

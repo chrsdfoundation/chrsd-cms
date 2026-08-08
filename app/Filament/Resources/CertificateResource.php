@@ -12,6 +12,7 @@ use App\Models\CertificateType;
 use App\Models\DocumentTemplate;
 use App\Services\Documents\CertificateGeneratorService;
 use App\Services\Verification\QrCodeService;
+use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -284,8 +285,7 @@ class CertificateResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                self::generatePdfAction(),
-                self::downloadPdfAction(),
+                self::generateAction(),
                 self::markIssuedAction(),
                 self::markDeliveredAction(),
                 self::qrPreviewAction(),
@@ -325,21 +325,22 @@ class CertificateResource extends Resource
 
     // ---- Step 4 actions ------------------------------------------------
 
-    public static function generatePdfAction(): Tables\Actions\Action
+    public static function generateAction(): Tables\Actions\Action
     {
-        return Tables\Actions\Action::make('print_certificate')
+        return self::applyGenerateShape(Tables\Actions\Action::make('generate'));
+    }
+
+    public static function generateHeaderAction(): Action
+    {
+        return self::applyGenerateShape(Action::make('generate'));
+    }
+
+    private static function applyGenerateShape($action)
+    {
+        return $action
             ->label('🖨️ Print / Save as PDF')->icon('heroicon-o-printer')->color('primary')
             ->url(fn (Certificate $record) => route('print.certificate', $record))
             ->openUrlInNewTab();
-    }
-
-    public static function downloadPdfAction(): Tables\Actions\Action
-    {
-        return Tables\Actions\Action::make('download_pdf')
-            ->label('Download')->icon('heroicon-o-arrow-down-tray')->color('gray')
-            ->url(fn (Certificate $record) => $record->getFirstMediaUrl('rendered'))
-            ->openUrlInNewTab()
-            ->visible(fn (Certificate $record) => $record->hasMedia('rendered'));
     }
 
     public static function markIssuedAction(): Tables\Actions\Action
