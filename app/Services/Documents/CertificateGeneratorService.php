@@ -95,6 +95,7 @@ class CertificateGeneratorService
                 ?: (optional(optional($signedBy)->position)->title ?? ''));
 
         return [
+            'certificate' => $certificate,
             'name' => $certificate->recipient_name
                                      ?: (optional($employee)->full_name ?? ''),
             'designation' => $designation,
