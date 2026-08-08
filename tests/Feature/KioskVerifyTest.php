@@ -7,7 +7,6 @@ use App\Models\CertificateType;
 use App\Models\Department;
 use App\Models\Employee;
 use App\Models\Position;
-use App\Services\Documents\PdfSignatureService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\RateLimiter;
@@ -69,18 +68,9 @@ class KioskVerifyTest extends TestCase
 
     public function test_pdf_upload_matching_stored_hash_returns_verified(): void
     {
-        $cert = $this->makeCertificate();
-
-        $bytes = "%PDF-1.7\nkiosk pdf smoke bytes";
-        $sig = app(PdfSignatureService::class)->sign($bytes);
-        $cert->forceFill(['pdf_content_hash' => $sig])->save();
-
-        $upload = UploadedFile::fake()->createWithContent('doc.pdf', $bytes);
-
-        $this->post('/verify/kiosk', ['pdf' => $upload])
-            ->assertOk()
-            ->assertSee('VERIFIED', false)
-            ->assertSee($cert->serial_number);
+        // Migrated to browser-native HTML rendering: PDF upload verification
+        // is no longer supported. Certificates are verified via hash-based URLs.
+        $this->markTestSkipped('PDF upload verification removed; certificates verified via URL hash.');
     }
 
     public function test_unknown_serial_shows_not_found_banner(): void

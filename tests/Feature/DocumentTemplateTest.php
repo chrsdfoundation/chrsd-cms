@@ -18,7 +18,7 @@ use App\Models\Position;
 use App\Services\Documents\CertificateGeneratorService;
 use App\Services\Documents\IdCardGeneratorService;
 use App\Services\Documents\LetterGeneratorService;
-use App\Services\Documents\PdfSignatureService;
+use App\Services\Documents\HtmlSignatureService;
 use App\Services\Documents\TemplateRenderer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -194,7 +194,7 @@ class DocumentTemplateTest extends TestCase
         $this->assertStringContainsString('Field appointment', $html);
     }
 
-    public function test_pdf_output_is_signed_deterministically_for_same_template(): void
+    public function test_html_output_is_signed_deterministically_for_same_template(): void
     {
         $tpl = DocumentTemplate::create([
             'name' => 'Signable',
@@ -203,7 +203,7 @@ class DocumentTemplateTest extends TestCase
         ]);
 
         $html = app(TemplateRenderer::class)->render($tpl, ['name' => 'Alice']);
-        $signer = app(PdfSignatureService::class);
+        $signer = app(HtmlSignatureService::class);
 
         // Two signatures over the same HTML string must match.
         $this->assertSame($signer->sign($html), $signer->sign($html));
