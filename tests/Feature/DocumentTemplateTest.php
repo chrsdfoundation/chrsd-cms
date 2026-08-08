@@ -132,23 +132,19 @@ class DocumentTemplateTest extends TestCase
 
     public function test_certificate_generator_falls_back_to_blade_without_template(): void
     {
-        // PDF rendering now goes through Chromium (spatie/browsershot). Skip if
-        // Chromium isn't reachable in this test environment — production is
-        // covered by the end-to-end smoke tests.
-        if (! env('CHROMIUM_PATH') && ! is_file('/usr/bin/chromium') && ! is_file('/usr/bin/google-chrome')) {
-            $this->markTestSkipped('Chromium unavailable in test subprocess; covered by production smoke tests.');
-        }
-
+        // Migration to browser-native print rendering: certificates are now rendered
+        // as HTML on-the-fly in the controller, not stored as media. This test now
+        // validates that renderHtml() produces valid HTML output.
         $cert = Certificate::create([
             'employee_id' => $this->employee->id,
             'certificate_type_id' => $this->certType->id,
         ]);
         $this->assertNull($cert->document_template_id);
 
-        app(CertificateGeneratorService::class)->generate($cert);
-        $cert->refresh();
+        $html = app(CertificateGeneratorService::class)->renderHtml($cert);
 
-        $this->assertTrue($cert->hasMedia('rendered'));
+        $this->assertStringContainsString('<html', $html);
+        $this->assertStringContainsString('<!DOCTYPE', $html);
     }
 
     public function test_generator_branches_on_document_template_id_presence(): void
@@ -176,12 +172,8 @@ class DocumentTemplateTest extends TestCase
 
     public function test_letter_generator_uses_db_template_when_linked(): void
     {
-        // Same GD limitation as the certificate generator test — the letter shell
-        // now embeds PNG assets. Skip in phpunit subprocess where GD isn't loaded.
-        if (! function_exists('imagecreatefrompng')) {
-            $this->markTestSkipped('GD unavailable in phpunit subprocess; production start.bat loads it.');
-        }
-
+        // Migration to browser-native print rendering: letters are now rendered
+        // as HTML on-the-fly in the controller, not stored as media or PDF.
         $cat = LetterCategory::create(['code' => 'APP', 'name' => 'Appointment']);
         $tpl = DocumentTemplate::create([
             'name' => 'Custom Letter',
@@ -196,11 +188,10 @@ class DocumentTemplateTest extends TestCase
             'document_template_id' => $tpl->id,
         ]);
 
-        app(LetterGeneratorService::class)->generate($letter);
-        $letter->refresh();
+        $html = app(LetterGeneratorService::class)->renderHtml($letter);
 
-        $this->assertTrue($letter->hasMedia('rendered'));
-        $this->assertNotNull($letter->pdf_content_hash);
+        $this->assertStringContainsString('<!DOCTYPE', $html);
+        $this->assertStringContainsString('Field appointment', $html);
     }
 
     public function test_pdf_output_is_signed_deterministically_for_same_template(): void
@@ -285,13 +276,8 @@ class DocumentTemplateTest extends TestCase
 
     public function test_id_card_generator_uses_db_template_when_linked(): void
     {
-        // Same GD limitation as the certificate fallback path — id card backs
-        // are Blade-driven and use imagecreatetruecolor. Skip when GD is missing
-        // in the phpunit subprocess.
-        if (! function_exists('imagecreatetruecolor')) {
-            $this->markTestSkipped('GD unavailable in phpunit subprocess; production start.bat loads it.');
-        }
-
+        // Migration to browser-native print rendering: ID cards are now rendered
+        // as HTML on-the-fly in the controller, not stored as media or PDF.
         $tpl = DocumentTemplate::create([
             'name' => 'Custom ID front',
             'document_type' => DocumentTemplateType::IdCard,
@@ -307,13 +293,10 @@ class DocumentTemplateTest extends TestCase
             'document_template_id' => $tpl->id,
         ]);
 
-        app(IdCardGeneratorService::class)->generate($card);
-        $card->refresh();
+        $html = app(IdCardGeneratorService::class)->renderCombined($card);
 
-        // Two media items (front + back) attached.
-        $this->assertGreaterThanOrEqual(2, $card->getMedia('rendered')->count());
-        $this->assertNotNull($card->pdf_content_hash_front);
-        $this->assertNotNull($card->pdf_content_hash_back);
+        $this->assertStringContainsString('<!DOCTYPE', $html);
+        $this->assertStringContainsString('Jane Doe', $html);
     }
 
     public function test_id_card_context_builder_has_expected_keys(): void
