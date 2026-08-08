@@ -35,8 +35,8 @@ class PrintCertificateController extends Controller
         // Use static signature file
         $signatory2Image = asset('images/brand/signatures/ma-ramim.png');
 
-        // Get course/certificate name
-        $courseName = $certificate->type?->name ?? $certificate->course_name ?? 'M&E Fundamentals';
+        // Get course/certificate name (from certificate's program_name field, not type)
+        $courseName = $certificate->program_name ?? $certificate->course_name ?? 'M&E Fundamentals';
 
         // Get recipient name
         $recipientName = $certificate->employee?->full_name ?? $certificate->recipient_name ?? 'Recipient Name';
