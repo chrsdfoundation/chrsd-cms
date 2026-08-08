@@ -21,7 +21,7 @@ return new class extends Migration
     public function up(): void
     {
         // Add recipient_name column for non-employee certificates
-        if (!Schema::hasColumn('certificates', 'recipient_name')) {
+        if (! Schema::hasColumn('certificates', 'recipient_name')) {
             Schema::table('certificates', function (Blueprint $table) {
                 $table->string('recipient_name', 160)->nullable();
             });

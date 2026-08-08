@@ -16,9 +16,9 @@ use App\Models\OfficialLetter;
 use App\Models\Organization;
 use App\Models\Position;
 use App\Services\Documents\CertificateGeneratorService;
+use App\Services\Documents\HtmlSignatureService;
 use App\Services\Documents\IdCardGeneratorService;
 use App\Services\Documents\LetterGeneratorService;
-use App\Services\Documents\HtmlSignatureService;
 use App\Services\Documents\TemplateRenderer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -122,7 +122,7 @@ class DocumentTemplateTest extends TestCase
         $this->assertStringContainsString('<svg', $context['qr_code']); // certificate QR is rendered as SVG
     }
 
-    public function test_certificate_generator_uses_db_template_when_linked(): void
+    public function skip_test_certificate_generator_uses_db_template_when_linked(): void
     {
         // Legacy test for mPDF database template rendering.
         // Since migration to browser-native print rendering, this functionality
@@ -130,7 +130,7 @@ class DocumentTemplateTest extends TestCase
         $this->markTestSkipped('Migrated to browser-native print rendering; mPDF templates no longer used.');
     }
 
-    public function test_certificate_generator_falls_back_to_blade_without_template(): void
+    public function skip_test_certificate_generator_falls_back_to_blade_without_template(): void
     {
         // Migration to browser-native print rendering: certificates are now rendered
         // as HTML on-the-fly in the controller, not stored as media. This test now
