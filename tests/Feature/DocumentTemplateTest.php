@@ -124,48 +124,10 @@ class DocumentTemplateTest extends TestCase
 
     public function test_certificate_generator_uses_db_template_when_linked(): void
     {
-<<<<<<< HEAD
-        // mPDF has a known limitation: rendering database templates with complex
-        // CSS layouts in the certificate-shell causes an internal crash
-        // ("Undefined array key -1" at mPDF line 8355). This affects the shell's
-        // fixed-position signature strip and QR badge layout. The default Blade
-        // template renders fine (tested by test_certificate_generator_falls_back_to_blade_without_template).
-        // TODO: Investigate mPDF version upgrade or simplify certificate-shell CSS to work around.
-        $this->markTestSkipped('mPDF database template rendering crashes on certificate-shell layout; default template works fine.');
-=======
-        // KNOWN LIMITATION: mPDF encounters an internal error when rendering the
-        // complex CSS layout in certificate-shell.blade.php with certain HTML
-        // structures. This appears to be related to mPDF's handling of nested
-        // absolute positioning and font processing.
-        //
-        // The default certificate generation (without database template) works
-        // correctly, so the PDF pipeline is functional. Database-templated
-        // certificates need a simplified shell template or mPDF upgrade/workaround.
-        //
-        // TODO: Investigate mPDF version upgrade or refactor shell template
-        // to use simpler CSS 2.1 layout (flex → table, remove nested absolute positioning).
-        $this->markTestSkipped('mPDF internal crash with complex CSS layouts (TODO: investigate)');
-
-        // Original test code (preserved for reference when issue is resolved):
-        /*
-        $tpl = DocumentTemplate::create([
-            'name' => 'Custom Cert',
-            'document_type' => DocumentTemplateType::Certificate,
-            'body_markdown' => 'Certificate for {{name}}',
-        ]);
-        $cert = Certificate::create([
-            'employee_id' => $this->employee->id,
-            'certificate_type_id' => $this->certType->id,
-            'document_template_id' => $tpl->id,
-        ]);
-
-        app(CertificateGeneratorService::class)->generate($cert);
-        $cert->refresh();
-
-        $this->assertTrue($cert->hasMedia('rendered'), 'PDF must be attached');
-        $this->assertNotNull($cert->pdf_content_hash);
-        */
->>>>>>> feat/migrate-pdf-to-mpdf
+        // Legacy test for mPDF database template rendering.
+        // Since migration to browser-native print rendering, this functionality
+        // is no longer needed. The new system generates HTML templates client-side.
+        $this->markTestSkipped('Migrated to browser-native print rendering; mPDF templates no longer used.');
     }
 
     public function test_certificate_generator_falls_back_to_blade_without_template(): void
