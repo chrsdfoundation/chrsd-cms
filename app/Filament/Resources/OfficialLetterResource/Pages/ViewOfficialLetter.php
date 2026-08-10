@@ -6,7 +6,7 @@ use App\Enums\OfficialLetterStatus;
 use App\Enums\VerificationStatus;
 use App\Filament\Resources\OfficialLetterResource;
 use App\Models\OfficialLetter;
-use App\Services\Verification\QrCodeService;
+use App\Services\QrCodeService;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Notifications\Notification;
@@ -41,7 +41,7 @@ class ViewOfficialLetter extends ViewRecord
                 ->modalHeading('Verification QR')
                 ->modalContent(fn () => new HtmlString(
                     '<div class="flex justify-center p-6">'
-                    . app(QrCodeService::class)->svg($this->getRecord(), 6)
+                    . app(QrCodeService::class)->svg($this->getRecord())
                     . '</div>'
                     . '<p class="text-center text-sm text-gray-600 break-all">'
                     . e(app(QrCodeService::class)->verificationUrl($this->getRecord()))

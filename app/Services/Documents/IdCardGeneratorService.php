@@ -4,7 +4,7 @@ namespace App\Services\Documents;
 
 use App\Enums\IdCardIssuance;
 use App\Models\IdCard;
-use App\Services\Verification\QrCodeService;
+use App\Services\QrCodeService;
 
 class IdCardGeneratorService
 {
@@ -21,7 +21,7 @@ class IdCardGeneratorService
     {
         $card->loadMissing(['employee.department', 'employee.position', 'documentTemplate']);
 
-        $qrSvg = $this->qr->svg($card, 4);
+        $qrSvg = $this->qr->svg($card);
         $verifyUrl = $this->qr->verificationUrl($card);
 
         $sharedViewData = [
@@ -45,7 +45,7 @@ class IdCardGeneratorService
     {
         $card->loadMissing(['employee.department', 'employee.position', 'documentTemplate']);
 
-        $qrSvg = $this->qr->svg($card, 4);
+        $qrSvg = $this->qr->svg($card);
         $verifyUrl = $this->qr->verificationUrl($card);
 
         $sharedViewData = [
@@ -73,7 +73,7 @@ class IdCardGeneratorService
     {
         $card->loadMissing(['employee.department', 'employee.position', 'documentTemplate']);
 
-        $qrSvg = $this->qr->svg($card, 4);
+        $qrSvg = $this->qr->svg($card);
         $verifyUrl = $this->qr->verificationUrl($card);
 
         $sharedViewData = [

@@ -9,7 +9,7 @@ use App\Filament\Resources\IdCardResource\Pages;
 use App\Models\Employee;
 use App\Models\IdCard;
 use App\Services\Documents\IdCardGeneratorService;
-use App\Services\Verification\QrCodeService;
+use App\Services\QrCodeService;
 use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -376,7 +376,7 @@ class IdCardResource extends Resource
             ->modalHeading('Verification QR')
             ->modalContent(fn (IdCard $record) => new HtmlString(
                 '<div class="flex justify-center p-6">'
-                . app(QrCodeService::class)->svg($record, 6)
+                . app(QrCodeService::class)->svg($record)
                 . '</div>'
                 . '<p class="text-center text-sm text-gray-600 break-all">'
                 . e(app(QrCodeService::class)->verificationUrl($record))

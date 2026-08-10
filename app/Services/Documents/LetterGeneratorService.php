@@ -3,7 +3,7 @@
 namespace App\Services\Documents;
 
 use App\Models\OfficialLetter;
-use App\Services\Verification\QrCodeService;
+use App\Services\QrCodeService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
 
@@ -35,7 +35,7 @@ class LetterGeneratorService
             'author' => $letter->author,
             'signatory' => $letter->signedBy,
             'category' => $letter->category,
-            'qr_svg' => $this->qr->svg($letter, 4),
+            'qr_svg' => $this->qr->svg($letter),
             'verify_url' => $this->qr->verificationUrl($letter),
             'body_html' => $this->transformBodyMarkup($letter->body ?? ''),
             'letterhead_uri' => asset('images/brand/Letterhead-dompdf.png'),
@@ -80,7 +80,7 @@ class LetterGeneratorService
         // Prefer SVG for the template-shell QR: Chromium renders the vector
         // crisply at any print size, whereas the palette PNG produced by
         // Milon\Barcode is 1-bit indexed and can drop out of PDF exports.
-        $qrImg = $this->qr->svg($letter, 4);
+        $qrImg = $this->qr->svg($letter);
 
         // Digital signature image. Prefer a per-letter upload from Spatie
         // MediaLibrary; if none, try the signatory's brand-kit PNG (matches

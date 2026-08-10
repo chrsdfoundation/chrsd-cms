@@ -516,7 +516,7 @@
                 <div class="qr-signature">
                     @if ($idCard->verification_hash)
                         <div class="qr-code">
-                            {!! app(\App\Services\Verification\QrCodeService::class)->svg($idCard, 4) !!}
+                            {!! app(\App\Services\QrCodeService::class)->svg($idCard) !!}
                         </div>
                     @else
                         <div class="qr-code" style="background: white; font-size: 2pt; color: #999;">QR</div>

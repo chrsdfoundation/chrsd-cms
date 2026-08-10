@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Certificate;
-use App\Services\Verification\QrCodeService;
+use App\Services\QrCodeService;
 
 class PrintCertificateController extends Controller
 {
@@ -21,9 +21,8 @@ class PrintCertificateController extends Controller
         ]);
 
         // Verification URL matching what QR code encodes (hash-based)
-        $websiteBase = rtrim(config('chrsd.verify_base_url') ?: config('app.website_url', 'https://chrsd.org'), '/');
-        $verifyUrl = $websiteBase . '/verify/' . $certificate->verification_hash;
-        $qrSvg = $this->qrCode->svg($certificate, 6);
+        $verifyUrl = $this->qrCode->verificationUrl($certificate);
+        $qrSvg = $this->qrCode->svg($certificate);
 
         // Get primary signatory (Project Coordinator)
         $signatory1Name = $certificate->signedBy?->full_name ?? 'Razib Mustafiz';

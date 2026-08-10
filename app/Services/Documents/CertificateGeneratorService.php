@@ -5,7 +5,7 @@ namespace App\Services\Documents;
 use App\Enums\CertificateIssuance;
 use App\Models\Certificate;
 use App\Notifications\CertificateDelivered;
-use App\Services\Verification\QrCodeService;
+use App\Services\QrCodeService;
 
 class CertificateGeneratorService
 {
@@ -52,7 +52,8 @@ class CertificateGeneratorService
 
         // Vector QR — Chromium rasterises it at print resolution; the palette
         // PNG that used to be here washed out against the certificate stock.
-        $qrSvg = $this->qr->svg($certificate, 4);
+        // Using standardized module size for consistent QR appearance across all documents.
+        $qrSvg = $this->qr->svg($certificate);
 
         // Resolve the two signature-image URLs from Spatie MediaLibrary.
         // Signature images MUST be data URIs (not filesystem paths) for

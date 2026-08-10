@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\OfficialLetter;
-use App\Services\Verification\QrCodeService;
+use App\Services\QrCodeService;
 use Illuminate\View\View;
 
 class PrintLetterController extends Controller
@@ -16,8 +16,8 @@ class PrintLetterController extends Controller
     {
         $letter->loadMissing(['signedBy.position', 'documentTemplate', 'letterAuthor', 'category']);
 
-        $verifyUrl = config('app.website_url', 'https://chrsd.org') . '/verify/ref/' . $letter->serial_number;
-        $qrSvg = $this->qrCode->svg($letter, 4);
+        $verifyUrl = $this->qrCode->verificationUrl($letter);
+        $qrSvg = $this->qrCode->svg($letter);
 
         // Resolve signatory (prioritize signedBy employee over letterAuthor)
         $signatoryName = $letter->signedBy?->full_name ?? $letter->letterAuthor?->name ?? '';

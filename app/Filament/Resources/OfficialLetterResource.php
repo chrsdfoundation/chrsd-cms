@@ -10,7 +10,7 @@ use App\Filament\Resources\OfficialLetterResource\Pages;
 use App\Models\Author;
 use App\Models\DocumentTemplate;
 use App\Models\OfficialLetter;
-use App\Services\Verification\QrCodeService;
+use App\Services\QrCodeService;
 use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -365,7 +365,7 @@ class OfficialLetterResource extends Resource
             ->modalHeading('Verification QR')
             ->modalContent(fn (OfficialLetter $record) => new HtmlString(
                 '<div class="flex justify-center p-6">'
-                . app(QrCodeService::class)->svg($record, 6)
+                . app(QrCodeService::class)->svg($record)
                 . '</div>'
                 . '<p class="text-center text-sm text-gray-600 break-all">'
                 . e(app(QrCodeService::class)->verificationUrl($record))

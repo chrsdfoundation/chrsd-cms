@@ -3,7 +3,7 @@
 namespace App\Filament\Portal\Resources\MyCertificateResource\Pages;
 
 use App\Filament\Portal\Resources\MyCertificateResource;
-use App\Services\Verification\QrCodeService;
+use App\Services\QrCodeService;
 use Filament\Actions;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;

@@ -2,7 +2,7 @@
 
 namespace App\Filament\Pages;
 
-use App\Services\Verification\QrCodeService;
+use App\Services\QrCodeService;
 use App\Services\Verification\VerificationService;
 use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;

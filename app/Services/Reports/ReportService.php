@@ -10,7 +10,7 @@ use App\Models\Department;
 use App\Models\Employee;
 use App\Models\OfficialLetter;
 use App\Services\Documents\PrintHtmlService;
-use App\Services\Verification\QrCodeService;
+use App\Services\QrCodeService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Spatie\Activitylog\Models\Activity;

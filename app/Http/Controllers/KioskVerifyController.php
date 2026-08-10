@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Certificate;
 use App\Models\OfficialLetter;
 use App\Services\Documents\PdfSignatureService;
-use App\Services\Verification\QrCodeService;
+use App\Services\QrCodeService;
 use App\Services\Verification\VerificationService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;

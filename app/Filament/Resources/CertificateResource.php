@@ -11,7 +11,7 @@ use App\Models\Certificate;
 use App\Models\CertificateType;
 use App\Models\DocumentTemplate;
 use App\Services\Documents\CertificateGeneratorService;
-use App\Services\Verification\QrCodeService;
+use App\Services\QrCodeService;
 use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -374,7 +374,7 @@ class CertificateResource extends Resource
             ->modalHeading('Verification QR')
             ->modalContent(fn (Certificate $record) => new HtmlString(
                 '<div class="flex justify-center p-6">'
-                . app(QrCodeService::class)->svg($record, 6)
+                . app(QrCodeService::class)->svg($record)
                 . '</div>'
                 . '<p class="text-center text-sm text-gray-600 break-all">'
                 . e(app(QrCodeService::class)->verificationUrl($record))

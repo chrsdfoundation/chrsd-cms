@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use App\Services\Verification\QrCodeService;
+use App\Services\QrCodeService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Model;
