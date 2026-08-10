@@ -341,7 +341,7 @@
                 <span class="ico">☎</span>
                 <span class="txt">
                     <b>Phone</b>
-                    +880-2-1234-567890
+                    +880-2-47122566
                 </span>
             </div>
             <div class="item" style="grid-column: 1 / -1;">
