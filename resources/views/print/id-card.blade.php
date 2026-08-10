@@ -1,3 +1,6 @@
+@php
+    $idTypeLabel = $card->id_type_label ?: (optional($card->idCardType)->name ?: 'Identity Card');
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -693,7 +696,7 @@
                         </div>
                         <div class="org-short">CHRSD</div>
                         <div class="org-full">CENTRE FOR HUMANITARIAN RESEARCH & SOCIAL DEVELOPMENT FOUNDATION</div>
-                        <div class="card-type-label">Employee Identity</div>
+                        <div class="card-type-label">{{ $idTypeLabel }}</div>
                     </div>
                     <div class="photo-box">
                         @if($photo)
