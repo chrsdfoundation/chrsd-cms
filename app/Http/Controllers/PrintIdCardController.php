@@ -39,7 +39,7 @@ class PrintIdCardController extends Controller
         // Generate QR code pointing to public website verification
         // This allows anyone to scan and verify documents without CMS access
         $verifyUrl = $this->qrCode->verificationUrl($card);
-        $qrSvg = $this->qrCode->svg($card);
+        $qrUrl = $this->qrCode->pngDataUri($card);
 
         // Compute and store HTML hash for verification (comparing serial number lookup)
         $htmlHash = hash('sha256', serialize($card->verificationPayload()));
@@ -54,7 +54,7 @@ class PrintIdCardController extends Controller
             'signatory' => $card->signedBy,
             'photo' => $photo,
             'signature' => $signature,
-            'qrSvg' => $qrSvg,
+            'qrUrl' => $qrUrl,
             'verifyUrl' => $verifyUrl,
             'orgName' => config('app.name', 'CHRSD'),
         ]);

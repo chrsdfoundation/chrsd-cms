@@ -735,8 +735,8 @@
                 </div>
 
                 <div class="qr-box">
-                    @if($qrSvg)
-                        {!! $qrSvg !!}
+                    @if($qrUrl)
+                        <img src="{{ $qrUrl }}" alt="Verification QR Code">
                     @endif
                 </div>
 
@@ -775,8 +775,8 @@
                 <div class="back-bottom-section">
                     <div class="qr-security-box">
                         <div class="qr-container">
-                            @if($qrSvg)
-                                {!! $qrSvg !!}
+                            @if($qrUrl)
+                                <img src="{{ $qrUrl }}" alt="Verification QR Code">
                             @endif
                         </div>
                         <div class="qr-label">VERIFY AT CHRSD.ORG</div>
