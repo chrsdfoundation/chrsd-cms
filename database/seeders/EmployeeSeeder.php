@@ -14,6 +14,10 @@ class EmployeeSeeder extends Seeder
      * position are resolved by code so IDs stay portable; must run after
      * DepartmentSeeder + PositionSeeder. Keyed on email.
      *
+     * Uses withTrashed() so a previously soft-deleted employee is matched and
+     * restored instead of triggering an INSERT that collides with the DB-level
+     * employees_email_unique constraint (which counts trashed rows too).
+     *
      * serial_number / verification_hash are deliberately NOT set — they are
      * observer-managed (App\Observers\VerifiableObserver), so each environment
      * generates its own valid serial and hash under its own APP_KEY.
@@ -29,28 +33,31 @@ class EmployeeSeeder extends Seeder
                 ? Position::where('code', $r['position_code'])->value('id')
                 : null;
 
-            Employee::updateOrCreate(
-                ['email' => $r['email']],
-                [
-                    'first_name' => $r['first_name'],
-                    'middle_name' => $r['middle_name'],
-                    'last_name' => $r['last_name'],
-                    'suffix' => $r['suffix'],
-                    'mobile' => $r['mobile'],
-                    'gender' => $r['gender'],
-                    'date_of_birth' => $r['date_of_birth'],
-                    'civil_status' => $r['civil_status'],
-                    'nationality' => $r['nationality'],
-                    'address' => $r['address'],
-                    'department_id' => $departmentId,
-                    'position_id' => $positionId,
-                    'employment_type' => $r['employment_type'],
-                    'employee_status' => $r['employee_status'],
-                    'hired_at' => $r['hired_at'],
-                    'ended_at' => $r['ended_at'],
-                    'organization_id' => $r['organization_id'],
-                ],
-            );
+            $employee = Employee::withTrashed()->firstOrNew(['email' => $r['email']]);
+
+            if ($employee->trashed()) {
+                $employee->restore();
+            }
+
+            $employee->fill([
+                'first_name' => $r['first_name'],
+                'middle_name' => $r['middle_name'],
+                'last_name' => $r['last_name'],
+                'suffix' => $r['suffix'],
+                'mobile' => $r['mobile'],
+                'gender' => $r['gender'],
+                'date_of_birth' => $r['date_of_birth'],
+                'civil_status' => $r['civil_status'],
+                'nationality' => $r['nationality'],
+                'address' => $r['address'],
+                'department_id' => $departmentId,
+                'position_id' => $positionId,
+                'employment_type' => $r['employment_type'],
+                'employee_status' => $r['employee_status'],
+                'hired_at' => $r['hired_at'],
+                'ended_at' => $r['ended_at'],
+                'organization_id' => $r['organization_id'],
+            ])->save();
         }
     }
 }
