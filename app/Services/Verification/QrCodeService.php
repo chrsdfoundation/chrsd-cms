@@ -11,9 +11,12 @@ use Illuminate\Database\Eloquent\Model;
  */
 class QrCodeService
 {
-    public function __construct(
-        private UnifiedQrCodeService $unified = new UnifiedQrCodeService(),
-    ) {}
+    private UnifiedQrCodeService $unified;
+
+    public function __construct()
+    {
+        $this->unified = app(UnifiedQrCodeService::class);
+    }
 
     /** @deprecated Use UnifiedQrCodeService::verificationUrl() */
     public function verificationUrl(Model $model): string
