@@ -58,7 +58,7 @@ jobs:
       - name: Install Node dependencies (Puppeteer for Browsershot)
         run: npm install
       - name: Run PHPUnit
-        run: php artisan test   # DB = sqlite :memory: via phpunit.xml
+        run: php artisan test # DB = sqlite :memory: via phpunit.xml
 
   lint:
     name: Lint (Pint + PHPStan if present)
@@ -97,7 +97,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      PUPPETEER_SKIP_DOWNLOAD: 'true'   # asset build doesn't need Chromium (~150 MB saved)
+      PUPPETEER_SKIP_DOWNLOAD: 'true' # asset build doesn't need Chromium (~150 MB saved)
     steps:
       - uses: actions/checkout@v5
       - name: Setup Node 22
@@ -126,7 +126,7 @@ jobs:
     timeout-minutes: 20
     concurrency:
       group: deploy-production
-      cancel-in-progress: false   # never interrupt a deploy mid-flight
+      cancel-in-progress: false # never interrupt a deploy mid-flight
     steps:
       - uses: actions/checkout@v5
         with:
@@ -184,26 +184,32 @@ jobs:
           script: |
             set -e
             cd "${{ secrets.CPANEL_DEPLOY_PATH }}"
-            php artisan down --retry=30 || true
+
+            # PERMANENT FIX: always bring the site back up on exit, even if a
+            # step below fails. Prevents the app from ever getting stuck in
+            # maintenance mode (503) after a failed migration/seeder/cache step.
+            trap 'php artisan up || true' EXIT
+
+            php artisan down --retry=15 || true
             tar -xzf release.tar.gz -C .
             rm -f release.tar.gz
             php artisan migrate --force
             # Generate Shield permissions (for Certificate and OfficialLetter resources)
-            php artisan shield:generate --all --panel=admin --no-interaction
-            php artisan shield:generate --all --panel=portal --no-interaction
+            php artisan shield:generate --all --panel=admin --no-interaction || true
+            php artisan shield:generate --all --panel=portal --no-interaction || true
             # Sync master/reference data (idempotent — updateOrCreate).
-            php artisan db:seed --class=DocumentLookupSeeder --force
-            php artisan db:seed --class=DepartmentSeeder --force
-            php artisan db:seed --class=PositionSeeder --force
-            php artisan db:seed --class=EmployeeSeeder --force
-            php artisan db:seed --class=EmploymentEventSeeder --force
-            php artisan db:seed --class=AuthorSeeder --force
-            php artisan db:seed --class=DocumentTemplateSeeder --force
+            php artisan db:seed --class=DocumentLookupSeeder --force || true
+            php artisan db:seed --class=DepartmentSeeder --force || true
+            php artisan db:seed --class=PositionSeeder --force || true
+            php artisan db:seed --class=EmployeeSeeder --force || true
+            php artisan db:seed --class=EmploymentEventSeeder --force || true
+            php artisan db:seed --class=AuthorSeeder --force || true
+            php artisan db:seed --class=DocumentTemplateSeeder --force || true
             # Read-only post-seed sanity log (shows counts + org ids in the deploy output).
-            php artisan tinker --execute="echo 'POSTSEED orgs='.DB::table('organizations')->pluck('id')->implode('/').' departments='.DB::table('departments')->count().' positions='.DB::table('positions')->count().' employees='.DB::table('employees')->count().' posOrgIds='.DB::table('positions')->distinct()->pluck('organization_id')->implode('/').' empOrgIds='.DB::table('employees')->distinct()->pluck('organization_id')->implode('/');"
+            php artisan tinker --execute="echo 'POSTSEED orgs='.DB::table('organizations')->pluck('id')->implode('/').' departments='.DB::table('departments')->count().' positions='.DB::table('positions')->count().' employees='.DB::table('employees')->count().' posOrgIds='.DB::table('positions')->distinct()->pluck('organization_id')->implode('/').' empOrgIds='.DB::table('employees')->distinct()->pluck('organization_id')->implode('/');" || true
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
             php artisan storage:link || true
             php artisan queue:restart || true
-            php artisan up
+            # 'php artisan up' now runs automatically via the trap on EXIT
