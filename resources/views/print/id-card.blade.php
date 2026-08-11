@@ -91,6 +91,7 @@
             overflow: hidden;
             page-break-inside: avoid;
             background: white;
+            border: 0.3mm solid #bbb; /* visible trim/cut guide for manual scissors cutting */
             border-radius: 10px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
         }
@@ -293,7 +294,6 @@
         }
 
         .employee-name {
-            font-size: 11pt;
             font-weight: 900;
             color: var(--text-dark);
             line-height: 1;
@@ -548,39 +548,33 @@
         }
 
         .signature-image-box {
-            height: 2.8mm;
+            width: 18mm;
+            height: 6mm;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .signature-image-box img {
-            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
             object-fit: contain;
             filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.08));
         }
 
         .signature-divider {
             width: 18mm;
-            height: 0.6px;
-            background: linear-gradient(90deg, transparent, var(--gold-soft), transparent);
-            opacity: 0.7;
+            height: 0.5px;
+            background: var(--text-muted);
+            opacity: 0.6;
         }
 
-        .signature-name {
-            font-size: 4.8pt;
-            font-weight: 800;
-            color: var(--text-dark);
-            letter-spacing: 0.15px;
-            margin-top: 0.25mm;
-        }
-
-        .signature-title {
-            font-size: 3.6pt;
+        .signature-caption {
+            font-size: 4.4pt;
             font-weight: 700;
             color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.15px;
+            margin-top: 0.25mm;
         }
 
         /* FOOTER CONTACT GRID - REFINED */
@@ -710,7 +704,7 @@
                 <div class="divider-gold"></div>
 
                 <div class="employee-section">
-                    <div class="employee-name">{{ $card->displayName() }}</div>
+                    <div class="employee-name" style="font-size: {{ $card->nameFontSize() }};">{{ $card->displayName() }}</div>
                     <div class="employee-designation">{{ $card->designation ?? ($employee->position?->title ?? '') }}</div>
 
                     <div class="details-grid">
@@ -782,7 +776,7 @@
                                 <img src="{{ $qrUrl }}" alt="Verification QR Code">
                             @endif
                         </div>
-                        <div class="qr-label">VERIFY AT CHRSD.ORG</div>
+                        <div class="qr-label">chrsd.org/verify/{{ $card->serial_number }}</div>
                     </div>
 
                     <div class="signature-section">
@@ -792,8 +786,7 @@
                             @endif
                         </div>
                         <div class="signature-divider"></div>
-                        <div class="signature-name">{{ $signatory->full_name ?? 'Authorized Signatory' }}</div>
-                        <div class="signature-title">Signatory</div>
+                        <div class="signature-caption">{{ $card->authorized_signatory ?: 'Authorized Signatory' }}</div>
                     </div>
                 </div>
 
@@ -801,7 +794,7 @@
                 <div class="footer-contact">
                     <div class="contact-item">
                         <div class="contact-icon">☎</div>
-                        <div class="contact-text">+880 2-4712</div>
+                        <div class="contact-text">+880-2-47122566</div>
                     </div>
                     <div class="contact-item">
                         <div class="contact-icon">✓</div>
@@ -817,7 +810,7 @@
                     </div>
                     <div class="contact-item" style="grid-column: 1 / -1;">
                         <div class="contact-icon">📍</div>
-                        <div class="contact-text">29 Toyenbee Cir. (5F), Motijheel C/A, Dhaka-1000</div>
+                        <div class="contact-text">29 Toyenbee Circular road (5th Floor), Motijheel C/A<br>Dhaka-1000.</div>
                     </div>
                 </div>
             </div>

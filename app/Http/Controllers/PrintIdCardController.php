@@ -33,7 +33,7 @@ class PrintIdCardController extends Controller
         // Get signature - try card media first, then public images folder
         $signature = null;
         if ($card->hasMedia('signature')) {
-            $signature = $card->getFirstMedia('signature')->getFullUrl();
+            $signature = $card->getFirstMedia('signature')->getFullUrl() . '?v=' . $card->signature_version;
         }
 
         // Generate QR code pointing to public website verification

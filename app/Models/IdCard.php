@@ -21,7 +21,7 @@ class IdCard extends Model implements HasMedia
         'organization_id',
         'employee_id', 'recipient_name',
         'id_card_type_id', 'id_type_label',
-        'signed_by_id',
+        'signed_by_id', 'authorized_signatory', 'signature_version',
         'designation', 'program_name', 'blood_group', 'nationality',
         'valid_from', 'valid_until',
         'issuance_status',
@@ -75,6 +75,19 @@ class IdCard extends Model implements HasMedia
         return $this->hasMedia('signature')
             ? $this->getFirstMedia('signature')->getPath()
             : null;
+    }
+
+    /** Auto-fit font size for the printed holder name, longest names shrink to keep the card layout intact. */
+    public function nameFontSize(): string
+    {
+        $len = mb_strlen($this->displayName());
+
+        return match (true) {
+            $len <= 18 => '13pt',
+            $len <= 24 => '11pt',
+            $len <= 30 => '9.5pt',
+            default => '8.5pt',
+        };
     }
 
     public function getActivitylogOptions(): LogOptions

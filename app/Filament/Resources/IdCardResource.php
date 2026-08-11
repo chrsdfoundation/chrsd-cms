@@ -110,6 +110,12 @@ class IdCardResource extends Resource
                         ->searchable(['first_name', 'last_name'])->preload()
                         ->helperText('The employee who signs the card. Upload their signature PNG in the "Signature" section below.'),
 
+                    Forms\Components\TextInput::make('authorized_signatory')
+                        ->label('Signature caption (printed on card)')
+                        ->maxLength(128)
+                        ->placeholder('Authorized Signatory')
+                        ->helperText('Overrides the default "Authorized Signatory" caption printed under the signature line, e.g. a title such as "Executive Director".'),
+
                     Forms\Components\TextInput::make('designation')
                         ->maxLength(128)
                         ->helperText('Falls back to the employee\'s position title if blank.'),
@@ -156,7 +162,11 @@ class IdCardResource extends Resource
                         ->collection('signature')
                         ->image()->imageEditor()
                         ->maxSize(2048)
-                        ->columnSpanFull(),
+                        ->columnSpanFull()
+                        ->afterStateUpdated(function (?IdCard $record) {
+                            // Bust any cached signature image URL on the printed card.
+                            $record?->increment('signature_version');
+                        }),
                 ]),
 
             Forms\Components\Section::make('Verification')

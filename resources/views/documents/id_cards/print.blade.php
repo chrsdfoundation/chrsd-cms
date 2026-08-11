@@ -33,6 +33,8 @@
             height: 100%;
             display: flex;
             background: white;
+            border: 0.3mm solid #bbb; /* visible trim/cut guide for manual scissors cutting */
+            box-sizing: border-box;
             position: relative;
         }
 
@@ -148,7 +150,6 @@
         }
 
         .name {
-            font-size: 8pt;
             font-weight: bold;
             color: #123420;
             margin: 0;
@@ -224,6 +225,8 @@
             height: 100%;
             display: flex;
             flex-direction: column;
+            border: 0.3mm solid #bbb; /* visible trim/cut guide for manual scissors cutting */
+            box-sizing: border-box;
         }
 
         .back-sidebar {
@@ -362,11 +365,17 @@
         }
 
         .signature-image {
-            width: 11mm;
-            height: 6mm;
+            width: 18mm;
+            height: 7mm;
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
+        }
+
+        .signature-rule {
+            width: 18mm;
+            border-top: 0.35mm solid #163E22;
+            opacity: 0.6;
         }
 
         .signature-label {
@@ -444,7 +453,7 @@
             <div class="main-content">
                 <div class="left-section">
                     <div class="person-info">
-                        <div class="name">{{ $idCard->displayName() }}</div>
+                        <div class="name" style="font-size: {{ $idCard->nameFontSize() }};">{{ $idCard->displayName() }}</div>
                         <div class="designation">{{ $idCard->designation ?: $idCard->program_name ?: optional(optional($idCard->employee)->position)->title }}</div>
                     </div>
 
@@ -507,15 +516,20 @@
             </div>
 
             <div class="contact-section">
-                <div class="contact-item">📞 +880 2-47122566 | +880 1714-781490</div>
+                <div class="contact-item">📞 +880-2-47122566 | +880-1714-781490</div>
                 <div class="contact-item">✉ info@chrsd.org</div>
-                <div class="contact-item">📍 29 Toyenbee Cir. Rd (5th Fl), Motijheel, Dhaka-1000</div>
+                <div class="contact-item">📍 29 Toyenbee Circular road (5th Floor), Motijheel C/A</div>
+                <div class="contact-item">Dhaka-1000.</div>
             </div>
 
             <div class="divider-back"></div>
 
             <div class="footer-section">
-                <div class="url">🌐 www.chrsd.org</div>
+                @if ($idCard->verification_hash)
+                    <div class="url">chrsd.org/verify/{{ $idCard->serial_number }}</div>
+                @else
+                    <div class="url">🌐 www.chrsd.org</div>
+                @endif
                 <div class="qr-signature">
                     @if ($idCard->verification_hash)
                         <div class="qr-code">
@@ -527,11 +541,10 @@
 
                     <div class="signature-block">
                         @if ($idCard->hasMedia('signature'))
-                            <div class="signature-image" style="background-image: url('{{ $idCard->getFirstMediaUrl('signature') }}');"></div>
-                        @else
-                            <div style="width: 11mm; border-top: 0.4mm solid #163E22;"></div>
+                            <div class="signature-image" style="background-image: url('{{ $idCard->getFirstMediaUrl('signature') }}?v={{ $idCard->signature_version }}');"></div>
                         @endif
-                        <div class="signature-label">Authorized<br>Signatory</div>
+                        <div class="signature-rule"></div>
+                        <div class="signature-label">{{ $idCard->authorized_signatory ?: 'Authorized Signatory' }}</div>
                     </div>
                 </div>
             </div>
