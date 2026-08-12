@@ -56,9 +56,37 @@ class VerifyEndpointTest extends TestCase
 
     public function test_html_endpoint_returns_404_for_malformed_hash_via_route_pattern(): void
     {
-        // The route is constrained to [a-f0-9]{64}. Anything else must 404.
+        // The route accepts [a-f0-9]{64} or a PREFIX-YYYY-NNNN serial. Anything else must 404.
         $this->get('/verify/not-a-hash')->assertNotFound();
         $this->get('/verify/' . str_repeat('g', 64))->assertNotFound(); // 'g' isn't hex
+    }
+
+    public function test_html_endpoint_resolves_by_serial_number_fallback(): void
+    {
+        $cert = $this->makeCertificate();
+
+        // Manually-typed short verify URL (printed on cards/receipts because
+        // the 64-char hash is too long) must resolve the same document.
+        $this->get("/verify/{$cert->serial_number}")
+            ->assertOk()
+            ->assertSee($cert->serial_number)
+            ->assertSee('Authentic Document Verified');
+    }
+
+    public function test_json_endpoint_resolves_by_serial_number_fallback(): void
+    {
+        $cert = $this->makeCertificate();
+
+        $this->getJson("/api/verify/{$cert->serial_number}")
+            ->assertOk()
+            ->assertJson([
+                'found' => true,
+                'snapshot' => [
+                    'serial' => $cert->serial_number,
+                    'kind' => 'Certificate',
+                    'is_valid' => true,
+                ],
+            ]);
     }
 
     public function test_json_endpoint_returns_expected_shape(): void

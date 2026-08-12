@@ -73,8 +73,17 @@ trait HasVerification
         return $q->where('status', VerificationStatus::Valid->value);
     }
 
+    /**
+     * Match by verification_hash (preferred — what QR codes encode), falling
+     * back to serial_number so a manually-typed short verify URL (printed on
+     * cards/receipts because the 64-char hash is too long to print legibly)
+     * resolves to the same document.
+     */
     public function scopeByHash(Builder $q, string $hash): Builder
     {
-        return $q->where('verification_hash', $hash);
+        return $q->where(function (Builder $query) use ($hash) {
+            $query->where('verification_hash', $hash)
+                ->orWhere('serial_number', $hash);
+        });
     }
 }

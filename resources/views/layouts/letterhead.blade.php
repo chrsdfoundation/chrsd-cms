@@ -347,9 +347,9 @@
 
             <!-- ===== QR CODE & VERIFICATION ===== -->
             <div class="qr-verification">
-                @if($qrCodeSvg ?? false)
+                @if($qrCodePng ?? false)
                     <div class="qr-code-box">
-                        {!! $qrCodeSvg !!}
+                        <img src="{{ $qrCodePng }}" alt="Verification QR Code">
                     </div>
                 @endif
 

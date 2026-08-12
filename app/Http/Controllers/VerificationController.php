@@ -15,7 +15,7 @@ class VerificationController extends Controller
 
     public function show(Request $request, string $hash): View|Response
     {
-        if (! $this->isValidHash($hash)) {
+        if (! $this->isValidIdentifier($hash)) {
             abort(404);
         }
 
@@ -53,7 +53,7 @@ class VerificationController extends Controller
      */
     public function api(Request $request, string $hash): JsonResponse
     {
-        if (! $this->isValidHash($hash)) {
+        if (! $this->isValidIdentifier($hash)) {
             return response()->json(['error' => 'invalid_hash_format'], 404);
         }
 
@@ -84,9 +84,14 @@ class VerificationController extends Controller
         ]);
     }
 
-    protected function isValidHash(string $hash): bool
+    /**
+     * Accepts either a 64-char hex verification_hash (QR-scanned path) or a
+     * PREFIX-YYYY-NNNN serial number (manually-typed short verify URL).
+     */
+    protected function isValidIdentifier(string $hash): bool
     {
-        return strlen($hash) === 64 && ctype_xdigit($hash);
+        return (strlen($hash) === 64 && ctype_xdigit($hash))
+            || preg_match('/^[A-Z]{2,5}-\d{4}-\d{4,10}$/', $hash) === 1;
     }
 
     /**

@@ -17,7 +17,7 @@ class PrintLetterController extends Controller
         $letter->loadMissing(['signedBy.position', 'documentTemplate', 'letterAuthor', 'category']);
 
         $verifyUrl = $this->qrCode->verificationUrl($letter);
-        $qrSvg = $this->qrCode->svg($letter);
+        $qrPng = $this->qrCode->pngDataUri($letter);
 
         // Resolve signatory (prioritize signedBy employee over letterAuthor)
         $signatoryName = $letter->signedBy?->full_name ?? $letter->letterAuthor?->name ?? '';
@@ -29,7 +29,7 @@ class PrintLetterController extends Controller
             'headerImageUrl' => asset('images/brand/letterhead-header.png'),
             'footerImageUrl' => asset('images/brand/letterhead-footer.png'),
             'watermarkUrl' => asset('images/brand/letterhead-watermark.png'),
-            'qrCodeSvg' => $qrSvg,
+            'qrCodePng' => $qrPng,
             'verifyUrl' => $verifyUrl,
             'footerText' => '<strong>CHRSD Foundation</strong><br/>Centre for Humanitarian Research and Social Development',
 

@@ -110,16 +110,20 @@
             height: 160px;
             background: white;
             border: 3px solid #1E293B;
-            padding: 0;
+            padding: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             box-shadow: 0 0 0 1px #D8C79A inset;
         }
 
-        .qr-code svg {
-            width: 154px;
-            height: 154px;
+        /* 160 − 2×3px border − 2×8px padding = 138px available;
+           140px is inset by the 8px padding, leaving a clear quiet zone
+           between the outer modules and the dark navy frame. */
+        .qr-code img {
+            width: 140px;
+            height: 140px;
+            display: block;
         }
 
         .qr-caption {
@@ -503,7 +507,7 @@
             <div class="header">
                 <div class="qr-block">
                     <div class="qr-code">
-                        {!! $qrCodeSvg !!}
+                        <img src="{{ $qrCodePng }}" alt="Verification QR Code">
                     </div>
                     <div class="qr-caption">Scan to Verify</div>
                 </div>
