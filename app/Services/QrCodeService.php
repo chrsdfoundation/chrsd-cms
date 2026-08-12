@@ -48,6 +48,11 @@ class QrCodeService
     /**
      * Generate QR code as PNG base64 data URI.
      * Use for DomPDF or embedded image contexts where SVG isn't suitable.
+     *
+     * Falls back to an SVG data URI when PNG generation fails (typically the
+     * GD extension is not loaded — Milon's DNS2D::getBarcodePNG() returns an
+     * empty string in that case, which would render as a broken image icon
+     * inside an <img src="…"> tag).
      */
     public function pngDataUri(Model|string $data, int $moduleSize = self::DEFAULT_MODULE_SIZE): string
     {
@@ -59,6 +64,10 @@ class QrCodeService
             $moduleSize,
             $moduleSize,
         );
+
+        if (! is_string($png) || $png === '') {
+            return 'data:image/svg+xml;base64,' . base64_encode($this->svg($data, $moduleSize));
+        }
 
         return 'data:image/png;base64,' . $png;
     }
