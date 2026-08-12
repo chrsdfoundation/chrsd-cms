@@ -20,9 +20,11 @@ class PrintCertificateController extends Controller
             'type',
         ]);
 
-        // Verification URL matching what QR code encodes (hash-based)
+        // Verification URL matching what QR code encodes (hash-based).
+        // PNG data URI (not raw SVG) so the QR rasterizes cleanly at print
+        // time — matches the ID card fix in commit 9d6d409.
         $verifyUrl = $this->qrCode->verificationUrl($certificate);
-        $qrSvg = $this->qrCode->svg($certificate);
+        $qrPng = $this->qrCode->pngDataUri($certificate);
 
         // Get primary signatory (Project Coordinator)
         $signatory1Name = $certificate->signedBy?->full_name ?? 'Razib Mustafiz';
@@ -58,7 +60,7 @@ class PrintCertificateController extends Controller
             'signatory2Name' => $signatory2Name,
             'signatory2Title' => $signatory2Title,
             'signatory2Image' => $signatory2Image,
-            'qrCodeSvg' => $qrSvg,
+            'qrCodePng' => $qrPng,
             'verifyUrl' => $verifyUrl,
             'websiteUrl' => 'www.chrsd.org',
             'contactEmail' => 'info@chrsd.org',

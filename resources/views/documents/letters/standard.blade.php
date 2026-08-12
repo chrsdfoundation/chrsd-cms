@@ -2,7 +2,7 @@
     'headerImageUrl' => $headerImageUrl ?? asset('images/brand/letterhead-header.png'),
     'footerImageUrl' => $footerImageUrl ?? asset('images/brand/letterhead-footer.png'),
     'watermarkUrl' => $watermarkUrl ?? asset('images/brand/letterhead-watermark.png'),
-    'qrCodeSvg' => $qrCodeSvg ?? null,
+    'qrCodePng' => $qrCodePng ?? null,
     'verifyUrl' => $verifyUrl ?? null,
     'footerText' => $footerText ?? null,
 ])
