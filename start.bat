@@ -94,9 +94,13 @@ echo  LAUNCHING SERVERS
 echo ============================================================================
 echo.
 
-REM Start CMS
+REM Start CMS.
+REM PHP_INI_SCAN_DIR points at .claude\php-conf.d\00-extensions.ini so the
+REM php -S workers spawned by `artisan serve` also load gd/curl/pdo_mysql/etc.
+REM (Parent -d flags don't propagate to workers; without this env var, GD is
+REM missing in the request handlers and every QR-code PNG data URI renders empty.)
 echo Starting CMS on port 8000...
-start "CMS-8000" cmd /k "title CMS Server (Port 8000) && cd /d C:\Projects\CMS && php -d extension=gd -d extension=curl -d extension=pdo_mysql -d extension=sqlite3 artisan serve --host=127.0.0.1 --port=8000"
+start "CMS-8000" cmd /k "title CMS Server (Port 8000) && cd /d C:\Projects\CMS && set PHP_INI_SCAN_DIR=C:\Projects\CMS\.claude\php-conf.d&& php -d extension=gd -d extension=curl -d extension=pdo_mysql -d extension=sqlite3 artisan serve --host=127.0.0.1 --port=8000"
 
 REM Wait for CMS to start
 timeout /t 3 /nobreak
@@ -104,7 +108,7 @@ timeout /t 3 /nobreak
 REM Start Website if it exists
 if exist C:\Projects\Website\composer.json (
     echo Starting Website on port 8001...
-    start "Website-8001" cmd /k "title Website Server (Port 8001) && cd /d C:\Projects\Website && php -d extension=gd -d extension=curl -d extension=pdo_mysql -d extension=sqlite3 artisan serve --host=127.0.0.1 --port=8001"
+    start "Website-8001" cmd /k "title Website Server (Port 8001) && cd /d C:\Projects\Website && set PHP_INI_SCAN_DIR=C:\Projects\CMS\.claude\php-conf.d&& php -d extension=gd -d extension=curl -d extension=pdo_mysql -d extension=sqlite3 artisan serve --host=127.0.0.1 --port=8001"
 )
 
 echo.
