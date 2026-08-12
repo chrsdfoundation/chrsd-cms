@@ -28,7 +28,8 @@ class VerificationService
     }
 
     /**
-     * Resolve a document by its verification_hash across all registered types.
+     * Resolve a document by its verification_hash (preferred) or serial_number
+     * (fallback, for manually-typed short verify URLs) across all registered types.
      * Uses acrossOrganizations() to bypass tenant scoping — verification must work
      * across all organizations (a user from Org A should be able to verify documents
      * from Org B via the public verify endpoint or inter-org integration).

@@ -85,8 +85,10 @@ Route::middleware('throttle:verify')->group(function () {
  * HTML verify page — anonymous only. IP-based throttle keeps hash enumeration cheap.
  */
 Route::middleware('throttle:verify')->group(function () {
+    // Accepts either a 64-char hash (QR-scanned path) or a PREFIX-YYYY-NNNN
+    // serial number (manually-typed short URL printed on cards/receipts).
     Route::get('/verify/{hash}', [VerificationController::class, 'show'])
-        ->where('hash', '[a-f0-9]{64}')
+        ->where('hash', '(?:[a-f0-9]{64}|[A-Z]{2,5}-\d{4}-\d{4,10})')
         ->name('verify.show');
 
     // Serial-number verify — e.g. /verify/ref/LTR-2026-000004.
@@ -131,7 +133,7 @@ Route::middleware([
     TrackApiTokenUsage::class,
 ])->group(function () {
     Route::get('/api/verify/{hash}', [VerificationController::class, 'api'])
-        ->where('hash', '[a-f0-9]{64}')
+        ->where('hash', '(?:[a-f0-9]{64}|[A-Z]{2,5}-\d{4}-\d{4,10})')
         ->name('verify.api');
 
     Route::get('/api/verify/ref/{serial}', [VerificationController::class, 'apiBySerial'])
