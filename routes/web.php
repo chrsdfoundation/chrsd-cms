@@ -17,6 +17,7 @@ use App\Http\Controllers\VerificationController;
 use App\Http\Middleware\AllowVerificationApiCors;
 use App\Http\Middleware\ResolveSanctumToken;
 use App\Http\Middleware\TrackApiTokenUsage;
+use App\Models\DocumentTemplate;
 use App\Models\IdCard;
 use Illuminate\Support\Facades\Route;
 
@@ -33,9 +34,8 @@ Route::middleware(['web', 'auth', 'role:super_admin'])->group(function () {
     // Print / Save-as-PDF button. Filament's Preview action opens this in a
     // new tab (see DocumentTemplateResource actions). Mirrors the print.letter
     // pipeline — no server-side PDF library required.
-    Route::get('/admin/document-templates/{template}/preview', fn (\App\Models\DocumentTemplate $template) =>
-        DocumentTemplateResource::streamPreview($template)
-    )->name('document-templates.preview');
+    Route::get('/admin/document-templates/{template}/preview', fn (DocumentTemplate $template) => DocumentTemplateResource::streamPreview($template))
+        ->name('document-templates.preview');
 
     Route::get('/certificate-preview', [CertificateController::class, 'show'])
         ->name('certificate.preview');
