@@ -55,8 +55,8 @@ class PrintCertificateController extends Controller
         // Get recipient name
         $recipientName = $certificate->employee?->full_name ?? $certificate->recipient_name ?? 'Recipient Name';
 
-        // Get issue date
-        $issuedDate = $certificate->issued_at?->format('F j, Y') ?? $certificate->dated_on?->format('F j, Y') ?? date('F j, Y');
+        // Get issue date — use issued_on field from the model
+        $issuedDate = $certificate->issued_on?->format('F j, Y') ?? date('F j, Y');
 
         return view('certificates.print', [
             'recipientName' => $recipientName,

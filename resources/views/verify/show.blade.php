@@ -111,12 +111,19 @@
                         <td class="py-2 text-gray-900">{{ $snapshot['signatory'] }}</td>
                     </tr>
                     @endif
+                    @if ($snapshot['kind'] === 'IdCard' && $snapshot['valid_from'])
+                    <tr class="border-b">
+                        <th class="py-2 pr-4 text-gray-500 font-medium">Valid From</th>
+                        <td class="py-2 text-gray-900">{{ \Carbon\Carbon::parse($snapshot['valid_from'])->format('F j, Y') }}</td>
+                    </tr>
+                    @elseif ($snapshot['kind'] !== 'IdCard')
                     <tr class="border-b">
                         <th class="py-2 pr-4 text-gray-500 font-medium">Date of Issuance</th>
                         <td class="py-2 text-gray-900">
                             {{ $snapshot['issued_on'] ? \Carbon\Carbon::parse($snapshot['issued_on'])->format('F j, Y') : '—' }}
                         </td>
                     </tr>
+                    @endif
                     @if ($snapshot['valid_until'])
                     <tr class="border-b">
                         <th class="py-2 pr-4 text-gray-500 font-medium">Valid Until</th>
