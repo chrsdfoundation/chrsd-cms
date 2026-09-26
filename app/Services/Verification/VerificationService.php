@@ -62,6 +62,7 @@ class VerificationService
 
         $snap = [
             'serial' => $model->serial_number,
+            'hash' => $model->verification_hash,
             'kind' => class_basename($model),
             'status' => $model->status?->value,
             'issued_on' => optional($issuedOn)->toDateString(),

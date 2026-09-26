@@ -73,6 +73,18 @@ class VerifyEndpointTest extends TestCase
             ->assertSee('Authentic Document Verified');
     }
 
+    public function test_html_endpoint_shows_cryptographic_hash_on_serial_ref_route(): void
+    {
+        // /verify/ref/{serial} binds its route param as `serial`, not `hash` —
+        // the hash row must come from the resolved model, not request()->route('hash').
+        $cert = $this->makeCertificate();
+
+        $this->get("/verify/ref/{$cert->serial_number}")
+            ->assertOk()
+            ->assertSee('Cryptographic Hash')
+            ->assertSee($cert->verification_hash);
+    }
+
     public function test_json_endpoint_resolves_by_serial_number_fallback(): void
     {
         $cert = $this->makeCertificate();
@@ -97,12 +109,13 @@ class VerifyEndpointTest extends TestCase
             ->assertOk()
             ->assertJsonStructure([
                 'found',
-                'snapshot' => ['serial', 'kind', 'status', 'issued_on', 'valid_until', 'revoked_at', 'revocation_reason', 'is_valid'],
+                'snapshot' => ['serial', 'hash', 'kind', 'status', 'issued_on', 'valid_until', 'revoked_at', 'revocation_reason', 'is_valid'],
             ])
             ->assertJson([
                 'found' => true,
                 'snapshot' => [
                     'serial' => $cert->serial_number,
+                    'hash' => $cert->verification_hash,
                     'kind' => 'Certificate',
                     'is_valid' => true,
                 ],

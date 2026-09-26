@@ -138,7 +138,7 @@
                     @endif
                     <tr>
                         <th class="py-2 pr-4 text-gray-500 font-medium align-top">Cryptographic Hash</th>
-                        <td class="py-2 font-mono text-xs text-gray-500 break-all">{{ request()->route('hash') }}</td>
+                        <td class="py-2 font-mono text-xs text-gray-500 break-all">{{ $snapshot['hash'] }}</td>
                     </tr>
                 </tbody>
             </table>
