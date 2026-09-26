@@ -14,9 +14,10 @@ class EditDocumentTemplate extends EditRecord
     {
         return [
             Actions\Action::make('preview')
-                ->label('Preview PDF')
+                ->label('Preview')
                 ->icon('heroicon-o-eye')
-                ->action(fn () => DocumentTemplateResource::streamPreview($this->getRecord())),
+                ->url(fn () => route('document-templates.preview', $this->getRecord()))
+                ->openUrlInNewTab(),
             Actions\DeleteAction::make(),
         ];
     }

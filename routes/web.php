@@ -1,5 +1,6 @@
 <?php
 
+use App\Filament\Resources\DocumentTemplateResource;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\CertificateGeneratorController;
 use App\Http\Controllers\CertificateVerificationController;
@@ -28,6 +29,14 @@ Route::get('/', function () {
 
 // Design-time template previews — super_admin only.
 Route::middleware(['web', 'auth', 'role:super_admin'])->group(function () {
+    // DocumentTemplate preview: renders the shell as HTML with a floating
+    // Print / Save-as-PDF button. Filament's Preview action opens this in a
+    // new tab (see DocumentTemplateResource actions). Mirrors the print.letter
+    // pipeline — no server-side PDF library required.
+    Route::get('/admin/document-templates/{template}/preview', fn (\App\Models\DocumentTemplate $template) =>
+        DocumentTemplateResource::streamPreview($template)
+    )->name('document-templates.preview');
+
     Route::get('/certificate-preview', [CertificateController::class, 'show'])
         ->name('certificate.preview');
 

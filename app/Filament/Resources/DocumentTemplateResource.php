@@ -9,16 +9,15 @@ use App\Models\CertificateType;
 use App\Models\DocumentTemplate;
 use App\Models\IdCardType;
 use App\Models\LetterCategory;
-use App\Services\Documents\MpdfPdfService;
 use App\Services\Documents\TemplateRenderer;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Http\Response;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DocumentTemplateResource extends Resource
 {
@@ -154,9 +153,10 @@ class DocumentTemplateResource extends Resource
             ])
             ->actions([
                 Tables\Actions\Action::make('preview')
-                    ->label('Preview PDF')
+                    ->label('Preview')
                     ->icon('heroicon-o-eye')
-                    ->action(fn (DocumentTemplate $record) => static::streamPreview($record)),
+                    ->url(fn (DocumentTemplate $record) => route('document-templates.preview', $record))
+                    ->openUrlInNewTab(),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
@@ -169,42 +169,64 @@ class DocumentTemplateResource extends Resource
             ->defaultSort('name');
     }
 
-    public static function streamPreview(DocumentTemplate $template): StreamedResponse
+    /**
+     * Render the template as a browser-print-ready HTML page.
+     *
+     * The real letter / certificate / ID-card pipeline is browser-print
+     * (see route('print.letter'), route('print.certificate'), route('print.id-card')),
+     * so template previews use the same channel — no server-side PDF library
+     * is required. The @page size CSS in each shell (letter-shell A4,
+     * certificate-shell A4, id-card-shell CR80) drives the browser's Save-as-PDF.
+     */
+    public static function streamPreview(DocumentTemplate $template): Response
     {
         $context = static::previewContext($template);
         $renderer = app(TemplateRenderer::class);
         $html = $renderer->render($template, $context);
 
-        // Puppeteer (Browsershot) — sidesteps DomPDF's GD requirement so this
-        // works even where php.ini has GD disabled (which this deployment
-        // does). Sizing mirrors the real generators:
-        //   • ID cards → CR80 landscape, 85.6 × 54 mm
-        //   • Letters  → A4, honouring template orientation, tight margins
-        //     because letterhead is only stitched on real generation
-        //   • Certificates / others → A4 with the template's orientation
-        $orientation = $template->orientation === 'landscape' ? 'landscape' : 'portrait';
-        $opts = [];
-        if ($template->document_type === DocumentTemplateType::IdCard) {
-            $opts['pageSize'] = ['width' => '85.6mm', 'height' => '54mm'];
-            $opts['margin'] = ['top' => '2mm', 'right' => '2mm', 'bottom' => '2mm', 'left' => '2mm'];
-        } else {
-            // A4 in Puppeteer via width/height so we control orientation
-            // explicitly (Chromium's format:'A4' with `landscape:true` is
-            // available too, but pageSize keeps this consistent with the ID
-            // card branch).
-            $a4 = ['210mm', '297mm'];
-            $opts['pageSize'] = $orientation === 'landscape'
-                ? ['width' => $a4[1], 'height' => $a4[0]]
-                : ['width' => $a4[0], 'height' => $a4[1]];
-            $opts['margin'] = ['top' => '20mm', 'right' => '15mm', 'bottom' => '20mm', 'left' => '15mm'];
+        $html = static::injectPrintHelper($html, $template);
+
+        return response($html, 200, ['Content-Type' => 'text/html; charset=UTF-8']);
+    }
+
+    /**
+     * Inject a floating "Print / Save as PDF" button + auto-print bootstrap into
+     * the rendered shell. The button and its container are screen-only (@media
+     * print hides them) so they never bleed into the saved PDF.
+     */
+    protected static function injectPrintHelper(string $html, DocumentTemplate $template): string
+    {
+        $title = e(sprintf('Preview — %s', $template->name));
+        $banner = <<<HTML
+<style>
+    .dt-preview-banner {
+        position: fixed; top: 12px; right: 12px; z-index: 999999;
+        display: flex; gap: 8px; align-items: center;
+        background: #0f3b1c; color: #fff;
+        padding: 8px 14px; border-radius: 6px;
+        font: 500 13px/1 -apple-system, "Segoe UI", Roboto, sans-serif;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .dt-preview-banner button {
+        background: #c8962a; color: #0f3b1c; border: none;
+        padding: 6px 12px; border-radius: 4px; cursor: pointer;
+        font-weight: 700; font-size: 12px;
+    }
+    .dt-preview-banner button:hover { background: #d8a63a; }
+    @media print { .dt-preview-banner { display: none !important; } }
+</style>
+<div class="dt-preview-banner">
+    <span>Preview: {$title}</span>
+    <button onclick="window.print()">🖨️ Print / Save as PDF</button>
+</div>
+HTML;
+
+        // Inject just before </body> if the shell has one, otherwise append.
+        if (stripos($html, '</body>') !== false) {
+            return preg_replace('#</body>#i', $banner . '</body>', $html, 1) ?? ($html . $banner);
         }
 
-        $bytes = app(MpdfPdfService::class)->render($html, $opts);
-        $filename = sprintf('preview-%s.pdf', Str::slug($template->name));
-
-        return response()->streamDownload(fn () => print ($bytes), $filename, [
-            'Content-Type' => 'application/pdf',
-        ]);
+        return $html . $banner;
     }
 
     /** Build a preview context: user-supplied sample_context merged over sensible defaults. */
@@ -243,6 +265,8 @@ class DocumentTemplateResource extends Resource
             'verify_code' => 'PREVIEW-CODE',
             'issuer_name' => 'CHRSD LEARNING',
             'issuer_tagline' => 'Centre for Humanitarian Research',
+            'letterhead_uri' => static::dataUriFor(public_path('images/brand/Letterhead-dompdf.png')),
+            'watermark_uri' => static::dataUriFor(public_path('images/brand/letterhead-watermark.png')),
         ];
 
         $sample = $template->sample_context ?? [];
@@ -251,6 +275,16 @@ class DocumentTemplateResource extends Resource
         }
 
         return array_replace($defaults, $sample);
+    }
+
+    protected static function dataUriFor(string $path): string
+    {
+        if (! is_file($path)) {
+            return '';
+        }
+        $mime = mime_content_type($path) ?: 'image/png';
+
+        return 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($path));
     }
 
     protected static function decodeJson(mixed $state): ?array

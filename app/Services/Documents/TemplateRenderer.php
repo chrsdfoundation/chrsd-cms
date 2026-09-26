@@ -131,6 +131,8 @@ class TemplateRenderer
             'footer_address' => $context['footer_address'] ?? '29 Toyenbee Circular Road (5th Floor), Motijheel C/A, Dhaka-1000, Bangladesh.',
             'reg_no' => $context['reg_no'] ?? 'S-14480/2026',
             'photo_url' => $context['photo_url'] ?? null,
+            'letterhead_uri' => (string) ($context['letterhead_uri'] ?? ''),
+            'watermark_uri' => (string) ($context['watermark_uri'] ?? ''),
             'qr_raw' => (string) ($context['qr_code'] ?? ''),
             'course_name' => $context['course_name'] ?? '',
             'verify_code' => $context['verify_code'] ?? '',

@@ -15,6 +15,17 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             SetCurrentOrganization::class,
         ]);
+
+        // Spatie Permission 6.x no longer auto-registers its middleware aliases;
+        // routes using `role:…`, `permission:…`, or `role_or_permission:…` need
+        // these entries to resolve. Without them, terminateMiddleware() throws
+        // `Target class [role] does not exist` on any authenticated request that
+        // reaches such a route.
+        $middleware->alias([
+            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
