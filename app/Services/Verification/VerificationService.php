@@ -53,11 +53,18 @@ class VerificationService
      */
     public function publicSnapshot(Model $model): array
     {
+        // Determine the correct issued_on date based on model type
+        if ($model instanceof Certificate) {
+            $issuedOn = $model->issued_on;
+        } else {
+            $issuedOn = $model->released_on ?? $model->verified_at ?? $model->created_at;
+        }
+
         $snap = [
             'serial' => $model->serial_number,
             'kind' => class_basename($model),
             'status' => $model->status?->value,
-            'issued_on' => optional($model->released_on ?? $model->verified_at ?? $model->created_at)->toDateString(),
+            'issued_on' => optional($issuedOn)->toDateString(),
             'valid_until' => $model->valid_until ?? null,
             'valid_from' => null,
             'revoked_at' => optional($model->revoked_at)->toDateString(),
