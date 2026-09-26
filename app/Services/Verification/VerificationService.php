@@ -88,6 +88,7 @@ class VerificationService
         if ($model instanceof IdCard) {
             $model->loadMissing(['employee']);
             $snap['recipient'] = $model->displayName() ?: null;
+            $snap['valid_from'] = optional($model->valid_from)->toDateString();
         }
 
         if ($model instanceof MoneyReceipt) {
