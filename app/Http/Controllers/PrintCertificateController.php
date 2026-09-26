@@ -20,6 +20,15 @@ class PrintCertificateController extends Controller
             'type',
         ]);
 
+        // DEBUG: Log the certificate data to diagnose date issue
+        \Log::info('PrintCertificateController debug', [
+            'certificate_id' => $certificate->id,
+            'issued_on_raw' => $certificate->getAttributes()['issued_on'] ?? 'NOT IN ATTRIBUTES',
+            'issued_on_cast' => $certificate->issued_on,
+            'issued_on_type' => gettype($certificate->issued_on),
+            'all_attributes' => $certificate->getAttributes(),
+        ]);
+
         // Verification URL matching what QR code encodes (hash-based).
         // PNG data URI (not raw SVG) so the QR rasterizes cleanly at print
         // time — matches the ID card fix in commit 9d6d409.
