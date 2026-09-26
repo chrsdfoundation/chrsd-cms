@@ -60,20 +60,9 @@ class VerificationService
             $issuedOn = $model->released_on ?? $model->verified_at ?? $model->created_at;
         }
 
-        // DEBUG: Log data to diagnose date mismatches
-        if ($model instanceof Certificate) {
-            \Log::info('VerificationService publicSnapshot for Certificate', [
-                'model_id' => $model->id,
-                'serial' => $model->serial_number,
-                'issued_on_raw' => $model->getAttributes()['issued_on'] ?? 'NOT IN ATTRIBUTES',
-                'issued_on_accessed' => $model->issued_on,
-                'issuedOn_variable' => $issuedOn,
-                'toDateString_result' => optional($issuedOn)->toDateString(),
-            ]);
-        }
-
         $snap = [
             'serial' => $model->serial_number,
+            'hash' => $model->verification_hash,
             'kind' => class_basename($model),
             'status' => $model->status?->value,
             'issued_on' => optional($issuedOn)->toDateString(),
