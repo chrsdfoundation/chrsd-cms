@@ -53,12 +53,32 @@ class VerificationService
      */
     public function publicSnapshot(Model $model): array
     {
+        // Determine the correct issued_on date based on model type
+        if ($model instanceof Certificate) {
+            $issuedOn = $model->issued_on;
+        } else {
+            $issuedOn = $model->released_on ?? $model->verified_at ?? $model->created_at;
+        }
+
+        // DEBUG: Log data to diagnose date mismatches
+        if ($model instanceof Certificate) {
+            \Log::info('VerificationService publicSnapshot for Certificate', [
+                'model_id' => $model->id,
+                'serial' => $model->serial_number,
+                'issued_on_raw' => $model->getAttributes()['issued_on'] ?? 'NOT IN ATTRIBUTES',
+                'issued_on_accessed' => $model->issued_on,
+                'issuedOn_variable' => $issuedOn,
+                'toDateString_result' => optional($issuedOn)->toDateString(),
+            ]);
+        }
+
         $snap = [
             'serial' => $model->serial_number,
             'kind' => class_basename($model),
             'status' => $model->status?->value,
-            'issued_on' => optional($model->released_on ?? $model->verified_at ?? $model->created_at)->toDateString(),
+            'issued_on' => optional($issuedOn)->toDateString(),
             'valid_until' => $model->valid_until ?? null,
+            'valid_from' => null,
             'revoked_at' => optional($model->revoked_at)->toDateString(),
             'revocation_reason' => $model->revocation_reason,
             'is_valid' => $model->status === VerificationStatus::Valid,
