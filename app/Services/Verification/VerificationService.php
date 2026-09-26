@@ -59,6 +59,7 @@ class VerificationService
             'status' => $model->status?->value,
             'issued_on' => optional($model->released_on ?? $model->verified_at ?? $model->created_at)->toDateString(),
             'valid_until' => $model->valid_until ?? null,
+            'valid_from' => null,
             'revoked_at' => optional($model->revoked_at)->toDateString(),
             'revocation_reason' => $model->revocation_reason,
             'is_valid' => $model->status === VerificationStatus::Valid,
