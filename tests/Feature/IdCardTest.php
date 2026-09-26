@@ -52,7 +52,7 @@ class IdCardTest extends TestCase
         $this->assertSame(VerificationStatus::Valid, $card->status);
     }
 
-    public function skip_test_verification_service_resolves_id_cards_by_hash(): void
+    public function test_verification_service_resolves_id_cards_by_hash(): void
     {
         $card = $this->makeCard();
 
@@ -63,7 +63,7 @@ class IdCardTest extends TestCase
         $this->assertSame($card->id, $resolved->id);
     }
 
-    public function skip_test_verify_endpoint_returns_id_card_snapshot(): void
+    public function test_verify_endpoint_returns_id_card_snapshot(): void
     {
         $card = $this->makeCard();
 
@@ -78,7 +78,7 @@ class IdCardTest extends TestCase
             ]);
     }
 
-    public function skip_test_html_verify_page_shows_id_card_as_valid(): void
+    public function test_html_verify_page_shows_id_card_as_valid(): void
     {
         $card = $this->makeCard();
 
@@ -86,6 +86,34 @@ class IdCardTest extends TestCase
             ->assertOk()
             ->assertSee($card->serial_number)
             ->assertSee('Valid', false);
+    }
+
+    /**
+     * ID cards are dated by their validity window, not a generic issuance
+     * date — the public verify page and kiosk screen must label and value
+     * that row from valid_from, never from created_at/verified_at.
+     */
+    public function test_verify_page_shows_valid_from_not_date_of_issuance_for_id_cards(): void
+    {
+        $card = $this->makeCard();
+
+        $response = $this->get("/verify/{$card->verification_hash}")->assertOk();
+
+        $response->assertSee('Valid From');
+        $response->assertDontSee('Date of Issuance');
+        $response->assertSee($card->valid_from->format('F j, Y'));
+
+        $snapshot = app(VerificationService::class)->publicSnapshot($card->fresh());
+        $this->assertSame($card->valid_from->toDateString(), $snapshot['issued_on']);
+    }
+
+    public function test_kiosk_shows_valid_from_not_issued_for_id_cards(): void
+    {
+        $card = $this->makeCard();
+
+        $response = $this->post('/verify/kiosk', ['query' => $card->verification_hash])->assertOk();
+
+        $response->assertSee('Valid from');
     }
 
     public function test_revoking_an_id_card_transitions_to_revoked(): void

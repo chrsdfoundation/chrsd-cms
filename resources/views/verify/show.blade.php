@@ -112,7 +112,9 @@
                     </tr>
                     @endif
                     <tr class="border-b">
-                        <th class="py-2 pr-4 text-gray-500 font-medium">Date of Issuance</th>
+                        <th class="py-2 pr-4 text-gray-500 font-medium">
+                            {{ $snapshot['kind'] === 'IdCard' ? 'Valid From' : 'Date of Issuance' }}
+                        </th>
                         <td class="py-2 text-gray-900">
                             {{ $snapshot['issued_on'] ? \Carbon\Carbon::parse($snapshot['issued_on'])->format('F j, Y') : '—' }}
                         </td>

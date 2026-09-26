@@ -88,6 +88,8 @@ class VerificationService
         if ($model instanceof IdCard) {
             $model->loadMissing(['employee']);
             $snap['recipient'] = $model->displayName() ?: null;
+            // ID cards are dated by their validity window, not a generic issuance date.
+            $snap['issued_on'] = optional($model->valid_from)->toDateString();
         }
 
         if ($model instanceof MoneyReceipt) {

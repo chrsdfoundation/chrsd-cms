@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Certificate;
 use App\Models\OfficialLetter;
-use App\Services\Documents\PdfSignatureService;
+use App\Services\Documents\HtmlSignatureService;
 use App\Services\QrCodeService;
 use App\Services\Verification\VerificationService;
 use Illuminate\Http\Request;
@@ -14,7 +14,7 @@ class KioskVerifyController extends Controller
 {
     public function __construct(
         protected VerificationService $verifier,
-        protected PdfSignatureService $signer,
+        protected HtmlSignatureService $signer,
         protected QrCodeService $qr,
     ) {}
 

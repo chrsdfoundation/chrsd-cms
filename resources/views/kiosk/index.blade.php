@@ -179,7 +179,7 @@
                         <dl>
                             <dt>Serial</dt><dd class="mono">{{ $snapshot['serial'] }}</dd>
                             <dt>Type</dt><dd>{{ $snapshot['kind'] }}</dd>
-                            <dt>Issued</dt><dd>{{ $snapshot['issued_on'] ?? '—' }}</dd>
+                            <dt>{{ $snapshot['kind'] === 'IdCard' ? 'Valid from' : 'Issued' }}</dt><dd>{{ $snapshot['issued_on'] ?? '—' }}</dd>
                             @if ($snapshot['valid_until'])
                                 <dt>Valid until</dt><dd>{{ $snapshot['valid_until'] }}</dd>
                             @endif
