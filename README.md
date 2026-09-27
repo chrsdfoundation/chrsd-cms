@@ -12,9 +12,9 @@ a QR code that resolves to the public verification page on the CHRSD Website.
 - **Verifiable-document backbone** — HMAC-SHA256 integrity hashes, per-year
   serial numbers, QR/verify links built against `VERIFY_BASE_URL` (the public
   Website app).
-- **PDF generation** — Chromium via `BrowsershotPdfService` for certificates,
-  ID cards, and reports; a Puppeteer script (`node_scripts/pdf-letter.cjs`) for
-  approved letters. Barcodes via `milon/barcode`.
+- **PDF generation** — pure-PHP mPDF via `MpdfPdfService` for certificates,
+  ID cards, reports, and approved letters (no Chromium/Node needed, runs on
+  shared cPanel hosting). Barcodes via `milon/barcode`.
 - **Media** — Spatie Media Library for uploaded assets and signatures.
 
 ## Tech stack
@@ -22,7 +22,7 @@ a QR code that resolves to the public verification page on the CHRSD Website.
 - **SQLite** (dev) / **MySQL 8** (prod) — toggle via `.env`
 - **Tailwind 3.4** + **Vite 6**
 - Spatie Permission / Media Library / Activitylog, Filament Shield, milon/barcode,
-  spatie/browsershot
+  mPDF
 
 ## Quick start
 ```bash

@@ -8,14 +8,9 @@ use Mpdf\Output\Destination;
 /**
  * Single entry point for HTML → PDF across the whole CMS (mPDF backend).
  *
- * Drop-in replacement for the former BrowsershotPdfService: it exposes the
- * same render()/renderView() signature and the same $opts shape, so the
- * generators (Letter, ID Card, Certificate, Reports) do not need to change
- * how they call it.
- *
- * mPDF is pure PHP (needs only the GD + mbstring extensions), so — unlike the
- * Chromium/Puppeteer pipeline — it runs on the cPanel production host with no
- * Node or headless browser. The trade-off is strict CSS 2.1 compliance: no
+ * mPDF is pure PHP (needs only the GD + mbstring extensions), so it runs on
+ * the cPanel production host with no Node or headless browser. The trade-off
+ * is strict CSS 2.1 compliance: no
  * flexbox, no grid, no calc(), limited absolute positioning. Use <table> for
  * columns, float for side-by-side, and block layout for content flow.
  *

@@ -147,7 +147,7 @@ class CertificateRequestWorkflowTest extends TestCase
         // Simulate the PDF renderer throwing — the certificate row must NOT
         // survive, and the request must stay pending.
         $this->mock(CertificateGeneratorService::class, function ($m) {
-            $m->shouldReceive('generate')->once()->andThrow(new \RuntimeException('Browsershot blew up'));
+            $m->shouldReceive('generate')->once()->andThrow(new \RuntimeException('PDF renderer blew up'));
         });
 
         $svc = app(CertificateRequestService::class);

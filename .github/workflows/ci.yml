@@ -42,21 +42,6 @@ jobs:
         run: |
           cp .env.example .env
           php artisan key:generate --ansi
-      - name: Install Chromium for Browsershot
-        id: chrome
-        uses: browser-actions/setup-chrome@v2
-        with:
-          chrome-version: stable
-      - name: Export Chromium path for Browsershot
-        run: |
-          echo "CHROMIUM_PATH=${{ steps.chrome.outputs.chrome-path }}" >> "$GITHUB_ENV"
-          echo "Using Chromium at: ${{ steps.chrome.outputs.chrome-path }}"
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: '20'
-      - name: Install Node dependencies (Puppeteer for Browsershot)
-        run: npm install
       - name: Run PHPUnit
         run: php artisan test # DB = sqlite :memory: via phpunit.xml
 
@@ -96,8 +81,6 @@ jobs:
     name: Build assets (Vite)
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    env:
-      PUPPETEER_SKIP_DOWNLOAD: 'true' # asset build doesn't need Chromium (~150 MB saved)
     steps:
       - uses: actions/checkout@v5
       - name: Setup Node 22

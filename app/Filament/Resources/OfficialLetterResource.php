@@ -123,7 +123,7 @@ class OfficialLetterResource extends Resource
                                 }
                             }
                         })
-                        ->helperText('Optional — leave blank to use the built-in Browsershot Blade template. Selecting one pre-fills recipient, subject and body from the template sample.')
+                        ->helperText('Optional — leave blank to use the built-in Blade template. Selecting one pre-fills recipient, subject and body from the template sample.')
                         ->columnSpanFull(),
                 ]),
 

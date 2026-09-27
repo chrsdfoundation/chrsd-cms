@@ -98,7 +98,7 @@ class LetterGeneratorService
             'position' => $authorTitle,
             'subject' => $letter->subject ?? '',
             // Body is pipe-table-normalised here too so DB-template letters
-            // (which don't go through the default-browsershot transform) still
+            // (which don't go through the default template's transform) still
             // get real <table> markup when authors type pipe rows.
             'body' => $this->transformBodyMarkup($letter->body ?? ''),
             'recipient_name' => $letter->recipient_name ?? '',
@@ -116,8 +116,8 @@ class LetterGeneratorService
 
     /**
      * Return an <img> tag for the signatory's signature or an empty string.
-     * Kept for the template-shell path (documents.templates.letter-shell-browsershot);
-     * the default-browsershot template consumes the raw data URI via
+     * Kept for the template-shell path (documents.templates.letter-shell);
+     * the default template consumes the raw data URI via
      * resolveSignatureDataUri() instead.
      */
     protected function resolveSignatureImage(OfficialLetter $letter): string
