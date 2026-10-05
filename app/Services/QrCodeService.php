@@ -17,7 +17,15 @@ class QrCodeService
      */
     public function verificationUrl(Model|string $data): string
     {
-        $base = rtrim(config('chrsd.verify_base_url') ?: config('app.url'), '/');
+        // Public verification lives on the main website, not the apps subdomain.
+        $base = rtrim(config('chrsd.verify_base_url') ?: config('app.website_url') ?: config('app.url'), '/');
+
+        // Human-readable serial URL, e.g. https://chrsd.org/verify/ref/LTR-2026-000004
+        if ($data instanceof Model
+            && ! $data instanceof \App\Models\MoneyReceipt
+            && ! empty($data->serial_number)) {
+            return $base . '/verify/ref/' . $data->serial_number;
+        }
 
         if ($data instanceof Model) {
             // Prefer verification_hash if available, fall back to serial_number
