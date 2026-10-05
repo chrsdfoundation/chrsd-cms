@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\MoneyReceipt;
 use Illuminate\Database\Eloquent\Model;
 use Milon\Barcode\DNS2D;
 
@@ -22,7 +23,7 @@ class QrCodeService
 
         // Human-readable serial URL, e.g. https://chrsd.org/verify/ref/LTR-2026-000004
         if ($data instanceof Model
-            && ! $data instanceof \App\Models\MoneyReceipt
+            && ! $data instanceof MoneyReceipt
             && ! empty($data->serial_number)) {
             return $base . '/verify/ref/' . $data->serial_number;
         }
