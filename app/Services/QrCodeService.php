@@ -21,6 +21,13 @@ class QrCodeService
         // Public verification lives on the main website, not the apps subdomain.
         $base = rtrim(config('chrsd.verify_base_url') ?: config('app.website_url') ?: config('app.url'), '/');
 
+        // A verify base pointing back at this app (e.g. a stale VERIFY_BASE_URL
+        // on the server) would put the QR on the apps subdomain; use the website.
+        $appHost = parse_url((string) config('app.url'), PHP_URL_HOST);
+        if (app()->environment('production') && $appHost && parse_url($base, PHP_URL_HOST) === $appHost && config('app.website_url')) {
+            $base = rtrim(config('app.website_url'), '/');
+        }
+
         // Human-readable serial URL, e.g. https://chrsd.org/verify/ref/LTR-2026-000004
         if ($data instanceof Model
             && ! $data instanceof MoneyReceipt
