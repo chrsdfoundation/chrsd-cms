@@ -217,7 +217,7 @@
 
         <div class="letter-footer">
             <strong>Serial:</strong> {{ $letter->serial_number }}<br>
-            <small>This letter has been digitally signed and can be verified at {{ config('app.url') }}/verify/{{ $letter->serial_number }}</small>
+            <small>This letter has been digitally signed and can be verified at {{ $verifyUrl ?? app(\App\Services\QrCodeService::class)->verificationUrl($letter) }}</small>
         </div>
     </div>
 

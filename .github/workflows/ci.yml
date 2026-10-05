@@ -190,7 +190,12 @@ jobs:
             php artisan db:seed --class=DocumentTemplateSeeder --force || true
             # Read-only post-seed sanity log (shows counts + org ids in the deploy output).
             php artisan tinker --execute="echo 'POSTSEED orgs='.DB::table('organizations')->pluck('id')->implode('/').' departments='.DB::table('departments')->count().' positions='.DB::table('positions')->count().' employees='.DB::table('employees')->count().' posOrgIds='.DB::table('positions')->distinct()->pluck('organization_id')->implode('/').' empOrgIds='.DB::table('employees')->distinct()->pluck('organization_id')->implode('/');" || true
+            # QR/verify links must resolve on the public website, never the apps host.
+            sed -i '/^VERIFY_BASE_URL=/d;/^WEBSITE_URL=/d' .env
+            printf 'VERIFY_BASE_URL=https://chrsd.org\nWEBSITE_URL=https://chrsd.org\n' >> .env
             php artisan config:cache
+            # Proof in the deploy log that the QR base is the website.
+            php artisan tinker --execute="echo 'VERIFY_URL_CHECK '.app(App\\Services\\QrCodeService::class)->verificationUrl('SELFTEST');" || true
             php artisan route:cache
             php artisan view:cache
             php artisan storage:link || true
