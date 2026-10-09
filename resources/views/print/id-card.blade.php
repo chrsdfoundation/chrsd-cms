@@ -208,7 +208,7 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            padding: 2.5mm 3mm;
+            padding: 2.5mm 3mm 5.5mm;
             position: relative;
             background: linear-gradient(135deg, white 0%, var(--cream-bg) 100%);
         }
@@ -250,7 +250,12 @@
             width: 6mm;
             height: 6mm;
             margin-bottom: 0.3mm;
-            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.08));
+        }
+
+        @media screen {
+            .logo {
+                filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.08));
+            }
         }
 
         .logo img {
