@@ -22,7 +22,7 @@ class IdCard extends Model implements HasMedia
         'employee_id', 'recipient_name',
         'id_card_type_id', 'id_type_label',
         'signed_by_id', 'authorized_signatory', 'signature_version',
-        'designation', 'program_name', 'blood_group', 'nationality',
+        'designation', 'signatory_designation', 'program_name', 'blood_group', 'nationality',
         'valid_from', 'valid_until',
         'issuance_status',
         'pdf_content_hash_front', 'pdf_content_hash_back',
@@ -57,6 +57,9 @@ class IdCard extends Model implements HasMedia
         $this->addMediaCollection('photo')->singleFile(); // optional override of employee avatar
         // Authorised signatory's PNG signature (transparent bg ideal). One per card.
         $this->addMediaCollection('signature')->singleFile()
+            ->acceptsMimeTypes(['image/png', 'image/jpeg', 'image/webp']);
+        // Bearer's own signature printed on the front of the card.
+        $this->addMediaCollection('bearer_signature')->singleFile()
             ->acceptsMimeTypes(['image/png', 'image/jpeg', 'image/webp']);
     }
 

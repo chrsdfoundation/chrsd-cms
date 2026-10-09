@@ -1,5 +1,9 @@
 @php
     $idTypeLabel = $card->id_type_label ?: (optional($card->idCardType)->name ?: 'Identity Card');
+    $isBleed = ($mode ?? 'bleed') === 'bleed';
+    // Bleed adds 3mm on each side: 85.6+6=91.6mm × 53.98+6=59.98mm
+    $pageW = $isBleed ? '91.60mm' : '85.60mm';
+    $pageH = $isBleed ? '59.98mm' : '53.98mm';
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -23,7 +27,7 @@
 
         @media print {
             html, body {
-                background: #faf9f7;
+                background: white;
                 padding: 0;
                 margin: 0;
             }
@@ -35,17 +39,17 @@
             }
 
             @page {
-                size: 85.6mm 53.98mm landscape;
+                size: {{ $pageW }} {{ $pageH }};
                 margin: 0;
                 padding: 0;
             }
 
-            .print-button {
+            .print-button, .print-section {
                 display: none !important;
             }
         }
 
-        /* ========== REFINED COLOR PALETTE ========== */
+        /* ========== COLOR PALETTE ========== */
         :root {
             --navy-primary: #0d1b2a;
             --navy-secondary: #1a237e;
@@ -63,7 +67,7 @@
             grid-template-columns: 1fr 1fr;
             gap: 12mm;
             width: 100%;
-            max-width: 200mm;
+            max-width: 220mm;
             margin: 0 auto;
             padding: 12mm;
             background: white;
@@ -73,36 +77,117 @@
 
         @media print {
             .card-sheet {
+                display: block;
                 gap: 0;
                 padding: 0;
-                background: var(--cream-bg);
+                background: white;
                 box-shadow: none;
                 border-radius: 0;
                 max-width: 100%;
             }
         }
 
+        /* ========== BLEED / TRIM WRAPPER ========== */
+        .card-page {
+            width: {{ $pageW }};
+            height: {{ $pageH }};
+            position: relative;
+            overflow: hidden;
+        }
+
+        @media print {
+            .card-page {
+                page-break-after: always;
+            }
+            .card-page:last-child {
+                page-break-after: auto;
+            }
+        }
+
+        @media screen {
+            .card-page {
+                border: 1px dashed #ccc;
+                margin-bottom: 4mm;
+            }
+        }
+
         /* ========== CARD BASE ========== */
         .card {
-            width: 85.6mm;
+            width: 85.60mm;
             height: 53.98mm;
-            position: relative;
+            position: absolute;
             display: flex;
             overflow: hidden;
             page-break-inside: avoid;
             background: white;
-            border: 0.3mm solid #bbb; /* visible trim/cut guide for manual scissors cutting */
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
         }
 
-        @media print {
-            .card {
-                box-shadow: none;
-                border-radius: 0;
-                background: var(--cream-bg);
-            }
+        @if($isBleed)
+        .card {
+            top: 3mm;
+            left: 3mm;
         }
+        @else
+        .card {
+            top: 0;
+            left: 0;
+        }
+        @endif
+
+        /* ========== CROP MARKS (bleed mode only) ========== */
+        @if($isBleed)
+        .crop-mark {
+            position: absolute;
+            z-index: 10;
+        }
+        .crop-mark::before,
+        .crop-mark::after {
+            content: '';
+            position: absolute;
+            background: #000;
+        }
+        /* Top-left */
+        .crop-tl::before { width: 2.5mm; height: 0.2mm; top: 3mm; left: 0; }
+        .crop-tl::after  { width: 0.2mm; height: 2.5mm; top: 0; left: 3mm; }
+        /* Top-right */
+        .crop-tr::before { width: 2.5mm; height: 0.2mm; top: 3mm; right: 0; }
+        .crop-tr::after  { width: 0.2mm; height: 2.5mm; top: 0; right: 3mm; }
+        /* Bottom-left */
+        .crop-bl::before { width: 2.5mm; height: 0.2mm; bottom: 3mm; left: 0; }
+        .crop-bl::after  { width: 0.2mm; height: 2.5mm; bottom: 0; left: 3mm; }
+        /* Bottom-right */
+        .crop-br::before { width: 2.5mm; height: 0.2mm; bottom: 3mm; right: 0; }
+        .crop-br::after  { width: 0.2mm; height: 2.5mm; bottom: 0; right: 3mm; }
+        @endif
+
+        /* ========== BLEED BACKGROUND EXTENSION ========== */
+        @if($isBleed)
+        .bleed-bg-front {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+        }
+        .bleed-bg-front .bleed-sidebar {
+            position: absolute;
+            top: 0; bottom: 0; left: 0;
+            width: calc(3mm + 2.5mm);
+            background: linear-gradient(180deg, var(--navy-primary) 0%, var(--navy-secondary) 100%);
+        }
+        .bleed-bg-front .bleed-main {
+            position: absolute;
+            top: 0; bottom: 0;
+            left: calc(3mm + 2.5mm);
+            right: 0;
+            background: linear-gradient(135deg, white 0%, var(--cream-bg) 100%);
+        }
+
+        .bleed-bg-back {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, white 0%, var(--cream-bg) 100%);
+            z-index: 0;
+        }
+        @endif
 
         /* ========== FRONT SIDE ========== */
         .card-front {
@@ -110,35 +195,15 @@
             background: white;
         }
 
-        /* REFINED LEFT SIDEBAR - SUBTLE ACCENT ========== */
         .sidebar {
             width: 2.5mm;
             height: 100%;
             background: linear-gradient(180deg, var(--navy-primary) 0%, var(--navy-secondary) 100%);
             border-right: 2px solid var(--gold-soft);
-            display: flex;
-            align-items: center;
-            justify-content: center;
             flex-shrink: 0;
             position: relative;
         }
 
-        .sidebar::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
-            pointer-events: none;
-        }
-
-        .sidebar-text {
-            display: none;
-        }
-
-        /* MAIN CONTENT AREA */
         .card-content {
             flex: 1;
             display: flex;
@@ -224,7 +289,16 @@
             border: 0.5px solid rgba(201, 162, 39, 0.3);
         }
 
-        /* REFINED PHOTO BOX ========== */
+        /* RIGHT COLUMN: PHOTO + BEARER SIGNATURE */
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.8mm;
+            flex-shrink: 0;
+        }
+
+        /* PHOTO BOX */
         .photo-box {
             width: 16mm;
             height: 19.5mm;
@@ -238,15 +312,6 @@
             justify-content: center;
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08), inset 0 0 0 0.5px rgba(201, 162, 39, 0.2);
             position: relative;
-        }
-
-        .photo-box::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: 2;
         }
 
         .photo-box img {
@@ -264,16 +329,41 @@
             z-index: 1;
         }
 
-        /* PHOTO WATERMARK */
-        .photo-box::after {
-            content: '';
-            position: absolute;
-            top: 1.5mm;
-            right: 0.5mm;
-            font-size: 1.8pt;
-            color: rgba(255, 255, 255, 0.4);
-            z-index: 3;
-            font-weight: bold;
+        /* BEARER'S SIGNATURE (front) */
+        .bearer-signature {
+            width: 16mm;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.2mm;
+        }
+
+        .bearer-sig-image {
+            width: 14mm;
+            height: 4mm;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bearer-sig-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .bearer-sig-line {
+            width: 14mm;
+            height: 0.3px;
+            background: var(--text-muted);
+            opacity: 0.5;
+        }
+
+        .bearer-sig-caption {
+            font-size: 2.8pt;
+            color: var(--text-light);
+            text-align: center;
+            font-weight: 500;
         }
 
         /* DIVIDER */
@@ -284,7 +374,7 @@
             opacity: 0.5;
         }
 
-        /* EMPLOYEE SECTION ========== */
+        /* EMPLOYEE SECTION */
         .employee-section {
             flex: 1;
             display: flex;
@@ -342,7 +432,7 @@
             letter-spacing: 0.05px;
         }
 
-        /* QR CODE BOX */
+        /* QR CODE BOX (front) */
         .qr-box {
             position: absolute;
             bottom: 1.8mm;
@@ -371,7 +461,7 @@
             position: absolute;
             bottom: 1mm;
             left: 3mm;
-            right: 12mm;
+            right: 14mm;
             font-size: 2.6pt;
             line-height: 1.25;
             color: var(--text-light);
@@ -380,12 +470,32 @@
             font-weight: 500;
         }
 
-        /* ========== BACK SIDE - REFINED ========== */
+        /* ========== BACK SIDE ========== */
         .card-back {
             display: flex;
             flex-direction: column;
             position: relative;
             background: linear-gradient(135deg, white 0%, var(--cream-bg) 100%);
+        }
+
+        /* GHOST IMAGE — semi-transparent greyscale copy of the holder's photo */
+        .ghost-photo {
+            position: absolute;
+            top: 2mm;
+            right: 2mm;
+            width: 12mm;
+            height: 15mm;
+            opacity: 0.18;
+            filter: grayscale(100%);
+            z-index: 0;
+            overflow: hidden;
+            border-radius: 2px;
+        }
+
+        .ghost-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         /* BACK WATERMARK */
@@ -421,14 +531,13 @@
         .back-top-section {
             display: flex;
             flex-direction: column;
-            gap: 0.8mm;
+            gap: 0.6mm;
         }
 
-        /* HEADER */
         .back-header-main {
             display: flex;
             flex-direction: column;
-            gap: 0.5mm;
+            gap: 0.3mm;
         }
 
         .back-org-title {
@@ -440,7 +549,22 @@
             line-height: 1.2;
         }
 
-        .back-badge {
+        .back-reg-no {
+            font-size: 3.8pt;
+            color: var(--text-muted);
+            font-weight: 500;
+            line-height: 1.2;
+        }
+
+        /* INSTRUCTIONS AREA */
+        .instructions-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        .instructions-badge {
             display: inline-block;
             background: rgba(201, 162, 39, 0.1);
             color: var(--gold-soft);
@@ -452,22 +576,6 @@
             text-transform: uppercase;
             letter-spacing: 0.4px;
             width: fit-content;
-        }
-
-        /* INSTRUCTIONS AREA - REFINED */
-        .instructions-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-        }
-
-        .instructions-header {
-            font-size: 5.2pt;
-            font-weight: 700;
-            color: var(--navy-primary);
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
             margin-bottom: 0.4mm;
         }
 
@@ -533,9 +641,10 @@
             font-size: 2.8pt;
             font-weight: 700;
             color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
+            text-transform: none;
+            letter-spacing: 0.1px;
             text-align: center;
+            word-break: break-all;
         }
 
         /* SIGNATURE SECTION */
@@ -575,9 +684,18 @@
             color: var(--text-muted);
             letter-spacing: 0.15px;
             margin-top: 0.25mm;
+            line-height: 1.3;
         }
 
-        /* FOOTER CONTACT GRID - REFINED */
+        .signature-designation {
+            font-size: 3.6pt;
+            font-weight: 500;
+            color: var(--text-light);
+            font-style: italic;
+            line-height: 1.2;
+        }
+
+        /* FOOTER CONTACT GRID */
         .footer-contact {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -626,7 +744,7 @@
             z-index: 2;
         }
 
-        /* PRINT BUTTON */
+        /* PRINT BUTTONS */
         .print-section {
             display: flex;
             justify-content: center;
@@ -653,175 +771,211 @@
             box-shadow: 0 8px 16px rgba(14, 165, 233, 0.4);
         }
 
-        .print-btn:active {
-            transform: translateY(0);
-        }
-
         @media print {
-            .print-btn {
-                display: none;
-            }
-        }
-
-        @media screen {
-            .card {
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            }
+            .print-section { display: none; }
         }
     </style>
 </head>
 <body>
     <div class="card-sheet">
         <!-- ========== FRONT SIDE ========== -->
-        <div class="card card-front">
-            <div class="sidebar">
-                <div class="sidebar-text">CHRSD</div>
-            </div>
-
-            <div class="card-content">
-                <div class="watermark">
-                    <img src="{{ asset('images/chrsd-seal.png') }}" alt="Watermark">
+        <div class="card-page">
+            @if($isBleed)
+                <div class="bleed-bg-front">
+                    <div class="bleed-sidebar"></div>
+                    <div class="bleed-main"></div>
                 </div>
+                <div class="crop-mark crop-tl"></div>
+                <div class="crop-mark crop-tr"></div>
+                <div class="crop-mark crop-bl"></div>
+                <div class="crop-mark crop-br"></div>
+            @endif
 
-                <div class="card-header">
-                    <div class="logo-block">
-                        <div class="logo">
-                            <img src="{{ asset('images/chrsd-emblem.png') }}" alt="CHRSD Logo">
-                        </div>
-                        <div class="org-short">CHRSD</div>
-                        <div class="org-full">CENTRE FOR HUMANITARIAN RESEARCH & SOCIAL DEVELOPMENT FOUNDATION</div>
-                        <div class="card-type-label">{{ $idTypeLabel }}</div>
+            <div class="card card-front">
+                <div class="sidebar"></div>
+
+                <div class="card-content">
+                    <div class="watermark">
+                        <img src="{{ asset('images/chrsd-seal.png') }}" alt="">
                     </div>
-                    <div class="photo-box">
-                        @if($photo)
-                            <img src="{{ $photo }}" alt="Employee Photo">
-                        @else
-                            <div class="photo-placeholder">—</div>
+
+                    <div class="card-header">
+                        <div class="logo-block">
+                            <div class="logo">
+                                <img src="{{ asset('images/chrsd-emblem.png') }}" alt="CHRSD">
+                            </div>
+                            <div class="org-short">CHRSD</div>
+                            <div class="org-full">CENTRE FOR HUMANITARIAN RESEARCH & SOCIAL DEVELOPMENT FOUNDATION</div>
+                            <div class="card-type-label">{{ $idTypeLabel }}</div>
+                        </div>
+                        <div class="right-column">
+                            <div class="photo-box">
+                                @if($photo)
+                                    <img src="{{ $photo }}" alt="Photo">
+                                @else
+                                    <div class="photo-placeholder">—</div>
+                                @endif
+                            </div>
+                            <div class="bearer-signature">
+                                @if($bearerSignature)
+                                    <div class="bearer-sig-image">
+                                        <img src="{{ $bearerSignature }}" alt="Bearer's signature">
+                                    </div>
+                                @endif
+                                <div class="bearer-sig-line"></div>
+                                <div class="bearer-sig-caption">Bearer's signature</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="divider-gold"></div>
+
+                    <div class="employee-section">
+                        <div class="employee-name" style="font-size: {{ $card->nameFontSize() }};">{{ $card->displayName() }}</div>
+                        <div class="employee-designation">{{ $card->designation ?? ($employee->position?->title ?? '') }}</div>
+
+                        <div class="details-grid">
+                            <div class="detail-row">
+                                <div class="detail-label">ID No</div>
+                                <div class="detail-value">{{ $card->serial_number ?? 'N/A' }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Blood Group</div>
+                                <div class="detail-value">{{ $card->blood_group ?? 'O+' }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Nationality</div>
+                                <div class="detail-value">{{ $card->nationality ?? 'Bangladeshi' }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Valid From</div>
+                                <div class="detail-value">{{ $card->valid_from?->format('d M Y') ?? 'N/A' }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Expires</div>
+                                <div class="detail-value">{{ $card->valid_until?->format('d M Y') ?? 'N/A' }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="qr-box">
+                        @if($qrUrl)
+                            <img src="{{ $qrUrl }}" alt="QR">
                         @endif
                     </div>
-                </div>
 
-                <div class="divider-gold"></div>
-
-                <div class="employee-section">
-                    <div class="employee-name" style="font-size: {{ $card->nameFontSize() }};">{{ $card->displayName() }}</div>
-                    <div class="employee-designation">{{ $card->designation ?? ($employee->position?->title ?? '') }}</div>
-
-                    <div class="details-grid">
-                        <div class="detail-row">
-                            <div class="detail-label">ID No</div>
-                            <div class="detail-value">{{ $card->serial_number ?? 'N/A' }}</div>
-                        </div>
-                        <div class="detail-row">
-                            <div class="detail-label">Blood Group</div>
-                            <div class="detail-value">{{ $card->blood_group ?? 'O+' }}</div>
-                        </div>
-                        <div class="detail-row">
-                            <div class="detail-label">Nationality</div>
-                            <div class="detail-value">{{ $card->nationality ?? 'Bangladeshi' }}</div>
-                        </div>
-                        <div class="detail-row">
-                            <div class="detail-label">Valid From</div>
-                            <div class="detail-value">{{ $card->valid_from?->format('d M Y') ?? 'N/A' }}</div>
-                        </div>
-                        <div class="detail-row">
-                            <div class="detail-label">Expires</div>
-                            <div class="detail-value">{{ $card->valid_until?->format('d M Y') ?? 'N/A' }}</div>
-                        </div>
+                    <div class="disclaimer">
+                        This card certifies that the bearer is an authorized representative of CHRSD. All concerned are requested to extend necessary cooperation.
                     </div>
-                </div>
-
-                <div class="qr-box">
-                    @if($qrUrl)
-                        <img src="{{ $qrUrl }}" alt="Verification QR Code">
-                    @endif
-                </div>
-
-                <div class="disclaimer">
-                    This card certifies that the bearer is an authorized representative of CHRSD. All concerned are requested to extend necessary cooperation.
                 </div>
             </div>
         </div>
 
         <!-- ========== BACK SIDE ========== -->
-        <div class="card card-back">
-            <div class="back-watermark">
-                <img src="{{ asset('images/chrsd-seal.png') }}" alt="Watermark">
-            </div>
+        <div class="card-page">
+            @if($isBleed)
+                <div class="bleed-bg-back"></div>
+                <div class="crop-mark crop-tl"></div>
+                <div class="crop-mark crop-tr"></div>
+                <div class="crop-mark crop-bl"></div>
+                <div class="crop-mark crop-br"></div>
+            @endif
 
-            <div class="back-content">
-                <!-- TOP SECTION -->
-                <div class="back-top-section">
-                    <div class="back-header-main">
-                        <div class="back-org-title">CENTRE FOR HUMANITARIAN RESEARCH & SOCIAL DEVELOPMENT FOUNDATION</div>
-                        <div class="back-badge">TERMS OF USE</div>
+            <div class="card card-back">
+                @if($photo)
+                    <div class="ghost-photo">
+                        <img src="{{ $photo }}" alt="">
                     </div>
+                @endif
 
-                    <div class="instructions-area">
-                        <div class="instructions-header">Cardholder Responsibilities</div>
-                        <ol class="instructions-list">
-                            <li>This card is the property of CHRSD and must be surrendered upon request.</li>
-                            <li>Must be worn/carried at all times while on duty.</li>
-                            <li>Must be returned upon resignation, termination, or upon request.</li>
-                            <li>If found, please return to the address below.</li>
-                        </ol>
-                    </div>
+                <div class="back-watermark">
+                    <img src="{{ asset('images/chrsd-seal.png') }}" alt="">
                 </div>
 
-                <!-- BOTTOM SECTION -->
-                <div class="back-bottom-section">
-                    <div class="qr-security-box">
-                        <div class="qr-container">
-                            @if($qrUrl)
-                                <img src="{{ $qrUrl }}" alt="Verification QR Code">
+                <div class="back-content">
+                    <!-- TOP SECTION -->
+                    <div class="back-top-section">
+                        <div class="back-header-main">
+                            <div class="back-org-title">CENTRE FOR HUMANITARIAN RESEARCH & SOCIAL DEVELOPMENT FOUNDATION</div>
+                            @if($registrationNo)
+                                <div class="back-reg-no">Reg. No. {{ $registrationNo }}</div>
                             @endif
                         </div>
-                        <div class="qr-label">chrsd.org/verify/{{ $card->serial_number }}</div>
+
+                        <div class="instructions-area">
+                            <div class="instructions-badge">Cardholder Responsibilities</div>
+                            <ol class="instructions-list">
+                                <li>This card is the property of CHRSD and must be surrendered upon request.</li>
+                                <li>Must be worn/carried at all times while on duty.</li>
+                                <li>Must be returned upon resignation, termination, or upon request.</li>
+                                <li>If found, please return to the address below.</li>
+                            </ol>
+                        </div>
                     </div>
 
-                    <div class="signature-section">
-                        <div class="signature-image-box">
-                            @if($signature)
-                                <img src="{{ $signature }}" alt="Signature">
+                    <!-- BOTTOM SECTION -->
+                    <div class="back-bottom-section">
+                        <div class="qr-security-box">
+                            <div class="qr-container">
+                                @if($qrUrl)
+                                    <img src="{{ $qrUrl }}" alt="QR">
+                                @endif
+                            </div>
+                            <div class="qr-label">{{ $printedVerifyText }}</div>
+                        </div>
+
+                        <div class="signature-section">
+                            <div class="signature-image-box">
+                                @if($signature)
+                                    <img src="{{ $signature }}" alt="Signature">
+                                @endif
+                            </div>
+                            <div class="signature-divider"></div>
+                            <div class="signature-caption">{{ $signatoryCaption }}</div>
+                            @if($signatoryDesignation)
+                                <div class="signature-designation">{{ $signatoryDesignation }}</div>
                             @endif
                         </div>
-                        <div class="signature-divider"></div>
-                        <div class="signature-caption">{{ $card->authorized_signatory ?: 'Authorized Signatory' }}</div>
+                    </div>
+
+                    <!-- FOOTER CONTACT -->
+                    <div class="footer-contact">
+                        <div class="contact-item">
+                            <div class="contact-icon">☎</div>
+                            <div class="contact-text">+880-2-47122566</div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon">☎</div>
+                            <div class="contact-text">+880-1716-610665</div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon">✉</div>
+                            <div class="contact-text">info@chrsd.org</div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon">🌐</div>
+                            <div class="contact-text">www.chrsd.org</div>
+                        </div>
+                        <div class="contact-item" style="grid-column: 1 / -1;">
+                            <div class="contact-icon">📍</div>
+                            <div class="contact-text">29 Toyenbee Circular Road (5th Floor), Motijheel C/A<br>Dhaka-1000.</div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- FOOTER CONTACT -->
-                <div class="footer-contact">
-                    <div class="contact-item">
-                        <div class="contact-icon">☎</div>
-                        <div class="contact-text">+880-2-47122566</div>
-                    </div>
-                    <div class="contact-item">
-                        <div class="contact-icon">✓</div>
-                        <div class="contact-text">{{ $card->serial_number ?? 'N/A' }}</div>
-                    </div>
-                    <div class="contact-item">
-                        <div class="contact-icon">✉</div>
-                        <div class="contact-text">info@chrsd.org</div>
-                    </div>
-                    <div class="contact-item">
-                        <div class="contact-icon">🌐</div>
-                        <div class="contact-text">www.chrsd.org</div>
-                    </div>
-                    <div class="contact-item" style="grid-column: 1 / -1;">
-                        <div class="contact-icon">📍</div>
-                        <div class="contact-text">29 Toyenbee Circular road (5th Floor), Motijheel C/A<br>Dhaka-1000.</div>
-                    </div>
-                </div>
+                <div class="back-accent-bar"></div>
             </div>
-
-            <div class="back-accent-bar"></div>
         </div>
     </div>
 
-    <!-- PRINT BUTTON -->
+    <!-- PRINT BUTTONS -->
     <div class="print-section">
         <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        @if($isBleed)
+            <a class="print-btn" href="{{ route('print.id-card', $card) }}?mode=trim" style="text-decoration:none;">Card Printer (no bleed)</a>
+        @else
+            <a class="print-btn" href="{{ route('print.id-card', $card) }}" style="text-decoration:none;">Print Shop (with bleed)</a>
+        @endif
     </div>
 </body>
 </html>
