@@ -234,9 +234,9 @@
         .card-header {
             display: flex;
             gap: 1.6mm;
-            margin-bottom: 1.4mm;
             align-items: flex-start;
             z-index: 1;
+            flex: 1;
         }
 
         .logo-block {
@@ -244,6 +244,7 @@
             flex-direction: column;
             flex: 1;
             min-width: 0;
+            justify-content: flex-start;
         }
 
         .logo {
@@ -379,14 +380,7 @@
             opacity: 0.5;
         }
 
-        /* EMPLOYEE SECTION */
-        .employee-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            z-index: 1;
-            min-width: 0;
-        }
+        /* EMPLOYEE SECTION (now inline within logo-block) */
 
         .employee-name {
             font-weight: 900;
@@ -411,7 +405,6 @@
             font-size: 4.6pt;
             line-height: 1.4;
             color: var(--text-dark);
-            flex: 1;
         }
 
         .detail-row {
@@ -812,6 +805,34 @@
                             <div class="org-short">CHRSD</div>
                             <div class="org-full">CENTRE FOR HUMANITARIAN RESEARCH & SOCIAL DEVELOPMENT FOUNDATION</div>
                             <div class="card-type-label">{{ $idTypeLabel }}</div>
+
+                            <div class="divider-gold"></div>
+
+                            <div class="employee-name" style="font-size: {{ $card->nameFontSize() }};">{{ $card->displayName() }}</div>
+                            <div class="employee-designation">{{ $card->designation ?? ($employee->position?->title ?? '') }}</div>
+
+                            <div class="details-grid">
+                                <div class="detail-row">
+                                    <div class="detail-label">ID No</div>
+                                    <div class="detail-value">{{ $card->serial_number ?? 'N/A' }}</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Blood Group</div>
+                                    <div class="detail-value">{{ $card->blood_group ?? 'O+' }}</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Nationality</div>
+                                    <div class="detail-value">{{ $card->nationality ?? 'Bangladeshi' }}</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Valid From</div>
+                                    <div class="detail-value">{{ $card->valid_from?->format('d M Y') ?? 'N/A' }}</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Expires</div>
+                                    <div class="detail-value">{{ $card->valid_until?->format('d M Y') ?? 'N/A' }}</div>
+                                </div>
+                            </div>
                         </div>
                         <div class="right-column">
                             <div class="photo-box">
@@ -829,36 +850,6 @@
                                 @endif
                                 <div class="bearer-sig-line"></div>
                                 <div class="bearer-sig-caption">Bearer's signature</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="divider-gold"></div>
-
-                    <div class="employee-section">
-                        <div class="employee-name" style="font-size: {{ $card->nameFontSize() }};">{{ $card->displayName() }}</div>
-                        <div class="employee-designation">{{ $card->designation ?? ($employee->position?->title ?? '') }}</div>
-
-                        <div class="details-grid">
-                            <div class="detail-row">
-                                <div class="detail-label">ID No</div>
-                                <div class="detail-value">{{ $card->serial_number ?? 'N/A' }}</div>
-                            </div>
-                            <div class="detail-row">
-                                <div class="detail-label">Blood Group</div>
-                                <div class="detail-value">{{ $card->blood_group ?? 'O+' }}</div>
-                            </div>
-                            <div class="detail-row">
-                                <div class="detail-label">Nationality</div>
-                                <div class="detail-value">{{ $card->nationality ?? 'Bangladeshi' }}</div>
-                            </div>
-                            <div class="detail-row">
-                                <div class="detail-label">Valid From</div>
-                                <div class="detail-value">{{ $card->valid_from?->format('d M Y') ?? 'N/A' }}</div>
-                            </div>
-                            <div class="detail-row">
-                                <div class="detail-label">Expires</div>
-                                <div class="detail-value">{{ $card->valid_until?->format('d M Y') ?? 'N/A' }}</div>
                             </div>
                         </div>
                     </div>
