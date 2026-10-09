@@ -457,7 +457,7 @@
         /* DISCLAIMER */
         .disclaimer {
             position: absolute;
-            bottom: 1mm;
+            bottom: 2mm;
             left: 3mm;
             right: 14mm;
             font-size: 2.6pt;
