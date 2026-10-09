@@ -58,6 +58,7 @@ class IdCardResource extends Resource
             'Field Officer ID' => 'Field Officer ID',
             'Media Pass' => 'Media Pass',
             'Intern ID Card' => 'Intern ID Card',
+            'Official Identity' => 'Official Identity',
         ];
 
         return $form->schema([
@@ -114,7 +115,13 @@ class IdCardResource extends Resource
                         ->label('Signature caption (printed on card)')
                         ->maxLength(128)
                         ->placeholder('Authorized Signatory')
-                        ->helperText('Overrides the default "Authorized Signatory" caption printed under the signature line, e.g. a title such as "Executive Director".'),
+                        ->helperText('Overrides the auto-generated signatory name + designation caption printed under the signature line.'),
+
+                    Forms\Components\TextInput::make('signatory_designation')
+                        ->label('Signatory designation')
+                        ->maxLength(128)
+                        ->placeholder('e.g. Organizing Secretary')
+                        ->helperText('Printed under the signatory\'s name on the card. Required when a signatory is linked.'),
 
                     Forms\Components\TextInput::make('designation')
                         ->maxLength(128)
@@ -155,7 +162,17 @@ class IdCardResource extends Resource
                         ->columnSpanFull(),
                 ]),
 
-            Forms\Components\Section::make('Signature')
+            Forms\Components\Section::make('Bearer\'s Signature')
+                ->description('The cardholder\'s own handwritten signature, printed on the front of the card under the photo. Leave blank to show a blank signature line.')
+                ->schema([
+                    Forms\Components\SpatieMediaLibraryFileUpload::make('bearer_signature')
+                        ->collection('bearer_signature')
+                        ->image()->imageEditor()
+                        ->maxSize(2048)
+                        ->columnSpanFull(),
+                ]),
+
+            Forms\Components\Section::make('Authorised Signatory\'s Signature')
                 ->description('Authorised signatory\'s handwritten signature. Ideally a transparent-background PNG so it prints cleanly over the signature line.')
                 ->schema([
                     Forms\Components\SpatieMediaLibraryFileUpload::make('signature')
@@ -164,7 +181,6 @@ class IdCardResource extends Resource
                         ->maxSize(2048)
                         ->columnSpanFull()
                         ->afterStateUpdated(function (?IdCard $record) {
-                            // Bust any cached signature image URL on the printed card.
                             $record?->increment('signature_version');
                         }),
                 ]),

@@ -518,7 +518,7 @@
             <div class="contact-section">
                 <div class="contact-item">📞 +880-2-47122566 | +880-1714-781490</div>
                 <div class="contact-item">✉ info@chrsd.org</div>
-                <div class="contact-item">📍 29 Toyenbee Circular road (5th Floor), Motijheel C/A</div>
+                <div class="contact-item">📍 29 Toyenbee Circular Road (5th Floor), Motijheel C/A</div>
                 <div class="contact-item">Dhaka-1000.</div>
             </div>
 

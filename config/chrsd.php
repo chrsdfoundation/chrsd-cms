@@ -35,4 +35,9 @@ return [
      */
     'verify_base_url' => env('VERIFY_BASE_URL'),
 
+    /*
+     * Government registration number printed on the back of ID cards.
+     */
+    'registration_no' => env('CHRSD_REGISTRATION_NO', 'S-14480/2026'),
+
 ];
