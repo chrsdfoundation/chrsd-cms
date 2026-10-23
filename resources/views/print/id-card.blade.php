@@ -435,8 +435,8 @@
 
         .detail-value {
             font-weight: 800;
-            color: var(--text-dark);
-            font-size: 4.8pt;
+            color: #1a1a1a;
+            font-size: 5pt;
             letter-spacing: 0.05px;
         }
 
@@ -472,10 +472,12 @@
             right: 15.5mm;
             font-size: 4pt;
             line-height: 1.25;
-            color: var(--text-light);
+            color: var(--text-muted);
             text-align: center;
             z-index: 1;
             font-weight: 500;
+            border-top: 0.5px solid var(--text-light);
+            padding-top: 0.8mm;
         }
 
         /* ========== BACK SIDE ========== */
@@ -591,23 +593,35 @@
             font-size: 4pt;
             line-height: 1.45;
             color: var(--text-muted);
-            list-style: decimal;
-            padding-left: 2.2mm;
-            background: rgba(201, 162, 39, 0.05);
-            padding: 0.6mm 0.8mm 0.6mm 2.2mm;
-            border-radius: 3px;
-            border-left: 2px solid rgba(201, 162, 39, 0.2);
+            list-style: none;
+            counter-reset: resp;
+            padding: 0.4mm 0;
         }
 
         .instructions-list li {
-            margin-bottom: 0.35mm;
+            counter-increment: resp;
+            position: relative;
+            padding-left: 3.5mm;
+            margin-bottom: 0.5mm;
             text-align: justify;
             font-weight: 500;
         }
 
-        .instructions-list li::marker {
-            color: var(--gold-soft);
+        .instructions-list li::before {
+            content: counter(resp);
+            position: absolute;
+            left: 0;
+            top: 0.1mm;
+            width: 2.5mm;
+            height: 2.5mm;
+            border-radius: 50%;
+            background: var(--navy-primary);
+            color: #fff;
+            font-size: 3.5pt;
             font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         /* BOTTOM SECTION */
@@ -724,21 +738,51 @@
         }
 
         .contact-icon {
-            width: 2.2mm;
-            height: 2.2mm;
+            width: 2.8mm;
+            height: 2.8mm;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            font-size: 1.8pt;
-            color: var(--gold-soft);
-            font-weight: 700;
+            font-size: 2pt;
+            color: var(--navy-primary);
+            font-weight: 800;
+            background: rgba(201, 162, 39, 0.12);
+            border: 0.3px solid rgba(201, 162, 39, 0.3);
+            border-radius: 50%;
         }
 
         .contact-text {
             font-weight: 500;
             flex: 1;
             word-break: break-word;
+        }
+
+        /* FOUND-CARD RETURN BAR */
+        .found-bar {
+            background: #fdf3f0;
+            border: 0.8px solid #e8b4a8;
+            border-left: 2px solid #c0392b;
+            border-radius: 2px;
+            padding: 0.5mm 1mm;
+            display: flex;
+            align-items: center;
+            gap: 0.8mm;
+            margin-top: 0.5mm;
+            font-size: 3.8pt;
+            line-height: 1.35;
+            color: #7a2c1d;
+        }
+
+        .found-bar-icon {
+            font-size: 4.5pt;
+            flex-shrink: 0;
+        }
+
+        .found-bar-text strong {
+            color: #c0392b;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
         /* BOTTOM ACCENT BAR */
@@ -962,10 +1006,10 @@
                             <div class="contact-icon">🌐</div>
                             <div class="contact-text">www.chrsd.org</div>
                         </div>
-                        <div class="contact-item" style="grid-column: 1 / -1;">
-                            <div class="contact-icon">📍</div>
-                            <div class="contact-text">29 Toyenbee Circular Road (5th Floor), Motijheel C/A<br>Dhaka-1000.</div>
-                        </div>
+                    </div>
+                    <div class="found-bar">
+                        <span class="found-bar-icon">⚠</span>
+                        <span class="found-bar-text"><strong>Found this card?</strong> Return to: 29 Toyenbee Circular Road (5th Floor), Motijheel C/A, Dhaka-1000, Bangladesh.</span>
                     </div>
                 </div>
 
