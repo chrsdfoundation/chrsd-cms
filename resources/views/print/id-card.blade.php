@@ -38,6 +38,12 @@
                 color-adjust: exact !important;
             }
 
+            img {
+                image-rendering: -webkit-optimize-contrast;
+                image-rendering: high-quality;
+                break-inside: avoid;
+            }
+
             @page {
                 size: {{ $pageW }} {{ $pageH }};
                 margin: 0;
@@ -147,17 +153,17 @@
             background: #000;
         }
         /* Top-left */
-        .crop-tl::before { width: 2.5mm; height: 0.2mm; top: 3mm; left: 0; }
-        .crop-tl::after  { width: 0.2mm; height: 2.5mm; top: 0; left: 3mm; }
+        .crop-tl::before { width: 2.5mm; height: 0.25mm; top: 3mm; left: 0; }
+        .crop-tl::after  { width: 0.25mm; height: 2.5mm; top: 0; left: 3mm; }
         /* Top-right */
-        .crop-tr::before { width: 2.5mm; height: 0.2mm; top: 3mm; right: 0; }
-        .crop-tr::after  { width: 0.2mm; height: 2.5mm; top: 0; right: 3mm; }
+        .crop-tr::before { width: 2.5mm; height: 0.25mm; top: 3mm; right: 0; }
+        .crop-tr::after  { width: 0.25mm; height: 2.5mm; top: 0; right: 3mm; }
         /* Bottom-left */
-        .crop-bl::before { width: 2.5mm; height: 0.2mm; bottom: 3mm; left: 0; }
-        .crop-bl::after  { width: 0.2mm; height: 2.5mm; bottom: 0; left: 3mm; }
+        .crop-bl::before { width: 2.5mm; height: 0.25mm; bottom: 3mm; left: 0; }
+        .crop-bl::after  { width: 0.25mm; height: 2.5mm; bottom: 0; left: 3mm; }
         /* Bottom-right */
-        .crop-br::before { width: 2.5mm; height: 0.2mm; bottom: 3mm; right: 0; }
-        .crop-br::after  { width: 0.2mm; height: 2.5mm; bottom: 0; right: 3mm; }
+        .crop-br::before { width: 2.5mm; height: 0.25mm; bottom: 3mm; right: 0; }
+        .crop-br::after  { width: 0.25mm; height: 2.5mm; bottom: 0; right: 3mm; }
         @endif
 
         /* ========== BLEED BACKGROUND EXTENSION ========== */
@@ -320,10 +326,15 @@
             position: relative;
         }
 
+        .photo-box {
+            aspect-ratio: 0.82;
+        }
+
         .photo-box img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            object-position: center 20%;
             position: relative;
             z-index: 1;
         }

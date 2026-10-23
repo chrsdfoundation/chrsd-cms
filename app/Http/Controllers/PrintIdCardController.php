@@ -18,8 +18,8 @@ class PrintIdCardController extends Controller
     {
         $card->loadMissing(['employee.position', 'employee.department', 'signedBy.position', 'idCardType']);
 
-        $card->blood_group = $card->blood_group ?? 'O+';
-        $card->nationality = $card->nationality ?? 'Bangladeshi';
+        $card->blood_group = $card->blood_group ?: 'Not specified';
+        $card->nationality = $card->nationality ?: 'Not specified';
         $card->valid_from = $card->valid_from ?? now();
         $card->valid_until = $card->valid_until ?? now()->addYears(2);
 
@@ -44,13 +44,14 @@ class PrintIdCardController extends Controller
         }
 
         // QR encodes the full hash-based verification URL (error correction M)
+        // SVG-first: resolution-independent, sharp at any print DPI
         $verifyBase = rtrim(config('chrsd.verify_base_url') ?: config('app.url'), '/');
         $qrVerifyUrl = $verifyBase . '/verify/' . $card->verification_hash;
-        $qrPng = (new DNS2D)->getBarcodePNG($qrVerifyUrl, 'QRCODE,M', 5, 5);
-        if (! is_string($qrPng) || $qrPng === '') {
-            $qrSvg = (new DNS2D)->getBarcodeSVG($qrVerifyUrl, 'QRCODE,M', 5, 5);
+        $qrSvg = (new DNS2D)->getBarcodeSVG($qrVerifyUrl, 'QRCODE,Q', 5, 5);
+        if (is_string($qrSvg) && $qrSvg !== '') {
             $qrUrl = 'data:image/svg+xml;base64,' . base64_encode($qrSvg);
         } else {
+            $qrPng = (new DNS2D)->getBarcodePNG($qrVerifyUrl, 'QRCODE,Q', 5, 5);
             $qrUrl = 'data:image/png;base64,' . $qrPng;
         }
 
