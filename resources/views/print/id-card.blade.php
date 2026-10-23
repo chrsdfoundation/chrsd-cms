@@ -275,7 +275,7 @@
         }
 
         .org-full {
-            font-size: 3.6pt;
+            font-size: 4pt;
             color: var(--text-muted);
             line-height: 1.2;
             margin-bottom: 0.3mm;
@@ -366,7 +366,7 @@
         }
 
         .bearer-sig-caption {
-            font-size: 2.8pt;
+            font-size: 4pt;
             color: var(--text-light);
             text-align: center;
             font-weight: 500;
@@ -435,8 +435,8 @@
             position: absolute;
             bottom: 1.8mm;
             right: 1.8mm;
-            width: 10.5mm;
-            height: 10.5mm;
+            width: 15mm;
+            height: 15mm;
             border: 1.5px solid var(--gold-soft);
             border-radius: 4px;
             background: white;
@@ -444,7 +444,7 @@
             align-items: center;
             justify-content: center;
             z-index: 2;
-            padding: 0.35mm;
+            padding: 1.2mm;
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
         }
 
@@ -459,8 +459,8 @@
             position: absolute;
             bottom: 2mm;
             left: 3mm;
-            right: 14mm;
-            font-size: 2.6pt;
+            right: 15.5mm;
+            font-size: 4pt;
             line-height: 1.25;
             color: var(--text-light);
             text-align: left;
@@ -483,7 +483,7 @@
             right: 2mm;
             width: 12mm;
             height: 15mm;
-            opacity: 0.18;
+            opacity: 0.30;
             filter: grayscale(100%);
             z-index: 0;
             overflow: hidden;
@@ -548,7 +548,7 @@
         }
 
         .back-reg-no {
-            font-size: 3.8pt;
+            font-size: 4pt;
             color: var(--text-muted);
             font-weight: 500;
             line-height: 1.2;
@@ -617,8 +617,8 @@
         }
 
         .qr-container {
-            width: 11mm;
-            height: 11mm;
+            width: 15mm;
+            height: 15mm;
             border: 1.5px solid var(--gold-soft);
             border-radius: 4px;
             background: white;
@@ -626,7 +626,7 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
-            padding: 0.3mm;
+            padding: 1.2mm;
         }
 
         .qr-container img {
@@ -636,7 +636,7 @@
         }
 
         .qr-label {
-            font-size: 2.8pt;
+            font-size: 4pt;
             font-weight: 700;
             color: var(--text-muted);
             text-transform: none;
@@ -686,7 +686,7 @@
         }
 
         .signature-designation {
-            font-size: 3.6pt;
+            font-size: 4pt;
             font-weight: 500;
             color: var(--text-light);
             font-style: italic;
@@ -698,7 +698,7 @@
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 0.8mm;
-            font-size: 2.7pt;
+            font-size: 4pt;
             line-height: 1.35;
             color: var(--text-muted);
             border-top: 0.8px solid;
@@ -818,11 +818,11 @@
                                 </div>
                                 <div class="detail-row">
                                     <div class="detail-label">Blood Group</div>
-                                    <div class="detail-value">{{ $card->blood_group ?? 'O+' }}</div>
+                                    <div class="detail-value">{{ $card->blood_group }}</div>
                                 </div>
                                 <div class="detail-row">
                                     <div class="detail-label">Nationality</div>
-                                    <div class="detail-value">{{ $card->nationality ?? 'Bangladeshi' }}</div>
+                                    <div class="detail-value">{{ $card->nationality }}</div>
                                 </div>
                                 <div class="detail-row">
                                     <div class="detail-label">Valid From</div>
