@@ -717,24 +717,24 @@
             line-height: 1.2;
         }
 
-        /* FOOTER CONTACT GRID */
+        /* FOOTER CONTACT ROW */
         .footer-contact {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.8mm;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 0.4mm 1.2mm;
             font-size: 4pt;
             line-height: 1.35;
             color: var(--text-muted);
-            border-top: 0.8px solid;
-            border-image: linear-gradient(90deg, transparent, var(--gold-soft), transparent) 1;
-            padding-top: 0.8mm;
-            padding-bottom: 0.4mm;
+            border-top: 0.6px solid var(--text-light);
+            border-bottom: 0.6px solid var(--text-light);
+            padding: 0.6mm 0.3mm;
         }
 
         .contact-item {
             display: flex;
             align-items: center;
-            gap: 0.35mm;
+            gap: 0.4mm;
         }
 
         .contact-icon {
@@ -958,7 +958,6 @@
                                 <li>This card is the property of CHRSD and must be surrendered upon request.</li>
                                 <li>Must be worn/carried at all times while on duty.</li>
                                 <li>Must be returned upon resignation, termination, or upon request.</li>
-                                <li>If found, please return to the address below.</li>
                             </ol>
                         </div>
                     </div>
