@@ -564,6 +564,7 @@
             color: var(--text-muted);
             font-weight: 500;
             line-height: 1.2;
+            text-align: center;
         }
 
         /* INSTRUCTIONS AREA */
@@ -576,9 +577,9 @@
 
         .instructions-badge {
             display: inline-block;
-            background: rgba(201, 162, 39, 0.1);
-            color: var(--gold-soft);
-            border: 0.8px solid rgba(201, 162, 39, 0.4);
+            background: rgba(26, 54, 93, 0.08);
+            color: var(--navy-primary);
+            border: 0.8px solid rgba(26, 54, 93, 0.25);
             padding: 0.4mm 0.9mm;
             border-radius: 10px;
             font-size: 4.6pt;
