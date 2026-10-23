@@ -254,9 +254,9 @@
         }
 
         .logo {
-            width: 6mm;
-            height: 6mm;
-            margin-bottom: 0.3mm;
+            width: 7.5mm;
+            height: 7.5mm;
+            margin-bottom: 0.4mm;
         }
 
         @media screen {
@@ -272,33 +272,32 @@
         }
 
         .org-short {
-            font-size: 6.5pt;
-            font-weight: 800;
+            font-size: 7.5pt;
+            font-weight: 900;
             color: var(--navy-primary);
             line-height: 1;
             margin-bottom: 0.2mm;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.5px;
         }
 
         .org-full {
-            font-size: 4pt;
-            color: var(--text-muted);
+            font-size: 4.2pt;
+            color: var(--navy-secondary);
             line-height: 1.2;
             margin-bottom: 0.3mm;
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .card-type-label {
             font-size: 5.5pt;
             font-weight: 700;
-            background: rgba(201, 162, 39, 0.1);
-            color: var(--gold-soft);
-            letter-spacing: 0.4px;
+            background: transparent;
+            color: var(--navy-primary);
+            letter-spacing: 0.5px;
             text-transform: uppercase;
-            padding: 0.3mm 0.7mm;
-            border-radius: 3px;
+            padding: 0.3mm 0 0.3mm 1.2mm;
+            border-left: 1.5px solid var(--gold-bright);
             display: inline-block;
-            border: 0.5px solid rgba(201, 162, 39, 0.3);
         }
 
         /* RIGHT COLUMN: PHOTO + BEARER SIGNATURE */
@@ -404,11 +403,11 @@
 
         .employee-designation {
             font-size: 5pt;
-            color: var(--text-muted);
+            color: var(--navy-primary);
             font-style: italic;
             line-height: 1.2;
             margin-bottom: 0.6mm;
-            font-weight: 400;
+            font-weight: 600;
         }
 
         /* DETAILS GRID */
@@ -427,17 +426,17 @@
         }
 
         .detail-label {
-            font-weight: 600;
+            font-weight: 400;
             color: var(--text-light);
-            font-size: 4.4pt;
+            font-size: 4pt;
             text-transform: uppercase;
             letter-spacing: 0.3px;
         }
 
         .detail-value {
-            font-weight: 700;
+            font-weight: 800;
             color: var(--text-dark);
-            font-size: 4.7pt;
+            font-size: 4.8pt;
             letter-spacing: 0.05px;
         }
 
@@ -474,7 +473,7 @@
             font-size: 4pt;
             line-height: 1.25;
             color: var(--text-light);
-            text-align: left;
+            text-align: center;
             z-index: 1;
             font-weight: 500;
         }
