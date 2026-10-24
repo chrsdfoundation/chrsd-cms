@@ -771,17 +771,18 @@
         /* FOUND-CARD RETURN BAR */
         .found-bar {
             background: #fdf3f0;
-            border: 0.8px solid #e8b4a8;
-            border-left: 2px solid #c0392b;
+            border: 0.8px solid #c0392b;
             border-radius: 2px;
             padding: 0.5mm 1mm;
             display: flex;
+            justify-content: center;
             align-items: center;
             gap: 0.8mm;
             margin-top: 0.5mm;
             font-size: 3.8pt;
             line-height: 1.35;
             color: #7a2c1d;
+            text-align: center;
         }
 
         .found-bar-icon {
