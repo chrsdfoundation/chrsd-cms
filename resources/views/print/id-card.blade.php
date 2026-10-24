@@ -45,7 +45,7 @@
             }
 
             @page {
-                size: {{ $pageW }} {{ $pageH }};
+                size: A4 portrait;
                 margin: 0;
                 padding: 0;
             }
@@ -83,13 +83,22 @@
 
         @media print {
             .card-sheet {
-                display: block;
-                gap: 0;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 8mm;
                 padding: 0;
                 background: white;
                 box-shadow: none;
                 border-radius: 0;
                 max-width: 100%;
+                width: 210mm;
+                height: 297mm;
+            }
+
+            .card {
+                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15), 0 0 0 0.5px rgba(0, 0, 0, 0.08);
             }
         }
 
@@ -103,10 +112,8 @@
 
         @media print {
             .card-page {
-                page-break-after: always;
-            }
-            .card-page:last-child {
-                page-break-after: auto;
+                page-break-after: avoid;
+                border-radius: 3mm;
             }
         }
 
@@ -114,6 +121,7 @@
             .card-page {
                 border: 1px dashed #ccc;
                 margin-bottom: 4mm;
+                border-radius: 3mm;
             }
         }
 
@@ -126,6 +134,7 @@
             overflow: hidden;
             page-break-inside: avoid;
             background: white;
+            border-radius: 3mm;
         }
 
         @if($isBleed)
