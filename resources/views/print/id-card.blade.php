@@ -98,7 +98,7 @@
             }
 
             .card {
-                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15), 0 0 0 0.5px rgba(0, 0, 0, 0.08);
+                border: 0.75px solid #c0c0c0;
             }
         }
 
