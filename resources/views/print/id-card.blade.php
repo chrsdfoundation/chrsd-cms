@@ -208,13 +208,25 @@
         .card-front {
             display: flex;
             background: white;
+            position: relative;
+        }
+
+        .card-front::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1.5px;
+            background: linear-gradient(90deg, var(--navy-primary), var(--gold-soft), var(--navy-primary));
+            z-index: 2;
         }
 
         .sidebar {
             width: 5mm;
             height: 100%;
             background: linear-gradient(180deg, var(--navy-primary) 0%, var(--navy-secondary) 100%);
-            border-right: 2.5px solid var(--gold-soft);
+            border-right: 2px solid var(--gold-soft);
             flex-shrink: 0;
             position: relative;
             overflow: hidden;
@@ -237,7 +249,7 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            padding: 2.5mm 3mm 5.5mm;
+            padding: 2.5mm 3mm 4.5mm;
             position: relative;
             background: linear-gradient(135deg, white 0%, var(--cream-bg) 100%);
         }
@@ -249,7 +261,7 @@
             left: 0.5mm;
             right: 1mm;
             bottom: 1mm;
-            border: 0.3px solid rgba(201, 162, 39, 0.15);
+            border: 0.3px solid rgba(201, 162, 39, 0.25);
             border-radius: 1.5mm;
             pointer-events: none;
             z-index: 0;
@@ -258,10 +270,11 @@
         /* WATERMARK SEAL */
         .watermark {
             position: absolute;
-            bottom: 2mm;
-            left: 2mm;
-            width: 18mm;
-            height: 18mm;
+            top: 50%;
+            left: 8mm;
+            transform: translateY(-50%);
+            width: 20mm;
+            height: 20mm;
             opacity: 0.04;
             z-index: 0;
         }
@@ -289,10 +302,17 @@
             justify-content: flex-start;
         }
 
+        .logo-lockup {
+            display: flex;
+            align-items: center;
+            gap: 1.5mm;
+            margin-bottom: 0.3mm;
+        }
+
         .logo {
             width: 7.5mm;
             height: 7.5mm;
-            margin-bottom: 0.4mm;
+            flex-shrink: 0;
         }
 
         @media screen {
@@ -307,21 +327,26 @@
             object-fit: contain;
         }
 
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
         .org-short {
-            font-size: 7.5pt;
+            font-size: 6.5pt;
             font-weight: 900;
             color: var(--navy-primary);
             line-height: 1;
-            margin-bottom: 0.2mm;
+            margin-bottom: 0.1mm;
             letter-spacing: 0.5px;
         }
 
         .org-full {
-            font-size: 4.2pt;
+            font-size: 4.8pt;
             color: var(--navy-secondary);
-            line-height: 1.2;
-            margin-bottom: 0.3mm;
-            font-weight: 600;
+            line-height: 1.15;
+            font-weight: 700;
         }
 
         .card-type-label {
@@ -443,7 +468,7 @@
             font-style: italic;
             line-height: 1.2;
             margin-bottom: 0.6mm;
-            font-weight: 600;
+            font-weight: 500;
         }
 
         /* DETAILS GRID */
@@ -455,7 +480,7 @@
 
         .detail-row {
             display: grid;
-            grid-template-columns: 28mm 1fr;
+            grid-template-columns: 18mm 1fr;
             gap: 0.5mm;
             margin: 0.3mm 0;
             align-items: center;
@@ -471,7 +496,7 @@
 
         .detail-value {
             font-weight: 800;
-            color: #1a1a1a;
+            color: var(--navy-primary);
             font-size: 5pt;
             letter-spacing: 0.05px;
         }
@@ -479,11 +504,11 @@
         /* QR CODE BOX (front) */
         .qr-box {
             position: absolute;
-            bottom: 1.8mm;
-            right: 1.8mm;
+            bottom: 1.5mm;
+            right: 1.5mm;
             width: 10mm;
             height: 10mm;
-            border: 1.5px solid var(--gold-soft);
+            border: 2px solid var(--gold-soft);
             border-radius: 3px;
             background: white;
             display: flex;
@@ -503,16 +528,16 @@
         /* DISCLAIMER */
         .disclaimer {
             position: absolute;
-            bottom: 2mm;
+            bottom: 1.5mm;
             left: 3mm;
             right: 12mm;
-            font-size: 4pt;
+            font-size: 4.3pt;
             line-height: 1.25;
             color: var(--text-muted);
             text-align: center;
             z-index: 1;
             font-weight: 500;
-            border-top: 0.5px solid var(--text-light);
+            border-top: 0.5px solid rgba(201, 162, 39, 0.35);
             padding-top: 0.8mm;
         }
 
@@ -541,7 +566,7 @@
             right: 2mm;
             width: 12mm;
             height: 15mm;
-            opacity: 0.30;
+            opacity: 0.15;
             filter: grayscale(100%);
             z-index: 0;
             overflow: hidden;
@@ -576,7 +601,7 @@
         .back-content {
             display: flex;
             flex-direction: column;
-            padding: 2mm 2.4mm;
+            padding: 2.5mm;
             position: relative;
             z-index: 1;
             height: 100%;
@@ -603,6 +628,7 @@
             text-transform: uppercase;
             letter-spacing: 0.3px;
             line-height: 1.2;
+            text-align: center;
         }
 
         .back-reg-no {
@@ -676,7 +702,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1.8mm;
-            align-items: flex-end;
+            align-items: center;
         }
 
         /* QR CODE SECURITY BOX */
@@ -688,9 +714,9 @@
         }
 
         .qr-container {
-            width: 15mm;
-            height: 15mm;
-            border: 1.5px solid var(--gold-soft);
+            width: 13mm;
+            height: 13mm;
+            border: 2px solid var(--gold-soft);
             border-radius: 4px;
             background: white;
             display: flex;
@@ -785,8 +811,8 @@
         }
 
         .contact-icon {
-            width: 2.8mm;
-            height: 2.8mm;
+            width: 2.5mm;
+            height: 2.5mm;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -819,7 +845,7 @@
             justify-content: center;
             align-items: center;
             gap: 0.8mm;
-            margin-top: 0.5mm;
+            margin-top: 1mm;
             font-size: 3.8pt;
             line-height: 1.35;
             color: var(--navy-primary);
@@ -857,6 +883,7 @@
             height: 1.5px;
             background: linear-gradient(90deg, var(--navy-primary), var(--gold-soft), var(--navy-primary));
             z-index: 2;
+            border-radius: 0 0 3mm 3mm;
         }
 
         /* PRINT BUTTONS */
@@ -916,11 +943,15 @@
 
                     <div class="card-header">
                         <div class="logo-block">
-                            <div class="logo">
-                                <img src="{{ asset('images/chrsd-emblem.png') }}" alt="CHRSD">
+                            <div class="logo-lockup">
+                                <div class="logo">
+                                    <img src="{{ asset('images/chrsd-emblem.png') }}" alt="CHRSD">
+                                </div>
+                                <div class="logo-text">
+                                    <div class="org-short">CHRSD</div>
+                                    <div class="org-full">CENTRE FOR HUMANITARIAN RESEARCH & SOCIAL DEVELOPMENT FOUNDATION</div>
+                                </div>
                             </div>
-                            <div class="org-short">CHRSD</div>
-                            <div class="org-full">CENTRE FOR HUMANITARIAN RESEARCH & SOCIAL DEVELOPMENT FOUNDATION</div>
                             <div class="card-type-label">{{ $idTypeLabel }}</div>
 
                             <div class="divider-gold"></div>
