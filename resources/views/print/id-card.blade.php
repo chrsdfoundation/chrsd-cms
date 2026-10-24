@@ -754,12 +754,16 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            font-size: 2pt;
-            color: var(--navy-primary);
-            font-weight: 800;
             background: rgba(201, 162, 39, 0.12);
             border: 0.3px solid rgba(201, 162, 39, 0.3);
             border-radius: 50%;
+            padding: 0.2mm;
+        }
+
+        .contact-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: var(--navy-primary);
         }
 
         .contact-text {
@@ -1001,19 +1005,19 @@
                     <!-- FOOTER CONTACT -->
                     <div class="footer-contact">
                         <div class="contact-item">
-                            <div class="contact-icon">☎</div>
+                            <div class="contact-icon"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.46.57 3.58a1 1 0 0 1-.24 1.01l-2.2 2.2z"/></svg></div>
                             <div class="contact-text">+880-2-47122566</div>
                         </div>
                         <div class="contact-item">
-                            <div class="contact-icon">☎</div>
+                            <div class="contact-icon"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 1.01L7 1a2 2 0 0 0-2 2v18a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2zM17 19H7V5h10v14zm-4.2-5.78v1.75a6.26 6.26 0 0 1-3.7-3.7h1.75L12 9.12 10.85 7H8.1a5 5 0 0 0 8.8 3.17l-1.27-1.28a3.45 3.45 0 0 1-2.83 1.33z"/></svg></div>
                             <div class="contact-text">+880-1716-610665</div>
                         </div>
                         <div class="contact-item">
-                            <div class="contact-icon">✉</div>
+                            <div class="contact-icon"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div>
                             <div class="contact-text">info@chrsd.org</div>
                         </div>
                         <div class="contact-item">
-                            <div class="contact-icon">🌐</div>
+                            <div class="contact-icon"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1a2 2 0 0 0 2 2v1.93zm6.9-2.54A1.99 1.99 0 0 0 16 16h-1v-3a1 1 0 0 0-1-1H8v-2h2a1 1 0 0 0 1-1V7h2a2 2 0 0 0 2-2v-.41a7.98 7.98 0 0 1 2.9 12.8z"/></svg></div>
                             <div class="contact-text">www.chrsd.org</div>
                         </div>
                     </div>
