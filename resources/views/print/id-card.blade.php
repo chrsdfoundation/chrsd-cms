@@ -185,7 +185,7 @@
         .bleed-bg-front .bleed-sidebar {
             position: absolute;
             top: 0; bottom: 0; left: 0;
-            width: calc(3mm + 2.5mm);
+            width: calc(3mm + 5mm);
             background: linear-gradient(180deg, var(--navy-primary) 0%, var(--navy-secondary) 100%);
         }
         .bleed-bg-front .bleed-main {
@@ -211,12 +211,26 @@
         }
 
         .sidebar {
-            width: 2.5mm;
+            width: 5mm;
             height: 100%;
             background: linear-gradient(180deg, var(--navy-primary) 0%, var(--navy-secondary) 100%);
-            border-right: 2px solid var(--gold-soft);
+            border-right: 2.5px solid var(--gold-soft);
             flex-shrink: 0;
             position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                -45deg,
+                transparent,
+                transparent 1.2mm,
+                rgba(255,255,255,0.06) 1.2mm,
+                rgba(255,255,255,0.06) 1.5mm
+            );
         }
 
         .card-content {
@@ -226,6 +240,19 @@
             padding: 2.5mm 3mm 5.5mm;
             position: relative;
             background: linear-gradient(135deg, white 0%, var(--cream-bg) 100%);
+        }
+
+        .card-content::after {
+            content: '';
+            position: absolute;
+            top: 1mm;
+            left: 0.5mm;
+            right: 1mm;
+            bottom: 1mm;
+            border: 0.3px solid rgba(201, 162, 39, 0.15);
+            border-radius: 1.5mm;
+            pointer-events: none;
+            z-index: 0;
         }
 
         /* WATERMARK SEAL */
@@ -299,13 +326,13 @@
 
         .card-type-label {
             font-size: 5.5pt;
-            font-weight: 700;
-            background: transparent;
+            font-weight: 800;
+            background: rgba(13, 27, 42, 0.04);
             color: var(--navy-primary);
-            letter-spacing: 0.5px;
+            letter-spacing: 0.6px;
             text-transform: uppercase;
-            padding: 0.3mm 0 0.3mm 1.2mm;
-            border-left: 1.5px solid var(--gold-bright);
+            padding: 0.4mm 1.2mm 0.4mm 1.4mm;
+            border-left: 2.5px solid var(--gold-bright);
             display: inline-block;
         }
 
@@ -322,7 +349,7 @@
         .photo-box {
             width: 16mm;
             height: 19.5mm;
-            border: 1.5px solid var(--gold-soft);
+            border: 2px solid var(--gold-soft);
             border-radius: 4px;
             background: white;
             flex-shrink: 0;
@@ -393,10 +420,10 @@
 
         /* DIVIDER */
         .divider-gold {
-            height: 0.6px;
-            background: linear-gradient(90deg, transparent, var(--gold-soft), transparent);
-            margin: 0.8mm 0;
-            opacity: 0.5;
+            height: 1px;
+            background: linear-gradient(90deg, var(--gold-soft), var(--gold-bright), var(--gold-soft));
+            margin: 1mm 0;
+            opacity: 0.8;
         }
 
         /* EMPLOYEE SECTION (now inline within logo-block) */
@@ -454,17 +481,17 @@
             position: absolute;
             bottom: 1.8mm;
             right: 1.8mm;
-            width: 15mm;
-            height: 15mm;
+            width: 10mm;
+            height: 10mm;
             border: 1.5px solid var(--gold-soft);
-            border-radius: 4px;
+            border-radius: 3px;
             background: white;
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 2;
-            padding: 1.2mm;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+            padding: 0.6mm;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
         }
 
         .qr-box img {
@@ -478,7 +505,7 @@
             position: absolute;
             bottom: 2mm;
             left: 3mm;
-            right: 15.5mm;
+            right: 12mm;
             font-size: 4pt;
             line-height: 1.25;
             color: var(--text-muted);
@@ -495,6 +522,16 @@
             flex-direction: column;
             position: relative;
             background: linear-gradient(135deg, white 0%, var(--cream-bg) 100%);
+        }
+
+        .card-back::after {
+            content: '';
+            position: absolute;
+            inset: 1mm;
+            border: 0.3px solid rgba(201, 162, 39, 0.12);
+            border-radius: 1.5mm;
+            pointer-events: none;
+            z-index: 0;
         }
 
         /* GHOST IMAGE — semi-transparent greyscale copy of the holder's photo */
@@ -586,15 +623,15 @@
 
         .instructions-badge {
             display: inline-block;
-            background: rgba(26, 54, 93, 0.08);
+            background: rgba(13, 27, 42, 0.1);
             color: var(--navy-primary);
-            border: 0.8px solid rgba(26, 54, 93, 0.25);
-            padding: 0.4mm 0.9mm;
+            border: 1px solid rgba(13, 27, 42, 0.3);
+            padding: 0.4mm 1.2mm;
             border-radius: 10px;
-            font-size: 4.6pt;
-            font-weight: 700;
+            font-size: 4.8pt;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.4px;
+            letter-spacing: 0.5px;
             width: fit-content;
             margin-bottom: 0.4mm;
         }
@@ -736,8 +773,8 @@
             font-size: 4pt;
             line-height: 1.35;
             color: var(--text-muted);
-            border-top: 0.6px solid var(--text-light);
-            border-bottom: 0.6px solid var(--text-light);
+            border-top: 0.8px solid rgba(13, 27, 42, 0.15);
+            border-bottom: 0.8px solid rgba(13, 27, 42, 0.15);
             padding: 0.6mm 0.3mm;
         }
 
@@ -754,8 +791,8 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            background: rgba(201, 162, 39, 0.12);
-            border: 0.3px solid rgba(201, 162, 39, 0.3);
+            background: rgba(13, 27, 42, 0.1);
+            border: 0.3px solid rgba(13, 27, 42, 0.25);
             border-radius: 50%;
             padding: 0.2mm;
         }
@@ -774,8 +811,8 @@
 
         /* FOUND-CARD RETURN BAR */
         .found-bar {
-            background: #fdf3f0;
-            border: 0.8px solid #c0392b;
+            background: rgba(13, 27, 42, 0.05);
+            border: 0.8px solid var(--navy-primary);
             border-radius: 2px;
             padding: 0.5mm 1mm;
             display: flex;
@@ -785,19 +822,30 @@
             margin-top: 0.5mm;
             font-size: 3.8pt;
             line-height: 1.35;
-            color: #7a2c1d;
+            color: var(--navy-primary);
             text-align: center;
         }
 
         .found-bar-icon {
-            font-size: 4.5pt;
+            width: 2.2mm;
+            height: 2.2mm;
             flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .found-bar-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: var(--navy-primary);
         }
 
         .found-bar-text strong {
-            color: #c0392b;
+            color: var(--navy-primary);
             text-transform: uppercase;
             letter-spacing: 0.3px;
+            font-weight: 800;
         }
 
         /* BOTTOM ACCENT BAR */
@@ -806,8 +854,8 @@
             bottom: 0;
             left: 0;
             right: 0;
-            height: 0.8px;
-            background: linear-gradient(90deg, transparent, var(--gold-soft), transparent);
+            height: 1.5px;
+            background: linear-gradient(90deg, var(--navy-primary), var(--gold-soft), var(--navy-primary));
             z-index: 2;
         }
 
@@ -1022,7 +1070,7 @@
                         </div>
                     </div>
                     <div class="found-bar">
-                        <span class="found-bar-icon">⚠</span>
+                        <span class="found-bar-icon"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg></span>
                         <span class="found-bar-text"><strong>Found this card?</strong> Return to: 29 Toyenbee Circular Road (5th Floor), Motijheel C/A, Dhaka-1000, Bangladesh.</span>
                     </div>
                 </div>
