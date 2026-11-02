@@ -10,6 +10,7 @@ use App\Http\Controllers\MoneyReceiptController;
 use App\Http\Controllers\MoneyReceiptVerificationController;
 use App\Http\Controllers\OpenApiController;
 use App\Http\Controllers\PrintCertificateController;
+use App\Http\Controllers\PrintBusinessCardController;
 use App\Http\Controllers\PrintIdCardController;
 use App\Http\Controllers\PrintLetterController;
 use App\Http\Controllers\PrintReportController;
@@ -61,6 +62,9 @@ Route::middleware(['web'])->group(function () {
     Route::get('/print/id-card/{card}', [PrintIdCardController::class, 'show'])
         ->name('print.id-card')
         ->withTrashed();
+
+    Route::get('/print/business-card/{card}', [PrintBusinessCardController::class, 'show'])
+        ->name('print.business-card');
 
     Route::get('/print/report/monthly-issuance', [PrintReportController::class, 'monthlyIssuance'])
         ->name('print.report.monthly');

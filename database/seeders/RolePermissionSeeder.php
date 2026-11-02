@@ -57,6 +57,7 @@ class RolePermissionSeeder extends Seeder
             '*_certificate', '*_any_certificate',
             '*_letter_category', '*_any_letter_category',
             '*_official_letter', '*_any_official_letter',
+            '*_business_card', '*_any_business_card',
             'widget_*',
         ];
     }
@@ -87,6 +88,7 @@ class RolePermissionSeeder extends Seeder
             'view_certificate', 'view_any_certificate',
             'view_letter_category', 'view_any_letter_category',
             'view_official_letter', 'view_any_official_letter',
+            'view_business_card', 'view_any_business_card',
             'widget_*',
         ];
     }
