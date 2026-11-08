@@ -47,9 +47,14 @@ class VCardBuilder
             $lines[] = 'URL;TYPE=WhatsApp:https://wa.me/' . ltrim($cleaned, '+');
         }
 
-        $email = trim($fields['email'] ?? '');
-        if ($email !== '') {
-            $lines[] = 'EMAIL;TYPE=WORK:' . $this->escape($email);
+        $workEmail = trim($fields['work_email'] ?? '');
+        if ($workEmail !== '') {
+            $lines[] = 'EMAIL;TYPE=WORK:' . $this->escape($workEmail);
+        }
+
+        $personalEmail = trim($fields['personal_email'] ?? '');
+        if ($personalEmail !== '') {
+            $lines[] = 'EMAIL;TYPE=HOME:' . $this->escape($personalEmail);
         }
 
         $website = trim($fields['website'] ?? '');

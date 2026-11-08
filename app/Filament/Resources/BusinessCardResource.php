@@ -31,7 +31,7 @@ class BusinessCardResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['full_name', 'company_name', 'email'];
+        return ['full_name', 'company_name', 'work_email', 'personal_email'];
     }
 
     public static function form(Form $form): Form
@@ -56,7 +56,7 @@ class BusinessCardResource extends Resource
                     Forms\Components\TextInput::make('company_name')
                         ->required()
                         ->maxLength(255)
-                        ->default(fn () => config('app.name', 'CHRSD'))
+                        ->default('Centre for Humanitarian Research and Social Development Foundation (CHRSD)')
                         ->placeholder('e.g. CHRSD Foundation'),
                 ]),
 
@@ -78,14 +78,22 @@ class BusinessCardResource extends Resource
                         ->maxLength(32)
                         ->placeholder('+8801700000000'),
 
-                    Forms\Components\TextInput::make('email')
+                    Forms\Components\TextInput::make('work_email')
+                        ->label('Work email')
                         ->email()
                         ->maxLength(255)
                         ->placeholder('name@chrsd.org'),
 
+                    Forms\Components\TextInput::make('personal_email')
+                        ->label('Personal email')
+                        ->email()
+                        ->maxLength(255)
+                        ->placeholder('name@gmail.com'),
+
                     Forms\Components\TextInput::make('website')
                         ->url()
                         ->maxLength(255)
+                        ->default('https://chrsd.org')
                         ->placeholder('https://chrsd.org'),
 
                     Forms\Components\TextInput::make('linkedin')
@@ -145,8 +153,12 @@ class BusinessCardResource extends Resource
                     ->searchable()->toggleable(),
                 Tables\Columns\TextColumn::make('job_title')
                     ->toggleable(),
-                Tables\Columns\TextColumn::make('email')
+                Tables\Columns\TextColumn::make('work_email')
+                    ->label('Work email')
                     ->searchable()->toggleable(),
+                Tables\Columns\TextColumn::make('personal_email')
+                    ->label('Personal email')
+                    ->searchable()->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('mobile')
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('created_at')

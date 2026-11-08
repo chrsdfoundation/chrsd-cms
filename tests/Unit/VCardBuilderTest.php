@@ -37,7 +37,8 @@ class VCardBuilderTest extends TestCase
             'phone' => '+880-2-12345678',
             'mobile' => '+8801700000000',
             'whatsapp' => '+8801700000000',
-            'email' => 'john@chrsd.org',
+            'work_email' => 'john@chrsd.org',
+            'personal_email' => 'john.smith@example.com',
             'website' => 'https://chrsd.org',
             'linkedin' => 'johnsmith',
             'address' => '29 Toyenbee Circular Road, Dhaka',
@@ -50,6 +51,7 @@ class VCardBuilderTest extends TestCase
         $this->assertStringContainsString("TEL;TYPE=CELL:+8801700000000\r\n", $vcard);
         $this->assertStringContainsString("URL;TYPE=WhatsApp:https://wa.me/8801700000000\r\n", $vcard);
         $this->assertStringContainsString("EMAIL;TYPE=WORK:john@chrsd.org\r\n", $vcard);
+        $this->assertStringContainsString("EMAIL;TYPE=HOME:john.smith@example.com\r\n", $vcard);
         $this->assertStringContainsString("URL:https://chrsd.org\r\n", $vcard);
         $this->assertStringContainsString("URL;TYPE=LinkedIn:https://www.linkedin.com/in/johnsmith\r\n", $vcard);
         $this->assertStringContainsString("ADR;TYPE=WORK:;;29 Toyenbee Circular Road\\, Dhaka;;;;\r\n", $vcard);
@@ -64,7 +66,8 @@ class VCardBuilderTest extends TestCase
             'phone' => '',
             'mobile' => '',
             'whatsapp' => '',
-            'email' => '',
+            'work_email' => '',
+            'personal_email' => '',
             'website' => '',
             'linkedin' => '',
             'address' => '',

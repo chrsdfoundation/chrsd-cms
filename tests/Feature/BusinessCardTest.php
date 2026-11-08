@@ -19,7 +19,7 @@ class BusinessCardTest extends TestCase
             'job_title' => 'Program Director',
             'phone' => '+880-2-12345678',
             'mobile' => '+8801700000000',
-            'email' => 'rahim@chrsd.org',
+            'work_email' => 'rahim@chrsd.org',
             'address' => '29 Toyenbee Circular Road (5th Floor), Motijheel C/A, Dhaka-1000, Bangladesh',
         ], $overrides));
     }
@@ -74,7 +74,8 @@ class BusinessCardTest extends TestCase
         $this->assertNull($card->phone);
         $this->assertNull($card->mobile);
         $this->assertNull($card->whatsapp);
-        $this->assertNull($card->email);
+        $this->assertNull($card->work_email);
+        $this->assertNull($card->personal_email);
         $this->assertNull($card->website);
         $this->assertNull($card->linkedin);
         $this->assertNull($card->tagline);
