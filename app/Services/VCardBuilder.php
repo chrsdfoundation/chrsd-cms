@@ -110,11 +110,20 @@ class VCardBuilder
 
     protected function normalizeLinkedIn(string $input): string
     {
-        if (str_starts_with($input, 'http://') || str_starts_with($input, 'https://')) {
+        $input = trim($input);
+
+        if (preg_match('#^https?://#i', $input)) {
             return $input;
         }
 
-        $handle = ltrim($input, '@/');
+        // Bare host, e.g. "www.linkedin.com/in/maramim" or "linkedin.com/company/x":
+        // keep the path and add the scheme, so the profile prefix is not doubled.
+        if (preg_match('#^(?:www\.)?linkedin\.com/(.*)$#i', $input, $matches)) {
+            return 'https://www.linkedin.com/' . ltrim($matches[1], '/');
+        }
+
+        // Plain handle, "@maramim", "/maramim" or "in/maramim".
+        $handle = preg_replace('#^in/#i', '', ltrim($input, '@/'));
 
         return 'https://www.linkedin.com/in/' . $handle;
     }
