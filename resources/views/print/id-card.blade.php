@@ -501,30 +501,6 @@
             letter-spacing: 0.05px;
         }
 
-        /* QR CODE BOX (front) */
-        .qr-box {
-            position: absolute;
-            bottom: 1.5mm;
-            right: 1.5mm;
-            width: 10mm;
-            height: 10mm;
-            border: 2px solid var(--gold-soft);
-            border-radius: 3px;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2;
-            padding: 0.6mm;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
-        }
-
-        .qr-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-
         /* DISCLAIMER */
         .disclaimer {
             position: absolute;
@@ -714,16 +690,16 @@
         }
 
         .qr-container {
-            width: 13mm;
-            height: 13mm;
-            border: 2px solid var(--gold-soft);
-            border-radius: 4px;
+            width: 22mm;
+            height: 22mm;
+            border: 1.5px solid var(--gold-soft);
+            border-radius: 2px;
             background: white;
             display: flex;
             align-items: center;
             justify-content: center;
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
-            padding: 1.2mm;
+            padding: 1.4mm;
         }
 
         .qr-container img {
@@ -915,6 +891,12 @@
 
         @media print {
             .print-section { display: none; }
+
+            /* Blurred shadows and filters make Chrome/Edge rasterise the element at
+               screen resolution in Save as PDF. Removing them keeps all text, rules
+               and the QR code as vector and the photos/seal at source resolution. */
+            .card *, .card { box-shadow: none !important; }
+            .signature-image-box img { filter: none !important; }
         }
     </style>
 </head>
@@ -1000,12 +982,6 @@
                                 <div class="bearer-sig-caption">Bearer's signature</div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="qr-box">
-                        @if($qrUrl)
-                            <img src="{{ $qrUrl }}" alt="QR">
-                        @endif
                     </div>
 
                     <div class="disclaimer">
