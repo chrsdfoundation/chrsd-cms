@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AlignLocalStorageUrlWithHost;
 use App\Http\Middleware\SetCurrentOrganization;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -16,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
+            AlignLocalStorageUrlWithHost::class,
             SetCurrentOrganization::class,
         ]);
 
