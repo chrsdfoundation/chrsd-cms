@@ -160,8 +160,7 @@ class VCardBuilderTest extends TestCase
             'linkedin' => 'www.linkedin.com/in/maramim',
         ]);
 
-        $this->assertContains('URL;TYPE=LinkedIn:https://www.linkedin.com/in/maramim', explode('
-', $vcard));
+        $this->assertContains('URL;TYPE=LinkedIn:https://www.linkedin.com/in/maramim', explode(chr(13) . chr(10), $vcard));
         $this->assertStringNotContainsString('linkedin.com/in/www', $vcard);
     }
 
@@ -172,8 +171,7 @@ class VCardBuilderTest extends TestCase
             'linkedin' => 'linkedin.com/in/maramim',
         ]);
 
-        $this->assertContains('URL;TYPE=LinkedIn:https://www.linkedin.com/in/maramim', explode('
-', $vcard));
+        $this->assertContains('URL;TYPE=LinkedIn:https://www.linkedin.com/in/maramim', explode(chr(13) . chr(10), $vcard));
     }
 
     public function test_linkedin_in_path_and_company_pages_are_normalized(): void
@@ -181,10 +179,8 @@ class VCardBuilderTest extends TestCase
         $inPath = $this->builder->build(['full_name' => 'Test', 'linkedin' => 'in/maramim']);
         $company = $this->builder->build(['full_name' => 'Test', 'linkedin' => 'linkedin.com/company/chrsd']);
 
-        $this->assertContains('URL;TYPE=LinkedIn:https://www.linkedin.com/in/maramim', explode('
-', $inPath));
-        $this->assertContains('URL;TYPE=LinkedIn:https://www.linkedin.com/company/chrsd', explode('
-', $company));
+        $this->assertContains('URL;TYPE=LinkedIn:https://www.linkedin.com/in/maramim', explode(chr(13) . chr(10), $inPath));
+        $this->assertContains('URL;TYPE=LinkedIn:https://www.linkedin.com/company/chrsd', explode(chr(13) . chr(10), $company));
     }
 
     public function test_whatsapp_strips_non_digits(): void
