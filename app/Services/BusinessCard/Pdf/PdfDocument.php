@@ -169,7 +169,7 @@ final class PdfDocument
         foreach ($this->pages as $page) {
             $contentId = $builder->reserve();
             $contentStream = $page->content();
-            $builder->setStream($contentId, '', $contentStream);
+            $builder->setStream($contentId, '', $contentStream, compress: true);
 
             $pageId = $builder->reserve();
             $pageIds[] = $pageId;

@@ -3,6 +3,9 @@
 namespace App\Providers;
 
 use App\Models\PersonalAccessToken;
+use App\Services\BusinessCard\CardLayoutEngine;
+use App\Services\BusinessCard\CardQrCode;
+use App\Services\BusinessCard\CardSpec;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -14,7 +17,12 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        // Executive business card: the spec and the layout engine take scalar settings from config.
+        $this->app->singleton(CardSpec::class, fn () => CardSpec::fromConfig());
+        $this->app->bind(CardLayoutEngine::class, fn ($app) => CardLayoutEngine::fromConfig(
+            $app->make(CardSpec::class),
+            $app->make(CardQrCode::class),
+        ));
     }
 
     public function boot(): void
