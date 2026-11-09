@@ -3,7 +3,10 @@
 namespace App\Models;
 
 use App\Concerns\BelongsToOrganization;
+use App\Enums\BusinessCardStatus;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -33,11 +36,39 @@ class BusinessCard extends Model implements HasMedia
         'tagline',
         'address',
         'include_bleed',
+        // Executive card (structured fields; see docs/business-card/)
+        'person_name',
+        'person_title',
+        'phones',
+        'emails',
+        'address_lines',
+        'linkedin_handle',
+        'qr_profile',
+        'template_key',
+        'template_version',
+        'status',
+        'notes',
     ];
 
     protected $casts = [
         'include_bleed' => 'boolean',
+        'phones' => 'array',
+        'emails' => 'array',
+        'address_lines' => 'array',
+        'status' => BusinessCardStatus::class,
+        'approved_at' => 'datetime',
+        'sent_to_press_at' => 'datetime',
     ];
+
+    public function exports(): HasMany
+    {
+        return $this->hasMany(BusinessCardExport::class);
+    }
+
+    public function approvedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by_id');
+    }
 
     public function registerMediaCollections(): void
     {
