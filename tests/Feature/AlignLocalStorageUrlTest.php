@@ -42,9 +42,12 @@ class AlignLocalStorageUrlTest extends TestCase
 
     public function test_matching_origin_keeps_app_url(): void
     {
+        // Compare with the disk URL as it was before the call: CI and local APP_URL differ.
+        $before = config('filesystems.disks.public.url');
+
         $this->alignFor('local', 'http://localhost:8000', 'http://localhost:8000/admin');
 
-        $this->assertSame('http://localhost:8000/storage', config('filesystems.disks.public.url'));
+        $this->assertSame($before, config('filesystems.disks.public.url'));
     }
 
     public function test_production_never_changes_the_storage_url(): void
@@ -59,8 +62,10 @@ class AlignLocalStorageUrlTest extends TestCase
     public function test_non_loopback_request_host_keeps_app_url(): void
     {
         // Never trust an arbitrary Host header to decide where media URLs point.
+        $before = config('filesystems.disks.public.url');
+
         $this->alignFor('local', 'http://localhost:8000', 'http://attacker.example/admin');
 
-        $this->assertSame('http://localhost:8000/storage', config('filesystems.disks.public.url'));
+        $this->assertSame($before, config('filesystems.disks.public.url'));
     }
 }
