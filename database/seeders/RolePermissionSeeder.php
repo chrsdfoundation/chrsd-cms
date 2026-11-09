@@ -20,6 +20,10 @@ class RolePermissionSeeder extends Seeder
         // super_admin exists and bypasses Gate via Shield's config (see config/filament-shield.php).
         Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
 
+        // Approval for press is a separate authority. super_admin has it through Gate; other roles
+        // get it only when granted. The permission row must exist so it can be granted.
+        Permission::firstOrCreate(['name' => 'approve_business_card', 'guard_name' => 'web']);
+
         $this->syncRole('hr_manager', $this->hrManagerPermissions());
         $this->syncRole('hr_staff', $this->hrStaffPermissions());
         $this->syncRole('viewer', $this->viewerPermissions());

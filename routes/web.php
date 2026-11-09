@@ -1,6 +1,7 @@
 <?php
 
 use App\Filament\Resources\DocumentTemplateResource;
+use App\Http\Controllers\BusinessCardExportController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\CertificateGeneratorController;
 use App\Http\Controllers\CertificateVerificationController;
@@ -128,6 +129,11 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/id-cards/{idCard}/print', function (IdCard $idCard) {
         return view('documents.id_cards.print', compact('idCard'));
     })->name('id-cards.print');
+
+    // Executive business card: exported PDFs on the private disk, gated by the card's view permission.
+    Route::get('/business-cards/exports/{export}', [BusinessCardExportController::class, 'download'])
+        ->whereNumber('export')
+        ->name('business-cards.exports.download');
 });
 
 /*

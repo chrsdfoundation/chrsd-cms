@@ -69,4 +69,10 @@ class BusinessCardPolicy
     {
         return $user->can('reorder_business_card');
     }
+
+    /** Approve the card for press, and mark it sent. Separate from editing. */
+    public function approve(User $user, BusinessCard $businessCard): bool
+    {
+        return $user->can('approve_business_card');
+    }
 }

@@ -1,0 +1,90 @@
+{
+  "_meta": {
+    "name": "CHRSD executive business card, design spec v1",
+    "status": "Derived from the approved preview and the reportlab reference build in /reference. Coordinates are authoritative for layout; colour CMYK values are ESTIMATES that must be proofed.",
+    "coordinate_system": "Design px at 300 dpi, origin = top-left of the TRIM box. 1 px = 0.24 pt. Bleed extends 37.5 px outside trim on every side. y grows downward."
+  },
+  "page": {
+    "trim_in": [3.5, 2.0], "trim_pt": [252, 144], "trim_px": [1050, 600],
+    "bleed_in": 0.125, "bleed_pt": 9, "bleed_px": 37.5,
+    "slug_pt_each_side": 27,
+    "page_pt": [306, 198],
+    "crop_marks": {"offset_pt": 9, "length_pt": 13.5, "weight_pt": 0.25, "colour": "registration (Separation /All)"},
+    "safe_inset_px": 45,
+    "pages": ["front", "back"],
+    "boxes": "Set MediaBox, TrimBox, BleedBox, ArtBox. Trim = (27,27,279,171) pt, Bleed = (18,18,288,180) pt in the reference."
+  },
+  "print_constants": {
+    "min_font_pt": 6.0,
+    "foil_min_line_pt": 0.75,
+    "foil_min_line_note": "Printer's real foil minimum is UNKNOWN. Keep configurable (config/business_card.php).",
+    "qr_min_module_mm": 0.33,
+    "qr_quiet_zone_modules": 4,
+    "max_total_ink_percent": 300,
+    "max_total_ink_note": "Typical convention, confirm with printer."
+  },
+  "colours": {
+    "forest":      {"hex": "#082A1B", "cmyk": [88, 52, 86, 68], "use": "front background (rich dark)"},
+    "forest_tone": {"hex": "#10432D", "cmyk": [88, 45, 86, 52], "use": "front watermark, tone-on-tone"},
+    "pearl":       {"hex": "#F3F5F0", "cmyk": [4, 2, 6, 0],    "use": "back background"},
+    "paper":       {"hex": "#FFFFFF", "cmyk": [0, 0, 0, 0],    "use": "reversed (knock-out) text on dark; QR panel"},
+    "black":       {"hex": "#000000", "cmyk": [0, 0, 0, 100],  "use": "small text and QR modules, overprint ON, single plate"},
+    "slate":       {"hex": "#56635B", "cmyk": [0, 0, 0, 70],   "use": "address and caption text (K only)"},
+    "icon_grey":   {"hex": "#9C9C9C", "cmyk": [0, 0, 0, 65],   "use": "back icons (flat ink, not foil)"},
+    "silver_foil": {"spot_name": "Silver_Foil", "alt_cmyk_for_screen": [10, 6, 6, 30], "overprint": true,
+                    "use": "metallic silver hot-foil. Spot colour, never CMYK."}
+  },
+  "logo_gradient_stops_cmyk_estimates": {
+    "#0d4d26": [93, 45, 100, 50], "#105a2e": [92, 42, 100, 42], "#156c3a": [90, 36, 100, 32],
+    "#258b50": [84, 20, 95, 12],  "#229356": [84, 14, 92, 8],   "#30a060": [78, 10, 88, 4], "#35a866": [75, 5, 85, 0]
+  },
+  "fonts": {
+    "serif_org":  {"family": "Cormorant Garamond", "weight": 600, "file": "CormorantGaramond-SemiBold.ttf"},
+    "sans_regular": {"family": "Montserrat", "weight": 400, "file": "Montserrat-Regular.ttf"},
+    "sans_semibold": {"family": "Montserrat", "weight": 600, "file": "Montserrat-SemiBold.ttf"},
+    "note": "Reference PDFs outline all text. A PHP engine will probably EMBED subset fonts instead. That is acceptable only if fonts are embedded (never substituted)."
+  },
+  "front": {
+    "background": {"fill": "forest", "extent": "full bleed"},
+    "watermark":  {"asset": "logo (single-colour silhouette)", "fill": "forest_tone", "left": 500, "top": 60, "width_px": 800, "clip": "bleed box", "note": "Plain ink. NOT spot UV."},
+    "emblem_foil": {"asset": "logo (single-colour silhouette)", "fill": "silver_foil", "overprint": true, "left": 60, "top": 58, "width_px": 236},
+    "org_name": {"font": "serif_org", "size_px": 44, "x": 340, "first_line_top": 88, "line_height": 1.14, "fill": "paper (knock-out)",
+                 "lines": ["Centre for Humanitarian Research", "and Social Development", "Foundation (CHRSD)"]},
+    "hairline_foil": {"x1": 60, "x2": 990, "centre_y": 337, "thickness_pt": 0.75, "fill": "silver_foil", "overprint": true},
+    "person_name": {"font": "sans_semibold", "size_px": 52, "x": 60, "line_top": 384, "line_height": 1.0, "tracking_em": 0.005, "fill": "paper (knock-out)"},
+    "person_title": {"font": "sans_semibold", "size_px": 28, "x": 60, "line_top": 462, "line_height": 1.0, "tracking_em": 0.14, "fill": "paper (knock-out)"}
+  },
+  "back": {
+    "background": {"fill": "pearl", "extent": "full bleed"},
+    "contact_rows": {
+      "row_height_px": 42, "group_gap_px": 16, "first_row_top": 56,
+      "icon": {"size_px": 30, "x": 60, "top_offset_in_row": 6, "stroke_colour": "icon_grey", "stroke_px_at_30": 2.0},
+      "text": {"font": "sans_regular", "size_px": 28, "x": 108, "line_top_offset_in_row": 7, "line_height": 1.0, "fill": "black", "overprint": true},
+      "groups_in_order": ["phones", "emails", "web"],
+      "reference_row_tops_px": [56, 98, 140, 198, 240, 298, 340],
+      "reference_rows": ["tel +880 2 47122566", "cell +880 1602-778984", "whatsapp +880 1334-383341", "mail info@chrsd.org", "mail ed@chrsd.org", "web chrsd.org", "linkedin linkedin.com/in/maramim"],
+      "note": "Rows are data-driven. The layout engine must reflow tops for any row count and group sizes, then validate against the safe area."
+    },
+    "address_hairline_foil": {"x1": 60, "x2": 640, "centre_y": 421, "thickness_pt": 0.75},
+    "address": {"icon": {"name": "pin", "x": 60, "top": 443}, "font": "sans_regular", "size_px": 25, "x": 108, "first_line_top": 440, "line_height": 1.38, "fill": "slate", "overprint": true,
+                "lines": ["29 Toyenbee Circular Road", "(5th Floor), Motijheel C/A", "Dhaka-1000, Bangladesh"], "max_lines": 3},
+    "vertical_divider_foil": {"centre_x": 673, "y1": 56, "y2": 538, "thickness_pt": 0.75},
+    "emblem_colour": {"asset": "logo (full colour, gradients)", "left": 798, "top": 52, "width_px": 92},
+    "qr_panel": {"outer": {"x1": 698, "y1": 168, "x2": 990, "y2": 460}, "fill": "paper (knock-out of pearl)",
+                 "frame_foil_thickness_pt": 0.75, "qr_origin": [718, 188], "qr_size_px": 252, "qr_fill": "black (K100, overprint)",
+                 "caption": {"text": "Scan to save contact", "font": "sans_regular", "size_px": 25, "line_top": 482, "centred_in": [698, 990], "fill": "slate"}}
+  },
+  "qr": {
+    "type": "vCard 3.0 payload, ECC level M recommended, vector modules only",
+    "profiles": {
+      "compact": {"modules_reference": 61, "fields": ["FN", "N", "ORG(short)", "TITLE", "TEL work", "TEL cell", "EMAIL work", "URL"]},
+      "full":    {"modules_reference": 81, "fields": ["FN", "N", "ORG(full)", "TITLE", "TEL work", "TEL cell", "WhatsApp URL", "EMAIL x2", "URL", "LinkedIn URL", "ADR"]}
+    },
+    "module_size_reference_mm": {"compact_at_252px": 0.35, "full_at_252px": 0.263},
+    "known_bugs_to_never_repeat": [
+      "Doubled LinkedIn path: https://www.linkedin.com/in/www.linkedin.com/in/maramim",
+      "Work email tagged TYPE=HOME",
+      "Work phone in QR not matching the printed office number"
+    ]
+  }
+}
