@@ -94,25 +94,26 @@ class BusinessCardTest extends TestCase
         $this->assertSame('6.5pt', $long->nameFontSize());
     }
 
-    public function test_print_route_returns_view(): void
+    public function test_print_route_renders_executive_front_and_back(): void
     {
-        $card = $this->makeCard();
+        $card = $this->makeCard([
+            'person_name' => 'Mohammad Rahim',
+            'person_title' => 'Program Director',
+            'phones' => [['type' => 'office', 'number_e164' => null, 'display' => '+8801716610665']],
+            'emails' => [['type' => 'work', 'address' => 'rahim@chrsd.org']],
+            'address_lines' => ['29 Toyenbee Circular Road, Dhaka'],
+            'linkedin_handle' => 'mrahim',
+            'qr_profile' => 'compact',
+        ]);
 
         $response = $this->get(route('print.business-card', $card));
 
         $response->assertOk();
         $response->assertViewIs('print.business-card');
-        $response->assertViewHas('card');
-        $response->assertViewHas('qrUrl');
-    }
-
-    public function test_print_route_supports_bleed_mode(): void
-    {
-        $card = $this->makeCard();
-
-        $response = $this->get(route('print.business-card', ['card' => $card, 'mode' => 'bleed']));
-
-        $response->assertOk();
-        $response->assertViewHas('mode', 'bleed');
+        $response->assertViewHas('error', null);
+        $response->assertViewHas('front');
+        $response->assertViewHas('back');
+        $this->assertStringContainsString('<svg', $response->viewData('front'));
+        $this->assertStringContainsString('<svg', $response->viewData('back'));
     }
 }
